@@ -1,0 +1,112 @@
+---
+import path from "node:path";
+import { Image } from "astro:assets";
+import { url } from "../../utils/url-utils";
+
+interface Props {
+  name: string;
+  url: string;
+  description: string;
+  avatar?: string;
+}
+
+const { name, url: linkUrl, description, avatar } = Astro.props;
+
+// 判断头像路径类型
+const isExternal = avatar?.startsWith("http://") || avatar?.startsWith("https://");
+const isPublic = avatar?.startsWith("/");
+const isLocal = avatar && !isExternal && !isPublic;
+
+// 处理本地图片
+let localImage;
+if (isLocal && avatar) {
+  const files = import.meta.glob<ImageMetadata>("../../**", {
+    import: "default",
+  });
+  const normalizedPath = path
+    .normalize(path.join("../../", avatar))
+    .replace(/\\/g, "/");
+
+  const file = files[normalizedPath];
+  if (file) {
+    localImage = await file();
+  } else {
+    console.error(
+      `\n[ERROR] Friend link avatar not found: ${normalizedPath.replace("../../", "src/")}`,
+    );
+  }
+}
+
+// 获取头像 URL
+let avatarSrc = "";
+if (isExternal) {
+  avatarSrc = avatar || "";
+} else if (isPublic) {
+  avatarSrc = url(avatar || "");
+}
+---
+
+<a
+  href={linkUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="group flex items-center gap-4 p-4 rounded-lg bg-[var(--btn-plain-bg-hover)] hover:bg-[var(--btn-card-bg-hover)] active:bg-[var(--btn-card-bg-active)] transition-all duration-200"
+>
+  <div class="w-12 h-12 rounded-full bg-[var(--primary)]/20 flex items-center justify-center flex-shrink-0 relative">
+    {avatar && isLocal && localImage ? (
+      <Image
+        src={localImage}
+        alt={name}
+        class="w-12 h-12 rounded-full object-cover absolute inset-0"
+        loading="lazy"
+      />
+    ) : avatar && avatarSrc ? (
+      <img
+        src={avatarSrc}
+        alt={name}
+        class="w-12 h-12 rounded-full object-cover absolute inset-0"
+        loading="lazy"
+        onerror="this.style.display='none';"
+      />
+    ) : null}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class:list={[
+        "w-6 h-6 text-[var(--primary)]",
+        avatar && ((isLocal && localImage) || (avatarSrc && !isLocal)) ? "hidden" : "",
+      ]}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+      />
+    </svg>
+  </div>
+  <div class="flex-1 min-w-0">
+    <div class="font-bold text-base text-90 group-hover:text-[var(--primary)] transition-colors mb-1 truncate">
+      {name}
+    </div>
+    <div class="text-sm text-neutral-600 dark:text-neutral-400 truncate">
+      {description}
+    </div>
+  </div>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="w-4 h-4 text-neutral-400 group-hover:text-[var(--primary)] transition-colors flex-shrink-0"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+    />
+  </svg>
+</a>
