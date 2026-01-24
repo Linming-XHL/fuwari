@@ -101,25 +101,4 @@ export type ExpressiveCodeConfig = {
 	theme: string;
 };
 
-export type GiscusConfig = {
-	enable: boolean;
-	repo: string;
-	repoId: string;
-	category: string;
-	categoryId: string;
-	mapping: string;
-	reactionsEnabled: string;
-	dataStrict: string;
-	inputPosition: string;
-	theme: string;
-	lang: string;
-	loading: string;
-};
 
-export type ArtalkConfig = {
-	enable: boolean;
-	site: string;
-	server: string;
-	placeholder: string;
-	lang: string;
-};

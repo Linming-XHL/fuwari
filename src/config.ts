@@ -1,7 +1,5 @@
 import type {
 	ExpressiveCodeConfig,
-	GiscusConfig,
-	ArtalkConfig,
 	LicenseConfig,
 	NavBarConfig,
 	ProfileConfig,
@@ -101,25 +99,4 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	theme: "github-dark",
 };
 
-export const giscusConfig: GiscusConfig = {
-	enable: false,
-	repo: "Linming-XHL/fuwari",
-	repoId: "R_kgDOQ_sEMA",
-	category: "Announcements",
-	categoryId: "DIC_kwDOQ_sEMM4C1Wfe",
-	mapping: "title",
-	reactionsEnabled: "1",
-	dataStrict: "0",
-	inputPosition: "top",
-	theme: "preferred_color_scheme",
-	lang: "zh-CN",
-	loading: "lazy",
-};
 
-export const artalkConfig: ArtalkConfig = {
-	enable: true,
-	site: "临明小狐狸の小窝",
-	server: "https://artalk.lmxhl.top", // 正确的 Artalk 服务器地址
-	placeholder: "写下你的评论...",
-	lang: "zh-CN",
-};

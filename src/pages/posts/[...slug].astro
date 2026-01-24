@@ -8,7 +8,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
-import { licenseConfig, artalkConfig } from "src/config";
+import { licenseConfig } from "src/config";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../components/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../config";
@@ -107,37 +107,6 @@ const jsonLd = {
             </Markdown>
 
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
-
-            {artalkConfig.enable && (
-                <div class="artalk mb-6 rounded-xl onload-animation">
-                    <div id="Comments"></div>
-                    <link href="https://unpkg.com/artalk@latest/dist/artalk.css" rel="stylesheet">
-                    <script src="https://unpkg.com/artalk@latest/dist/artalk.js"></script>
-                    <script>
-                        // 使用硬编码值直接初始化，避免变量传递问题
-                        window.onload = function() {
-                            if (typeof Artalk !== 'undefined') {
-                                try {
-                                    Artalk.init({
-                                        el: '#Comments',
-                                        site: '临明小狐狸の小窝',
-                                        server: 'https://artalk.lmxhl.top',
-                                        pageKey: window.location.pathname,
-                                        pageTitle: document.title,
-                                        placeholder: '写下你的评论...',
-                                        lang: 'zh-CN'
-                                    });
-                                    console.log('Artalk initialized successfully');
-                                } catch (error) {
-                                    console.error('Error initializing Artalk:', error);
-                                }
-                            } else {
-                                console.error('Artalk script not loaded');
-                            }
-                        };
-                    </script>
-                </div>
-            )}
 
         </div>
     </div>
