@@ -18,4 +18,12 @@ const currentYear = new Date().getFullYear();
         <a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://astro.build">Astro</a> &
         <a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://github.com/saicaca/fuwari">Fuwari</a>
     </div>
+    <!--运行时间 -->
+    <script type="text/javascript">function runtime(){const t=new Date("08/05/2025 08:00:00"),n=new Date,s=n-t,e=Math.floor(s/1e3),o=Math.floor(e/86400),i=Math.floor(e%86400/3600),a=Math.floor(e%3600/60),r=e%60;document.getElementById("runningtime").innerHTML=`⭐本站已运行: ${o}天${i}小时${a}分${r}秒 ☁️`}setInterval(runtime,1e3)</script>
+    <div class="transition text-50 text-sm text-center hidden md:block"><p id="runningtime"> </p></div>
+
+<!--右侧备案等信息 -->
+    <div class="transition text-50 text-sm max-md:text-right mt-2">
+        <a class="link text-[var(--primary)] font-medium" target="_blank" href={'https://icp.gov.moe/?keyword=20250341'}>萌ICP备20250341号</a>
+    </div>
 </div>

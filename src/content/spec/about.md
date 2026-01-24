@@ -1,9 +1,12 @@
 # About
-This is the demo site for [Fuwari](https://github.com/saicaca/fuwari).
+本站点已**开源**
+::github{repo="Linming-XHL/fuwari"}
 
-::github{repo="saicaca/fuwari"}
+# 临明小狐狸の小窝
 
-> ### Sources of images used in this site
-> - [Unsplash](https://unsplash.com/)
-> - [星と少女](https://www.pixiv.net/artworks/108916539) by [Stella](https://www.pixiv.net/users/93273965)
-> - [Rabbit - v1.4 Showcase](https://civitai.com/posts/586908) by [Rabbit_YourMajesty](https://civitai.com/user/Rabbit_YourMajesty)
+欢迎来到我的个人小站！  
+这里记录着我的点滴日常、技术探索与胡思乱想。  
+自 2025 年 8 月建站以来，这个小窝已陪伴我走过一段温暖旅程。  
+愿你在此稍作停留，与我共享片刻宁静与灵感。
+
+> “愿你在每一个晨曦里，都能遇见更好的自己。”
