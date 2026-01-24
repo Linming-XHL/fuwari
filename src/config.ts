@@ -1,6 +1,7 @@
 import type {
 	ExpressiveCodeConfig,
 	GiscusConfig,
+	ArtalkConfig,
 	LicenseConfig,
 	NavBarConfig,
 	ProfileConfig,
@@ -101,7 +102,7 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 };
 
 export const giscusConfig: GiscusConfig = {
-	enable: true,
+	enable: false,
 	repo: "Linming-XHL/fuwari",
 	repoId: "R_kgDOQ_sEMA",
 	category: "Announcements",
@@ -113,4 +114,12 @@ export const giscusConfig: GiscusConfig = {
 	theme: "preferred_color_scheme",
 	lang: "zh-CN",
 	loading: "lazy",
+};
+
+export const artalkConfig: ArtalkConfig = {
+	enable: true,
+	site: "临明小狐狸の小窝",
+	server: "http://103.38.83.189:23366/", // 这里填写你的 Artalk 服务器地址，例如："https://artalk.example.com"
+	placeholder: "写下你的评论...",
+	lang: "zh-CN",
 };

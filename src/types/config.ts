@@ -115,3 +115,11 @@ export type GiscusConfig = {
 	lang: string;
 	loading: string;
 };
+
+export type ArtalkConfig = {
+	enable: boolean;
+	site: string;
+	server: string;
+	placeholder: string;
+	lang: string;
+};

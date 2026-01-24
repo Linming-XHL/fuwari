@@ -8,7 +8,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
-import { licenseConfig, giscusConfig } from "src/config";
+import { licenseConfig, artalkConfig } from "src/config";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../components/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../config";
@@ -108,23 +108,21 @@ const jsonLd = {
 
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
 
-            {giscusConfig.enable && (
-                <div class="giscus mb-6 rounded-xl onload-animation">
-                    <script src="https://giscus.app/client.js"
-                        data-repo="Linming-XHL/fuwari"
-                        data-repo-id="R_kgDOQ_sEMA"
-                        data-category="Announcements"
-                        data-category-id="DIC_kwDOQ_sEMM4C1Wfe"
-                        data-mapping="title"
-                        data-strict="0"
-                        data-reactions-enabled="1"
-                        data-emit-metadata="0"
-                        data-input-position="top"
-                        data-theme="preferred_color_scheme"
-                        data-lang="zh-CN"
-                        data-loading="lazy"
-                        crossorigin="anonymous"
-                        async>
+            {artalkConfig.enable && (
+                <div class="artalk mb-6 rounded-xl onload-animation">
+                    <div id="Comments"></div>
+                    <script src="https://unpkg.com/artalk@latest/dist/artalk.js"></script>
+                    <link href="https://unpkg.com/artalk@latest/dist/artalk.css" rel="stylesheet">
+                    <script>
+                        Artalk.init({
+                            el: '#Comments',
+                            site: artalkConfig.site,
+                            server: artalkConfig.server,
+                            pageKey: window.location.pathname,
+                            pageTitle: document.title,
+                            placeholder: artalkConfig.placeholder,
+                            lang: artalkConfig.lang
+                        })
                     </script>
                 </div>
             )}
