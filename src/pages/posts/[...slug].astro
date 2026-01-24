@@ -8,7 +8,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
-import { licenseConfig } from "src/config";
+import { licenseConfig, giscusConfig } from "src/config";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../components/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../config";
@@ -107,6 +107,28 @@ const jsonLd = {
             </Markdown>
 
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
+
+            {giscusConfig.enable && (
+                <div class="giscus-container mb-6 rounded-xl onload-animation">
+                    <script
+                        src="https://giscus.app/client.js"
+                        data-repo={giscusConfig.repo}
+                        data-repo-id={giscusConfig.repoId}
+                        data-category={giscusConfig.category}
+                        data-category-id={giscusConfig.categoryId}
+                        data-mapping={giscusConfig.mapping}
+                        data-strict={giscusConfig.dataStrict}
+                        data-reactions-enabled={giscusConfig.reactionsEnabled}
+                        data-emit-metadata="0"
+                        data-input-position={giscusConfig.inputPosition}
+                        data-theme={giscusConfig.theme}
+                        data-lang={giscusConfig.lang}
+                        data-loading={giscusConfig.loading}
+                        crossOrigin="anonymous"
+                        async
+                    ></script>
+                </div>
+            )}
 
         </div>
     </div>
