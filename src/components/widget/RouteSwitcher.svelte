@@ -114,8 +114,18 @@ function checkRouteDelay(url: string) {
 
 // 切换线路
 function switchRoute(url: string) {
+  // 构建新线路的基础URL
+  const newBaseUrl = url;
+  
+  // 获取当前URL的路径和查询参数
+  const currentPath = window.location.pathname;
+  const currentSearch = window.location.search;
+  
+  // 组合新线路URL
+  const newUrl = `${newBaseUrl}${currentPath}${currentSearch}`;
+  
   // 跳转到新线路
-  window.location.href = url;
+  window.location.href = newUrl;
 }
 
 // 初始化时检测所有线路延迟
