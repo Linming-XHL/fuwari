@@ -119,7 +119,7 @@ export const giscusConfig: GiscusConfig = {
 export const artalkConfig: ArtalkConfig = {
 	enable: true,
 	site: "临明小狐狸の小窝",
-	server: "https://artalk.lmxhl.top", // 这里填写你的 Artalk 服务器地址，例如："https://artalk.example.com"
+	server: "https://artalk.lmxhl.top", // 正确的 Artalk 服务器地址
 	placeholder: "写下你的评论...",
 	lang: "zh-CN",
 };

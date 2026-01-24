@@ -113,35 +113,28 @@ const jsonLd = {
                     <div id="Comments"></div>
                     <link href="https://unpkg.com/artalk@latest/dist/artalk.css" rel="stylesheet">
                     <script src="https://unpkg.com/artalk@latest/dist/artalk.js"></script>
-                    <script is:inline define:vars={{ artalkConfig }}>
-                        if (typeof Artalk !== 'undefined') {
-                            // 确保 DOM 加载完成后初始化
-                            if (document.readyState === 'loading') {
-                                document.addEventListener('DOMContentLoaded', function() {
+                    <script>
+                        // 使用硬编码值直接初始化，避免变量传递问题
+                        window.onload = function() {
+                            if (typeof Artalk !== 'undefined') {
+                                try {
                                     Artalk.init({
                                         el: '#Comments',
-                                        site: artalkConfig.site,
-                                        server: artalkConfig.server,
+                                        site: '临明小狐狸の小窝',
+                                        server: 'https://artalk.lmxhl.top',
                                         pageKey: window.location.pathname,
                                         pageTitle: document.title,
-                                        placeholder: artalkConfig.placeholder,
-                                        lang: artalkConfig.lang
+                                        placeholder: '写下你的评论...',
+                                        lang: 'zh-CN'
                                     });
-                                });
+                                    console.log('Artalk initialized successfully');
+                                } catch (error) {
+                                    console.error('Error initializing Artalk:', error);
+                                }
                             } else {
-                                Artalk.init({
-                                    el: '#Comments',
-                                    site: artalkConfig.site,
-                                    server: artalkConfig.server,
-                                    pageKey: window.location.pathname,
-                                    pageTitle: document.title,
-                                    placeholder: artalkConfig.placeholder,
-                                    lang: artalkConfig.lang
-                                });
+                                console.error('Artalk script not loaded');
                             }
-                        } else {
-                            console.error('Artalk script not loaded');
-                        }
+                        };
                     </script>
                 </div>
             )}
