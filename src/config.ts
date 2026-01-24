@@ -106,7 +106,7 @@ export const giscusConfig: GiscusConfig = {
 	repoId: "R_kgDOQ_sEMA",
 	category: "Announcements",
 	categoryId: "DIC_kwDOQ_sEMM4C1Wfe",
-	mapping: "pathname",
+	mapping: "title",
 	reactionsEnabled: "1",
 	dataStrict: "0",
 	inputPosition: "top",
