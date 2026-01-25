@@ -1,0 +1,61 @@
+{
+  "name": "LMXHL Blog",
+  "short_name": "LMXHL",
+  "description": "LMXHL的个人博客",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6495ed",
+  "icons": [
+    {
+      "src": "/favicon/favicon-light-32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon/favicon-light-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon/favicon-light-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon/favicon-dark-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable",
+      "dark": true
+    },
+    {
+      "src": "/favicon/favicon-light-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "首页",
+      "short_name": "首页",
+      "description": "返回首页",
+      "url": "/",
+      "icons": [{ "src": "/favicon/favicon-light-32.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "归档",
+      "short_name": "归档",
+      "description": "查看所有文章",
+      "url": "/archive",
+      "icons": [{ "src": "/favicon/favicon-light-32.png", "sizes": "32x32" }]
+    }
+  ],
+  "categories": ["blog", "personal"],
+  "lang": "zh-CN",
+  "dir": "ltr"
+}

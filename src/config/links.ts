@@ -16,13 +16,13 @@ export const friendLinks: FriendLink[] = [
     description: "永远相信美好的事情即将发生",
     avatar: "https://gitproxy.127731.xyz/https://raw.githubusercontent.com/5ime/img/master/avatar.jpg",
   },
-    {
+  {
     name: "SkonJIYHD",
     url: "https://blog.sikon.top/",
     description: "一个喜欢折腾的小笨蛋",
     avatar: "https://q.qlogo.cn/g?b=qq&nk=2661028830&s=640",
   },
-    {
+  {
     name: "Aicsukの世界",
     url: "https://www.aicsuk.net/",
     description: "一个小小的博客",
@@ -45,6 +45,12 @@ export const friendLinks: FriendLink[] = [
     url: "https://blog.acofork.com/",
     description: "Protect What You Love.",
     avatar: "https://q2.qlogo.cn/headimg_dl?dst_uin=2726730791&spec=0",
+  },
+  {
+    name: "沫泽的小站",
+    url: "https://blog.pmoze.top",
+    description: "一个技术宅的小窝",
+    avatar: "https://blog.pmoze.top/wp-content/uploads/site.png",
   },
   // 在这里添加更多友链
 ];

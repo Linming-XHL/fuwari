@@ -1,7 +1,6 @@
 ---
 import path from "node:path";
 import { Image } from "astro:assets";
-import { url } from "../../utils/url-utils";
 
 interface Props {
   name: string;
@@ -20,20 +19,24 @@ const isLocal = avatar && !isExternal && !isPublic;
 // 处理本地图片
 let localImage;
 if (isLocal && avatar) {
-  const files = import.meta.glob<ImageMetadata>("../../**", {
-    import: "default",
-  });
-  const normalizedPath = path
-    .normalize(path.join("../../", avatar))
-    .replace(/\\/g, "/");
+  try {
+    const files = import.meta.glob<ImageMetadata>("../../**", {
+      import: "default",
+    });
+    const normalizedPath = path
+      .normalize(path.join("../../", avatar))
+      .replace(/\\/g, "/");
 
-  const file = files[normalizedPath];
-  if (file) {
-    localImage = await file();
-  } else {
-    console.error(
-      `\n[ERROR] Friend link avatar not found: ${normalizedPath.replace("../../", "src/")}`,
-    );
+    const file = files[normalizedPath];
+    if (file) {
+      localImage = await file();
+    } else {
+      console.error(
+        `\n[ERROR] Friend link avatar not found: ${normalizedPath.replace("../../", "src/")}`,
+      );
+    }
+  } catch (error) {
+    console.error(`处理本地头像失败: ${avatar}`, error);
   }
 }
 
@@ -42,7 +45,8 @@ let avatarSrc = "";
 if (isExternal) {
   avatarSrc = avatar || "";
 } else if (isPublic) {
-  avatarSrc = url(avatar || "");
+  // 直接使用public路径，避免使用url函数
+  avatarSrc = avatar || "";
 }
 ---
 
