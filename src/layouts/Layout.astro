@@ -177,11 +177,26 @@ const bannerOffset =
 		<script color="100,149,237" opacity='1' zIndex="-1" count="100" src="https://cdn.bootcss.com/canvas-nest.js/2.0.4/canvas-nest.js" type="text/javascript"></script>
 
 		<!-- Pangu.js for Chinese text spacing -->
-		<script src="https://cdn.jsdelivr.net/npm/pangu@5.0.7/dist/pangu.min.js"></script>
 		<script>
-			document.addEventListener("DOMContentLoaded", function() {
-				pangu.spacingPage();
-			});
+			// 只在客户端执行
+			if (typeof window !== 'undefined') {
+				// 动态导入pangu
+				import('pangu').then((module) => {
+					const pangu = module.default || module.pangu || module.Pangu;
+					document.addEventListener("DOMContentLoaded", function() {
+						// 确保pangu对象存在且有spacingPage方法
+						if (pangu && pangu.spacingPage) {
+							pangu.spacingPage();
+						} else if (typeof pangu === 'function') {
+							// 新版本API兼容
+							const panguInstance = new pangu();
+							if (panguInstance.spacingPage) {
+								panguInstance.spacingPage();
+							}
+						}
+					});
+				});
+			}
 		</script>
 	</body>
 </html>
