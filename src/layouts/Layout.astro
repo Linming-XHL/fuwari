@@ -154,17 +154,11 @@ const bannerOffset =
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 		  data-overlayscrollbars-initialize
 	>
-{/* 全局全屏背景图片
+<!-- 全局全屏背景图片 -->
   <div class="fixed inset-0 z-0 w-full h-full overflow-hidden pointer-events-none">
-    <Image
-      src={backgroundImage}
-      alt="Background"
-      class="w-full h-full object-cover"
-      loading="eager"
-    />
-    <div class="absolute inset-0 bg-black/40 dark:bg-black/60"></div>
-  </div>
-*/}
+    <div class="w-full h-full bg-cover bg-center bg-no-repeat" style="background-image: url('https://pic2.zhimg.com/v2-e95f37a39026430fba530e40ef1b98dd_r.jpg');"></div>
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat dark:block hidden" style="background-image: url('https://cdnimg-v2.gamekee.com/wiki2.0/images/829/43637/2022/4/18/960209.jpg');"></div>
+    <div class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
   </div>
 
 		<ConfigCarrier></ConfigCarrier>
@@ -173,8 +167,7 @@ const bannerOffset =
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
 
-		<!-- Canvas Nest Background Effect -->
-		<script color="100,149,237" opacity='1' zIndex="-1" count="100" src="https://cdn.bootcss.com/canvas-nest.js/2.0.4/canvas-nest.js" type="text/javascript"></script>
+
 
 		<!-- PWA Support -->
 		<link rel="manifest" href="/manifest.json">
