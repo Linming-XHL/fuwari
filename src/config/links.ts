@@ -32,7 +32,7 @@ export const friendLinks: FriendLink[] = [
     name: "落憾_EnLtLH",
     url: "https://blog.luoh.org/",
     description: "落人间，破三弦，忆李仙",
-    avatar: "https://cdn2.enltlh.me/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
+    avatar: "https://cdn2.elh.dpdns.org/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
   },
   {
     name: "Geekertao",
