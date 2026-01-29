@@ -1,0 +1,20 @@
+---
+const adLink = "https://www.qimyu.com/";
+const adTitle = "广告";
+const adDescription = "本站由启梦云提供云服务";
+---
+<div class="card-base p-3">
+    <div class="text-sm text-neutral-400 mb-2 flex items-center justify-between">
+        <span>{adTitle}</span>
+        <span class="text-xs">AD</span>
+    </div>
+    <a href={adLink} target="_blank" rel="noopener noreferrer" class="block rounded-lg overflow-hidden group active:scale-95 transition-all">
+        <div class="bg-gradient-to-r from-[rgb(255,222,255)] to-[rgb(224,255,217)] dark:from-[rgb(100,80,100)] dark:to-[rgb(80,100,75)] p-3 rounded-lg flex items-center justify-center">
+            <svg width="100%" height="40" viewBox="0 0 200 40" class="transition-transform duration-300 group-hover:scale-105">
+                <text x="100" y="25" font-size="14" font-weight="bold" text-anchor="middle" fill="currentColor">
+                    {adDescription}
+                </text>
+            </svg>
+        </div>
+    </a>
+</div>
