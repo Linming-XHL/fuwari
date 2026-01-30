@@ -169,46 +169,6 @@ const bannerOffset =
 
 
 
-		<!-- PWA Support -->
-		<link rel="manifest" href="/manifest.json">
-		<meta name="theme-color" content="#6495ed">
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-		<meta name="apple-mobile-web-app-title" content="LMXHL Blog">
-		<link rel="apple-touch-icon" href="/favicon/favicon-light-180.png">
-		<link rel="mask-icon" href="/favicon/favicon-light-192.png" color="#6495ed">
-		
-		<!-- Service Worker Registration -->
-		<script>
-			// 只在客户端注册Service Worker
-			if ('serviceWorker' in navigator) {
-				window.addEventListener('load', function() {
-					navigator.serviceWorker.register('/service-worker.js')
-						.then(function(registration) {
-							console.log('ServiceWorker registration successful with scope: ', registration.scope);
-							
-							// 检测Service Worker更新
-							registration.addEventListener('updatefound', () => {
-								const newWorker = registration.installing;
-								if (newWorker) {
-									newWorker.addEventListener('statechange', () => {
-										if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-											// 新版本已安装，提示用户刷新
-											if (confirm('网站已更新到新版本，是否立即刷新？')) {
-												window.location.reload();
-											}
-										}
-									});
-								}
-							});
-						})
-						.catch(function(error) {
-							console.log('ServiceWorker registration failed: ', error);
-						});
-				});
-			}
-		</script>
-		
 		<!-- Pangu.js for Chinese text spacing -->
 		<script>
 			// 只在客户端执行
