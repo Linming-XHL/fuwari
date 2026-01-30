@@ -29,6 +29,10 @@ export default defineConfig({
 	site: "https://lmxhl.top/",
 	base: "/",
 	trailingSlash: "always",
+	build: {
+		format: 'directory',
+		assets: '_astro',
+	},
 	integrations: [
 		tailwind({
 			nesting: true,

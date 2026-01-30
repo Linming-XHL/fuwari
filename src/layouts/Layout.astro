@@ -186,6 +186,21 @@ const bannerOffset =
 					navigator.serviceWorker.register('/service-worker.js')
 						.then(function(registration) {
 							console.log('ServiceWorker registration successful with scope: ', registration.scope);
+							
+							// 检测Service Worker更新
+							registration.addEventListener('updatefound', () => {
+								const newWorker = registration.installing;
+								if (newWorker) {
+									newWorker.addEventListener('statechange', () => {
+										if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+											// 新版本已安装，提示用户刷新
+											if (confirm('网站已更新到新版本，是否立即刷新？')) {
+												window.location.reload();
+											}
+										}
+									});
+								}
+							});
 						})
 						.catch(function(error) {
 							console.log('ServiceWorker registration failed: ', error);
@@ -200,19 +215,24 @@ const bannerOffset =
 			if (typeof window !== 'undefined') {
 				// 动态导入pangu
 				import('pangu').then((module) => {
-					const pangu = module.default || module.pangu || module.Pangu;
+					const panguModule = module.default || module.pangu;
 					document.addEventListener("DOMContentLoaded", function() {
-						// 确保pangu对象存在且有spacingPage方法
-						if (pangu && pangu.spacingPage) {
-							pangu.spacingPage();
-						} else if (typeof pangu === 'function') {
-							// 新版本API兼容
-							const panguInstance = new pangu();
-							if (panguInstance.spacingPage) {
-								panguInstance.spacingPage();
+						// 确保pangu对象存在
+						if (panguModule) {
+							// 尝试使用spacingPage方法
+							if (typeof (panguModule as any).spacingPage === 'function') {
+								(panguModule as any).spacingPage();
+							} else if (typeof panguModule === 'function') {
+								// 新版本API兼容
+								const panguInstance = (panguModule as any)();
+								if (panguInstance && typeof panguInstance.spacingPage === 'function') {
+									panguInstance.spacingPage();
+								}
 							}
 						}
 					});
+				}).catch((error) => {
+					console.warn('Failed to load pangu.js:', error);
 				});
 			}
 		</script>
