@@ -1,0 +1,55 @@
+---
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { Icon } from "astro-icon/components";
+
+// 赞助列表数据
+const sponsors = [
+  { name: "风", amount: 12, date: "2025-10-01" },
+  { name: "SkonYIJHD", amount: 6, date: "2025-10-15" },
+];
+
+// 计算总赞助金额
+const totalAmount = sponsors.reduce((sum, sponsor) => sum + sponsor.amount, 0);
+---
+<MainGridLayout title="赞助支持" description="感谢您的支持与鼓励">
+  <!-- 赞助卡片区域 -->
+  <div class="w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32 mb-6">
+    <div class="card-base z-10 px-9 py-6 relative w-full">
+      <div class="flex items-center gap-3 mb-6">
+        <Icon name="material-symbols:favorite" class="text-3xl text-[var(--primary)]" />
+        <h2 class="text-2xl font-bold text-[var(--primary)]">赞助支持</h2>
+      </div>
+      
+      <!-- 总赞助金额 -->
+      <div class="mb-8 p-4 bg-[var(--btn-plain-bg-hover)] rounded-lg">
+        <div class="text-center">
+          <div class="text-sm text-neutral-500 mb-1">总赞助金额</div>
+          <div class="text-3xl font-bold text-[var(--primary)]">¥{totalAmount}</div>
+        </div>
+      </div>
+      
+      <!-- 赞助列表 -->
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold mb-4">赞助列表</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {sponsors.map((sponsor, index) => (
+            <div class="flex flex-col p-3 bg-[var(--btn-plain-bg-hover)] rounded-lg">
+              <div class="mb-2">
+                <div class="font-medium">{sponsor.name}</div>
+              </div>
+              <div class="mt-auto text-right font-bold text-[var(--primary)]">¥{sponsor.amount}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <!-- 捐赠方式 -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">扫码捐赠</h3>
+        <div class="flex justify-center">
+          <img src="/images/paywechat.png" alt="收款码" style="width: 45%; max-width: 240px;">
+        </div>
+      </div>
+    </div>
+  </div>
+</MainGridLayout>

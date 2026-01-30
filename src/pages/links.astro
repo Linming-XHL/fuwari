@@ -1,22 +1,22 @@
 ---
 import { getEntry, render } from "astro:content";
-import Markdown from "@components/misc/Markdown.astro";
-import MainGridLayout from "../layouts/MainGridLayout.astro";
 import FriendLinkCard from "@components/misc/FriendLinkCard.astro";
-import { friendLinks } from "../config/links";
+import Markdown from "@components/misc/Markdown.astro";
 import { Icon } from "astro-icon/components";
+import { friendLinks } from "../config/links";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
 
 const linksPost = await getEntry("spec", "links");
 
 if (!linksPost) {
-  throw new Error("Links page content not found");
+	throw new Error("Links page content not found");
 }
 
 const { Content } = await render(linksPost);
 
 // 打印友链数量，用于调试
 console.log(`友链总数: ${friendLinks.length}`);
-console.log('友链列表:', friendLinks);
+console.log("友链列表:", friendLinks);
 ---
 <MainGridLayout title="友链" description="友情链接">
   <!-- 友链卡片区域 -->
@@ -32,7 +32,6 @@ console.log('友链列表:', friendLinks);
           try {
             return (
               <FriendLinkCard
-                key={`${link.url}-${index}`}
                 name={link.name}
                 url={link.url}
                 description={link.description}
