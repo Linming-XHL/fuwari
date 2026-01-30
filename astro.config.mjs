@@ -168,5 +168,10 @@ export default defineConfig({
 				},
 			},
 		},
+		server: {
+			headers: {
+				'Cache-Control': 'public, max-age=1800', // 30分钟
+			},
+		},
 	},
 });
