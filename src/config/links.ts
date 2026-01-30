@@ -52,5 +52,11 @@ export const friendLinks: FriendLink[] = [
     description: "一个技术宅的小窝",
     avatar: "https://blog.pmoze.top/wp-content/uploads/site.png",
   },
+  {
+    name: "Z次元",
+    url: "https://blog.ahzoo.cn",
+    description: "探索代码的世界，追寻生活的诗篇",
+    avatar: "https://ahzoo.cn/img/avatar.webp",
+  },
   // 在这里添加更多友链
 ];
