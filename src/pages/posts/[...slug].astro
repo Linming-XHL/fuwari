@@ -51,14 +51,15 @@ const jsonLd = {
         #comments-container, #RUI-SPEAK, #RUI-SPEAK * {
             overflow: visible !important;
         }
-        #RUI-SPEAK .RS-login-modal {
+        /* 睿言评论登录弹窗样式调整 */
+        #RUI-SPEAK-LOGIN {
             position: fixed !important;
             z-index: 99999 !important;
-            top: 40% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            margin-top: -100px !important;
         }
+        #RUI-SPEAK-LOGIN .RUI-sl-dialog {
+            margin-top: 50px !important;
+        }
+        /* 睿言评论emoji弹窗样式调整 */
         #RUI-SPEAK .RS-emoji-modal {
             position: fixed !important;
             z-index: 99999 !important;
