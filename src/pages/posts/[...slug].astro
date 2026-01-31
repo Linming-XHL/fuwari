@@ -108,6 +108,28 @@ const jsonLd = {
 
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
 
+            <!-- Giscus Comments -->
+            <div class="mt-8 mb-6 rounded-xl onload-animation">
+                <giscus-widget
+                    id="comments"
+                    repo="Linming-XHL/waline"
+                    repoid="R_kgDORAJ7xQ"
+                    category="Announcements"
+                    categoryid="DIC_kwDORAJ7xc4C1q8z"
+                    mapping="pathname"
+                    strict="0"
+                    reactionsenabled="1"
+                    emitmetadata="0"
+                    inputposition="top"
+                    theme="preferred_color_scheme"
+                    lang="zh-CN"
+                    loading="lazy"
+                ></giscus-widget>
+                <script type="module">
+                    import 'giscus';
+                </script>
+            </div>
+
         </div>
     </div>
 
