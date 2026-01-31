@@ -48,17 +48,20 @@ const jsonLd = {
 <MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <style is:inline>
-        #RUI-SPEAK, #RUI-SPEAK * {
+        #comments-container, #RUI-SPEAK, #RUI-SPEAK * {
             overflow: visible !important;
         }
-        #RUI-SPEAK .RS-login-modal, #RUI-SPEAK .RS-emoji-modal {
+        #RUI-SPEAK .RS-login-modal {
             position: fixed !important;
             z-index: 99999 !important;
-        }
-        #RUI-SPEAK .RS-login-modal {
-            top: 50% !important;
+            top: 40% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
+            margin-top: -100px !important;
+        }
+        #RUI-SPEAK .RS-emoji-modal {
+            position: fixed !important;
+            z-index: 99999 !important;
         }
     </style>
     <div class="flex w-full rounded-[var(--radius-large)] relative mb-4">
@@ -127,7 +130,7 @@ const jsonLd = {
 
     <!-- 睿言评论模块 - 独立容器，确保弹窗能完全显示 -->
     <div class="w-full mt-8 mb-6 onload-animation">
-        <div class="card-base rounded-xl p-6 relative z-[9999] overflow-visible">
+        <div id="comments-container" class="card-base rounded-xl p-6 relative z-[9999] overflow-visible">
             <div id="RUI-SPEAK" data-app-id="MTc2OTgzNjEyODUwOTI4" data-app-key="gfHcigCRjriWpq1rKaAn2g==" data-article-no={entry.slug}></div>
             <script src="https://h5.ruispeak.cn/rs.js" type="text/javascript"></script>
         </div>
