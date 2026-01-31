@@ -1,12 +1,7 @@
 ---
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 import { Icon } from "astro-icon/components";
-
-// 赞助列表数据
-const sponsors = [
-  { name: "风", amount: 12, date: "2025-10-01" },
-  { name: "SkonYIJHD", amount: 6, date: "2025-10-15" },
-];
+import { sponsors } from "../config/sponsors";
 
 // 计算总赞助金额
 const totalAmount = sponsors.reduce((sum, sponsor) => sum + sponsor.amount, 0);
