@@ -47,24 +47,7 @@ const jsonLd = {
 ---
 <MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
-    <style is:inline>
-        #comments-container, #RUI-SPEAK, #RUI-SPEAK * {
-            overflow: visible !important;
-        }
-        /* 睿言评论登录弹窗样式调整 */
-        #RUI-SPEAK-LOGIN {
-            position: fixed !important;
-            z-index: 99999 !important;
-        }
-        #RUI-SPEAK-LOGIN .RUI-sl-dialog {
-            margin-top: 50px !important;
-        }
-        /* 睿言评论emoji弹窗样式调整 */
-        #RUI-SPEAK .RS-emoji-modal {
-            position: fixed !important;
-            z-index: 99999 !important;
-        }
-    </style>
+
     <div class="flex w-full rounded-[var(--radius-large)] relative mb-4">
         <div id="post-container" class:list={["card-base px-6 md:px-9 pt-6 pb-4 relative w-full ",
             {}
@@ -129,13 +112,7 @@ const jsonLd = {
         </div>
     </div>
 
-    <!-- 睿言评论模块 - 独立容器，确保弹窗能完全显示 -->
-    <div class="w-full mt-8 mb-6 onload-animation">
-        <div id="comments-container" class="card-base rounded-xl p-6 relative z-[9999] overflow-visible">
-            <div id="RUI-SPEAK" data-app-id="MTc2OTgzNjEyODUwOTI4" data-app-key="gfHcigCRjriWpq1rKaAn2g==" data-article-no={entry.slug}></div>
-            <script src="https://h5.ruispeak.cn/rs.js" type="text/javascript"></script>
-        </div>
-    </div>
+
 
     <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full">
         <a href={entry.data.nextSlug ? getPostUrlBySlug(entry.data.nextSlug) : "#"}
