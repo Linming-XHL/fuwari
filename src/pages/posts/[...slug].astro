@@ -108,12 +108,14 @@ const jsonLd = {
 
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
 
-            <!-- 睿言评论模块 -->
-            <div class="mt-8 mb-6 rounded-xl onload-animation relative z-10 overflow-visible">
-                <div id="RUI-SPEAK" data-app-id="MTc2OTgzNjEyODUwOTI4" data-app-key="gfHcigCRjriWpq1rKaAn2g==" data-article-no={entry.slug}></div>
-                <script src="https://h5.ruispeak.cn/rs.js" type="text/javascript"></script>
-            </div>
+        </div>
+    </div>
 
+    <!-- 睿言评论模块 - 独立容器，确保弹窗能完全显示 -->
+    <div class="w-full mt-8 mb-6 onload-animation">
+        <div class="card-base rounded-xl p-6 relative z-50 overflow-visible">
+            <div id="RUI-SPEAK" data-app-id="MTc2OTgzNjEyODUwOTI4" data-app-key="gfHcigCRjriWpq1rKaAn2g==" data-article-no={entry.slug}></div>
+            <script src="https://h5.ruispeak.cn/rs.js" type="text/javascript"></script>
         </div>
     </div>
 
