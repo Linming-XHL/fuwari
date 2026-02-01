@@ -58,5 +58,11 @@ export const friendLinks: FriendLink[] = [
     description: "探索代码的世界，追寻生活的诗篇",
     avatar: "https://ahzoo.cn/img/avatar.webp",
   },
+    {
+    name: "熊猫の小窝",
+    url: "https://www.pysio.online/",
+    description: "一个温暖的家",
+    avatar: "https://cdn.akaere.online/https://avatars.githubusercontent.com/u/71202163",
+  },
   // 在这里添加更多友链
 ];
