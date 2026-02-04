@@ -5,7 +5,45 @@
 	let startTime = 0;
 	let frames = [];
 	let frameCount = 0;
+	let lyrics = [];
 	const fps = 30;
+
+	// 解析LRC歌词
+	function parseLRC(lrcContent) {
+		const lines = lrcContent.split("\n");
+		const result = [];
+
+		lines.forEach((line) => {
+			const timeMatch = line.match(/\[(\d+):(\d+\.\d+)\]/);
+			if (timeMatch) {
+				const minutes = Number.parseInt(timeMatch[1], 10);
+				const seconds = Number.parseFloat(timeMatch[2]);
+				const timestamp = minutes * 60 + seconds;
+
+				const text = line.replace(/\[(\d+):(\d+\.\d+)\]/, "").trim();
+				if (text) {
+					// 处理双语歌词（带有斜杠的行）
+					const parts = text.split("/");
+					result.push({
+						timestamp,
+						text: parts,
+					});
+				}
+			}
+		});
+
+		return result;
+	}
+
+	// 获取当前时间的歌词
+	function getCurrentLyric(currentTime) {
+		for (let i = lyrics.length - 1; i >= 0; i--) {
+			if (lyrics[i].timestamp <= currentTime) {
+				return lyrics[i];
+			}
+		}
+		return null;
+	}
 
 	window.badapple = async () => {
 		if (isPlaying) {
@@ -23,20 +61,30 @@
 		);
 
 		try {
-			// 先加载字符画数据
-			const framesResponse = await fetch("/badapple/frames.json");
+			// 并行加载所有数据
+			const [framesResponse, audioResponse, lyricResponse] = await Promise.all([
+				fetch("/badapple/frames.json"),
+				fetch("/badapple/audio.mp3"),
+				fetch("/badapple/lyric.lrc"),
+			]);
+
 			frames = await framesResponse.json();
 			frameCount = frames.length;
+
+			const audioBlob = await audioResponse.blob();
+			const audioUrl = URL.createObjectURL(audioBlob);
+
+			const lyricContent = await lyricResponse.text();
+			lyrics = parseLRC(lyricContent);
 
 			console.log(
 				`%cLoaded ${frameCount} frames`,
 				"color: #00ff00; font-size: 14px;",
 			);
-
-			// 加载音频
-			const audioResponse = await fetch("/badapple/audio.mp3");
-			const audioBlob = await audioResponse.blob();
-			const audioUrl = URL.createObjectURL(audioBlob);
+			console.log(
+				`%cLoaded ${lyrics.length} lyrics`,
+				"color: #00ff00; font-size: 14px;",
+			);
 
 			audio = new Audio(audioUrl);
 
@@ -62,18 +110,40 @@
 				// 计算当前应该播放的帧
 				const elapsed = performance.now() - startTime;
 				const currentFrame = Math.floor((elapsed / 1000) * fps);
+				const currentTime = elapsed / 1000;
 
 				if (currentFrame >= frameCount) {
 					stopBadApple();
 					return;
 				}
 
-				// 清除控制台并显示当前帧
+				// 清除控制台
 				console.clear();
+
+				// 显示当前帧
 				console.log(
 					`%c${frames[currentFrame]}`,
 					"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
 				);
+
+				// 显示当前歌词
+				const currentLyric = getCurrentLyric(currentTime);
+				if (currentLyric) {
+					console.log(
+						"%c\n------------------------",
+						"color: #ffff00; font-size: 10px;",
+					);
+					currentLyric.text.forEach((line) => {
+						console.log(
+							`%c${line}`,
+							"color: #ffff00; font-size: 12px; font-weight: bold;",
+						);
+					});
+					console.log(
+						"%c------------------------",
+						"color: #ffff00; font-size: 10px;",
+					);
+				}
 
 				animationFrame = requestAnimationFrame(playFrame);
 			}
