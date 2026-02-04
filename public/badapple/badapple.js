@@ -1,5 +1,6 @@
 (() => {
 	let isPlaying = false;
+	let animationFrame = null;
 	let audio = null;
 	let startTime = 0;
 	let frames = [];
@@ -126,6 +127,10 @@
 			// 上一帧的字符画索引
 			let lastFrameIndex = -1;
 
+			// 双缓冲实现
+			let frameBuffer = null;
+			let lyricBuffer = null;
+
 			function playFrame() {
 				if (!isPlaying) {
 					stopBadApple();
@@ -145,24 +150,41 @@
 				// 获取当前歌词索引
 				const lyricIndex = getCurrentLyricIndex(currentTime);
 
-				// 优化渲染：只在必要时重绘
-				if (currentFrame !== lastFrameIndex || lyricIndex !== lastLyricIndex) {
+				// 更新缓冲区
+				if (currentFrame !== lastFrameIndex) {
+					frameBuffer = frames[currentFrame];
+					lastFrameIndex = currentFrame;
+				}
+
+				if (lyricIndex !== lastLyricIndex) {
+					if (lyricIndex !== -1) {
+						lyricBuffer = {
+							text: lyrics[lyricIndex].text,
+						};
+					} else {
+						lyricBuffer = null;
+					}
+					lastLyricIndex = lyricIndex;
+				}
+
+				// 渲染缓冲区内容
+				if (frameBuffer !== null) {
 					// 清除控制台
 					console.clear();
 
 					// 显示当前帧
 					consolePrint(
-						frames[currentFrame],
+						frameBuffer,
 						"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
 					);
 
 					// 显示当前歌词
-					if (lyricIndex !== -1) {
+					if (lyricBuffer !== null) {
 						consolePrint(
 							"\n------------------------",
 							"color: #4dabf7; font-size: 10px;",
 						);
-						lyrics[lyricIndex].text.forEach((line) => {
+						lyricBuffer.text.forEach((line) => {
 							consolePrint(
 								line,
 								"color: #ffff00; font-size: 12px; font-weight: bold; background-color: #1e88e5; padding: 2px 6px; border-radius: 3px;",
@@ -173,14 +195,10 @@
 							"color: #4dabf7; font-size: 10px;",
 						);
 					}
-
-					// 更新上一帧的索引
-					lastFrameIndex = currentFrame;
-					lastLyricIndex = lyricIndex;
 				}
 
-				// 使用setTimeout代替requestAnimationFrame，减少控制台操作频率
-				setTimeout(playFrame, 1000 / fps);
+				// 使用requestAnimationFrame启用硬件加速
+				animationFrame = requestAnimationFrame(playFrame);
 			}
 
 			// 开始播放
@@ -209,6 +227,10 @@
 
 	function stopBadApple() {
 		isPlaying = false;
+		if (animationFrame) {
+			cancelAnimationFrame(animationFrame);
+			animationFrame = null;
+		}
 		if (audio) {
 			audio.pause();
 			audio.currentTime = 0;
