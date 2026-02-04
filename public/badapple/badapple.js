@@ -166,7 +166,7 @@
 						lyrics[lyricIndex].text.forEach((line) => {
 							consolePrint(
 								line,
-								"color: #4dabf7; font-size: 12px; font-weight: bold;",
+								"color: #ffff00; font-size: 12px; font-weight: bold; background-color: #1e88e5; padding: 2px 6px; border-radius: 3px;",
 							);
 						});
 						consolePrint(
