@@ -72,7 +72,7 @@
 				console.clear();
 				console.log(
 					`%c${frames[currentFrame]}`,
-					"font-family: monospace; white-space: pre; line-height: 1; font-size: 6px; letter-spacing: 0; word-spacing: 0;",
+					"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
 				);
 
 				animationFrame = requestAnimationFrame(playFrame);

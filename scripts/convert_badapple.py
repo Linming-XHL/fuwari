@@ -4,7 +4,7 @@ import os
 
 ASCII_CHARS = '@%#*+=-:. '
 
-def resize_image(image, new_width=120):
+def resize_image(image, new_width=60):
     width, height = image.size
     ratio = height / width
     new_height = int(new_width * ratio * 0.45)  # 调整比例系数，使字符画比例更接近原始视频
@@ -20,7 +20,7 @@ def pixels_to_ascii(image):
         ascii_str += ASCII_CHARS[pixel // 32]
     return ascii_str
 
-def convert_image_to_ascii(image_path, width=120):
+def convert_image_to_ascii(image_path, width=60):
     try:
         image = Image.open(image_path)
         image = resize_image(image, width)
@@ -43,7 +43,7 @@ def process_badapple_frames(source_dir, output_file):
         image_path = os.path.join(source_dir, f'BadApple{frame_num}.jpg')
         
         if os.path.exists(image_path):
-            ascii_frame = convert_image_to_ascii(image_path, width=120)
+            ascii_frame = convert_image_to_ascii(image_path, width=60)
             if ascii_frame:
                 frames.append(ascii_frame)
                 if i % 100 == 0:
@@ -57,6 +57,9 @@ def process_badapple_frames(source_dir, output_file):
         json.dump(frames, f, ensure_ascii=False)
     
     print(f"Saved character art data to {output_file}")
+    # 检查文件大小
+    file_size = os.path.getsize(output_file)
+    print(f"File size: {file_size / (1024 * 1024):.2f} MiB")
 
 if __name__ == '__main__':
     source_directory = r'E:\TaskmgrPlayer\BadApple'
