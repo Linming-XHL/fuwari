@@ -196,6 +196,22 @@ const bannerOffset =
 				});
 			}
 		</script>
+
+		<!-- Bad Apple Easter Egg - 延迟加载，最低优先级 -->
+		<script>
+			if (typeof window !== 'undefined') {
+				window.addEventListener('load', function() {
+					setTimeout(function() {
+						const script = document.createElement('script');
+						script.src = '/badapple/badapple.js';
+						script.defer = true;
+						script.async = true;
+						script.setAttribute('data-priority', 'lowest');
+						document.body.appendChild(script);
+					}, 1000);
+				});
+			}
+		</script>
 	</body>
 </html>
 
