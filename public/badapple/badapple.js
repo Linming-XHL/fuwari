@@ -126,6 +126,10 @@
 			let lastLyricIndex = -1;
 			// 上一帧的字符画索引
 			let lastFrameIndex = -1;
+			// 上次更新帧的时间
+			let lastFrameUpdateTime = 0;
+			// 帧间隔时间
+			const frameInterval = 1000 / fps;
 
 			// 双缓冲实现
 			let frameBuffer = null;
@@ -150,12 +154,17 @@
 				// 获取当前歌词索引
 				const lyricIndex = getCurrentLyricIndex(currentTime);
 
-				// 更新缓冲区
-				if (currentFrame !== lastFrameIndex) {
+				// 只在帧时间到达时更新帧内容
+				if (
+					elapsed - lastFrameUpdateTime >= frameInterval ||
+					currentFrame !== lastFrameIndex
+				) {
 					frameBuffer = frames[currentFrame];
 					lastFrameIndex = currentFrame;
+					lastFrameUpdateTime = elapsed;
 				}
 
+				// 只在歌词变化时更新歌词
 				if (lyricIndex !== lastLyricIndex) {
 					if (lyricIndex !== -1) {
 						lyricBuffer = {
