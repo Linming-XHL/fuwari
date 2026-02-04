@@ -8,34 +8,50 @@
 	let lyrics = [];
 	const fps = 30;
 
-	// 解析LRC歌词
-	function parseLRC(lrcContent) {
-		const lines = lrcContent.split("\n");
+	// 解析ASS歌词
+	function parseASS(assContent) {
+		const lines = assContent.split("\n");
 		const result = [];
+		let inEventsSection = false;
 
 		lines.forEach((line) => {
-			const timeMatch = line.match(/\[(\d+):(\d+)(?:\.(\d+))?\]/);
-			if (timeMatch) {
-				const minutes = Number.parseInt(timeMatch[1], 10);
-				const seconds = Number.parseInt(timeMatch[2], 10);
-				const milliseconds = timeMatch[3]
-					? Number.parseInt(timeMatch[3], 10) / 100
-					: 0;
-				const timestamp = minutes * 60 + seconds + milliseconds;
+			// 检查是否进入Events部分
+			if (line.trim() === "[Events]") {
+				inEventsSection = true;
+				return;
+			}
 
-				const text = line.replace(/\[(\d+):(\d+)(?:\.(\d+))?\]/, "").trim();
-				if (text) {
-					// 处理双语歌词（带有斜杠的行）
-					const parts = text.split("/").map((part) => part.trim());
-					result.push({
-						timestamp,
-						text: parts,
-					});
+			// 只处理Events部分的Dialogue行
+			if (inEventsSection && line.startsWith("Dialogue:")) {
+				// 分割Dialogue行
+				const parts = line.split(",");
+				if (parts.length >= 10) {
+					// 解析开始时间 (格式: 0:00:29.22)
+					const startTimeStr = parts[1];
+					const timeParts = startTimeStr.split(":");
+					if (timeParts.length === 3) {
+						const hours = Number.parseInt(timeParts[0], 10);
+						const minutes = Number.parseInt(timeParts[1], 10);
+						const seconds = Number.parseFloat(timeParts[2]);
+						const timestamp = hours * 3600 + minutes * 60 + seconds;
+
+						// 获取歌词文本（从第9个元素开始，因为前面的元素可能包含逗号）
+						const text = parts.slice(9).join(",").trim();
+						if (text) {
+							// 处理双语歌词（带有斜杠的行）
+							const parts = text.split("/").map((part) => part.trim());
+							result.push({
+								timestamp,
+								text: parts,
+							});
+						}
+					}
 				}
 			}
 		});
 
-		return result;
+		// 按时间戳排序
+		return result.sort((a, b) => a.timestamp - b.timestamp);
 	}
 
 	// 获取当前时间的歌词
@@ -68,7 +84,7 @@
 			const [framesResponse, audioResponse, lyricResponse] = await Promise.all([
 				fetch("/badapple/frames.json"),
 				fetch("/badapple/audio.mp3"),
-				fetch("/badapple/lyric.lrc"),
+				fetch("/badapple/lyric.ass"),
 			]);
 
 			frames = await framesResponse.json();
@@ -78,7 +94,7 @@
 			const audioUrl = URL.createObjectURL(audioBlob);
 
 			const lyricContent = await lyricResponse.text();
-			lyrics = parseLRC(lyricContent);
+			lyrics = parseASS(lyricContent);
 
 			console.log(
 				`%cLoaded ${frameCount} frames`,
