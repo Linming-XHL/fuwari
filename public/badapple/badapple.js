@@ -64,18 +64,24 @@
 		return -1;
 	}
 
+	// 优化版控制台打印（减少闪烁）
+	function consolePrint(content, style) {
+		// 使用单个console.log调用减少控制台操作
+		console.log(`%c${content}`, style);
+	}
+
 	window.badapple = async () => {
 		if (isPlaying) {
-			console.log(
-				"%cBad Apple is already playing!",
+			consolePrint(
+				"Bad Apple is already playing!",
 				"color: #ff0000; font-size: 14px;",
 			);
 			return;
 		}
 
 		isPlaying = true;
-		console.log(
-			"%cLoading Bad Apple data...",
+		consolePrint(
+			"Loading Bad Apple data...",
 			"color: #00ff00; font-size: 14px;",
 		);
 
@@ -96,12 +102,12 @@
 			const lyricContent = await lyricResponse.text();
 			lyrics = parseASS(lyricContent);
 
-			console.log(
-				`%cLoaded ${frameCount} frames`,
+			consolePrint(
+				`Loaded ${frameCount} frames`,
 				"color: #00ff00; font-size: 14px;",
 			);
-			console.log(
-				`%cLoaded ${lyrics.length} lyrics`,
+			consolePrint(
+				`Loaded ${lyrics.length} lyrics`,
 				"color: #00ff00; font-size: 14px;",
 			);
 
@@ -110,10 +116,7 @@
 			// 预加载音频
 			await audio.load();
 
-			console.log(
-				"%cStarting Bad Apple...",
-				"color: #00ff00; font-size: 14px;",
-			);
+			consolePrint("Starting Bad Apple...", "color: #00ff00; font-size: 14px;");
 
 			// 开始播放
 			startTime = performance.now();
@@ -148,26 +151,26 @@
 					// 清除控制台
 					console.clear();
 
-					// 显示当前帧
-					console.log(
-						`%c${frames[currentFrame]}`,
+					// 显示当前帧（使用更优化的方式）
+					consolePrint(
+						frames[currentFrame],
 						"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
 					);
 
 					// 显示当前歌词
 					if (lyricIndex !== -1) {
-						console.log(
-							"%c\n------------------------",
+						consolePrint(
+							"\n------------------------",
 							"color: #4dabf7; font-size: 10px;",
 						);
 						lyrics[lyricIndex].text.forEach((line) => {
-							console.log(
-								`%c${line}`,
+							consolePrint(
+								line,
 								"color: #4dabf7; font-size: 12px; font-weight: bold;",
 							);
 						});
-						console.log(
-							"%c------------------------",
+						consolePrint(
+							"------------------------",
 							"color: #4dabf7; font-size: 10px;",
 						);
 					}
@@ -215,11 +218,11 @@
 			audio = null;
 		}
 		console.clear();
-		console.log("%cBad Apple finished!", "color: #00ff00; font-size: 14px;");
+		consolePrint("Bad Apple finished!", "color: #00ff00; font-size: 14px;");
 	}
 
-	console.log(
-		'%cType "badapple()" in the console to play Bad Apple!',
+	consolePrint(
+		'Type "badapple()" in the console to play Bad Apple!',
 		"color: #00ffff; font-size: 16px; font-weight: bold;",
 	);
 })();
