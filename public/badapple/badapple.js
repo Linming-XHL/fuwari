@@ -14,16 +14,19 @@
 		const result = [];
 
 		lines.forEach((line) => {
-			const timeMatch = line.match(/\[(\d+):(\d+\.\d+)\]/);
+			const timeMatch = line.match(/\[(\d+):(\d+)(?:\.(\d+))?\]/);
 			if (timeMatch) {
 				const minutes = Number.parseInt(timeMatch[1], 10);
-				const seconds = Number.parseFloat(timeMatch[2]);
-				const timestamp = minutes * 60 + seconds;
+				const seconds = Number.parseInt(timeMatch[2], 10);
+				const milliseconds = timeMatch[3]
+					? Number.parseInt(timeMatch[3], 10) / 100
+					: 0;
+				const timestamp = minutes * 60 + seconds + milliseconds;
 
-				const text = line.replace(/\[(\d+):(\d+\.\d+)\]/, "").trim();
+				const text = line.replace(/\[(\d+):(\d+)(?:\.(\d+))?\]/, "").trim();
 				if (text) {
 					// 处理双语歌词（带有斜杠的行）
-					const parts = text.split("/");
+					const parts = text.split("/").map((part) => part.trim());
 					result.push({
 						timestamp,
 						text: parts,
@@ -36,13 +39,13 @@
 	}
 
 	// 获取当前时间的歌词
-	function getCurrentLyric(currentTime) {
+	function getCurrentLyricIndex(currentTime) {
 		for (let i = lyrics.length - 1; i >= 0; i--) {
 			if (lyrics[i].timestamp <= currentTime) {
-				return lyrics[i];
+				return i;
 			}
 		}
-		return null;
+		return -1;
 	}
 
 	window.badapple = async () => {
@@ -100,7 +103,11 @@
 			startTime = performance.now();
 			audio.play();
 
-			// 使用requestAnimationFrame以获得更平滑的动画
+			// 上一帧的歌词索引
+			let lastLyricIndex = -1;
+			// 上一帧的字符画索引
+			let lastFrameIndex = -1;
+
 			function playFrame() {
 				if (!isPlaying) {
 					stopBadApple();
@@ -117,32 +124,41 @@
 					return;
 				}
 
-				// 清除控制台
-				console.clear();
+				// 获取当前歌词索引
+				const lyricIndex = getCurrentLyricIndex(currentTime);
 
-				// 显示当前帧
-				console.log(
-					`%c${frames[currentFrame]}`,
-					"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
-				);
+				// 只有当帧或歌词发生变化时才重绘
+				if (currentFrame !== lastFrameIndex || lyricIndex !== lastLyricIndex) {
+					// 清除控制台
+					console.clear();
 
-				// 显示当前歌词
-				const currentLyric = getCurrentLyric(currentTime);
-				if (currentLyric) {
+					// 显示当前帧
 					console.log(
-						"%c\n------------------------",
-						"color: #ffff00; font-size: 10px;",
+						`%c${frames[currentFrame]}`,
+						"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
 					);
-					currentLyric.text.forEach((line) => {
+
+					// 显示当前歌词
+					if (lyricIndex !== -1) {
 						console.log(
-							`%c${line}`,
-							"color: #ffff00; font-size: 12px; font-weight: bold;",
+							"%c\n------------------------",
+							"color: #4dabf7; font-size: 10px;",
 						);
-					});
-					console.log(
-						"%c------------------------",
-						"color: #ffff00; font-size: 10px;",
-					);
+						lyrics[lyricIndex].text.forEach((line) => {
+							console.log(
+								`%c${line}`,
+								"color: #4dabf7; font-size: 12px; font-weight: bold;",
+							);
+						});
+						console.log(
+							"%c------------------------",
+							"color: #4dabf7; font-size: 10px;",
+						);
+					}
+
+					// 更新上一帧的索引
+					lastFrameIndex = currentFrame;
+					lastLyricIndex = lyricIndex;
 				}
 
 				animationFrame = requestAnimationFrame(playFrame);
