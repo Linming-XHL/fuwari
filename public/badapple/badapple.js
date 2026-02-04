@@ -1,6 +1,5 @@
 (() => {
 	let isPlaying = false;
-	let animationFrame = null;
 	let audio = null;
 	let startTime = 0;
 	let frames = [];
@@ -146,12 +145,12 @@
 				// 获取当前歌词索引
 				const lyricIndex = getCurrentLyricIndex(currentTime);
 
-				// 只有当帧或歌词发生变化时才重绘
+				// 优化渲染：只在必要时重绘
 				if (currentFrame !== lastFrameIndex || lyricIndex !== lastLyricIndex) {
 					// 清除控制台
 					console.clear();
 
-					// 显示当前帧（使用更优化的方式）
+					// 显示当前帧
 					consolePrint(
 						frames[currentFrame],
 						"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
@@ -180,9 +179,11 @@
 					lastLyricIndex = lyricIndex;
 				}
 
-				animationFrame = requestAnimationFrame(playFrame);
+				// 使用setTimeout代替requestAnimationFrame，减少控制台操作频率
+				setTimeout(playFrame, 1000 / fps);
 			}
 
+			// 开始播放
 			playFrame();
 
 			audio.onended = () => {
@@ -208,10 +209,6 @@
 
 	function stopBadApple() {
 		isPlaying = false;
-		if (animationFrame) {
-			cancelAnimationFrame(animationFrame);
-			animationFrame = null;
-		}
 		if (audio) {
 			audio.pause();
 			audio.currentTime = 0;
