@@ -4,10 +4,10 @@ import os
 
 ASCII_CHARS = '@%#*+=-:. '
 
-def resize_image(image, new_width=80):
+def resize_image(image, new_width=120):
     width, height = image.size
     ratio = height / width
-    new_height = int(new_width * ratio * 0.5)
+    new_height = int(new_width * ratio * 0.45)  # 调整比例系数，使字符画比例更接近原始视频
     return image.resize((new_width, new_height))
 
 def grayify(image):
@@ -20,7 +20,7 @@ def pixels_to_ascii(image):
         ascii_str += ASCII_CHARS[pixel // 32]
     return ascii_str
 
-def convert_image_to_ascii(image_path, width=80):
+def convert_image_to_ascii(image_path, width=120):
     try:
         image = Image.open(image_path)
         image = resize_image(image, width)
@@ -43,7 +43,7 @@ def process_badapple_frames(source_dir, output_file):
         image_path = os.path.join(source_dir, f'BadApple{frame_num}.jpg')
         
         if os.path.exists(image_path):
-            ascii_frame = convert_image_to_ascii(image_path, width=80)
+            ascii_frame = convert_image_to_ascii(image_path, width=120)
             if ascii_frame:
                 frames.append(ascii_frame)
                 if i % 100 == 0:
