@@ -135,7 +135,11 @@
 			let frameBuffer = null;
 			let lyricBuffer = null;
 			// 上一次渲染的内容
-			let lastRenderedContent = null;
+			let _lastRenderedContent = null;
+			// 上一次渲染的帧索引
+			let lastRenderedFrameIndex = -1;
+			// 上一次渲染的歌词索引
+			let lastRenderedLyricIndex = -1;
 
 			function playFrame() {
 				if (!isPlaying) {
@@ -180,14 +184,17 @@
 
 				// 渲染缓冲区内容
 				if (frameBuffer !== null) {
-					// 构建渲染内容的唯一标识符
-					let contentId = frameBuffer;
-					if (lyricBuffer !== null) {
-						contentId += `|${lyricBuffer.text.join("|")}`;
-					}
+					// 只有当帧索引或歌词索引真正改变时才渲染
+					if (
+						currentFrame !== lastRenderedFrameIndex ||
+						lyricIndex !== lastRenderedLyricIndex
+					) {
+						// 构建渲染内容的唯一标识符
+						let contentId = frameBuffer;
+						if (lyricBuffer !== null) {
+							contentId += `|${lyricBuffer.text.join("|")}`;
+						}
 
-					// 只有当内容真正改变时才渲染
-					if (contentId !== lastRenderedContent) {
 						// 清除控制台
 						console.clear();
 
@@ -216,7 +223,9 @@
 						}
 
 						// 更新上一次渲染的内容
-						lastRenderedContent = contentId;
+						_lastRenderedContent = contentId;
+						lastRenderedFrameIndex = currentFrame;
+						lastRenderedLyricIndex = lyricIndex;
 					}
 				}
 
