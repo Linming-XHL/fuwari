@@ -134,8 +134,6 @@
 			// 双缓冲实现
 			let frameBuffer = null;
 			let lyricBuffer = null;
-			// 上一次渲染的内容
-			let _lastRenderedContent = null;
 			// 上一次渲染的帧索引
 			let lastRenderedFrameIndex = -1;
 			// 上一次渲染的歌词索引
@@ -189,41 +187,34 @@
 						currentFrame !== lastRenderedFrameIndex ||
 						lyricIndex !== lastRenderedLyricIndex
 					) {
-						// 构建渲染内容的唯一标识符
-						let contentId = frameBuffer;
-						if (lyricBuffer !== null) {
-							contentId += `|${lyricBuffer.text.join("|")}`;
-						}
-
 						// 清除控制台
 						console.clear();
 
-						// 显示当前帧
-						console.log(
-							`%c${frameBuffer}`,
-							"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
-						);
+						// 使用单个console.log调用减少闪烁
+						let combinedOutput = `%c${frameBuffer}`;
+						let combinedStyle =
+							"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;";
 
 						// 显示当前歌词
 						if (lyricBuffer !== null) {
-							console.log(
-								"%c------------------------",
-								"color: #4dabf7; font-size: 10px;",
-							);
+							combinedOutput += "\n%c------------------------\n";
 							lyricBuffer.text.forEach((line) => {
-								console.log(
-									`%c${line}`,
-									"color: #ffff00; font-size: 12px; font-weight: bold; background-color: #1e88e5; padding: 2px 6px; border-radius: 3px;",
-								);
+								combinedOutput += `%c${line}\n`;
 							});
-							console.log(
-								"%c------------------------",
-								"color: #4dabf7; font-size: 10px;",
-							);
+							combinedOutput += "%c------------------------";
+
+							combinedStyle += ",color: #4dabf7; font-size: 10px;";
+							lyricBuffer.text.forEach(() => {
+								combinedStyle +=
+									",color: #ffff00; font-size: 12px; font-weight: bold; background-color: #1e88e5; padding: 2px 6px; border-radius: 3px;";
+							});
+							combinedStyle += ",color: #4dabf7; font-size: 10px;";
 						}
 
-						// 更新上一次渲染的内容
-						_lastRenderedContent = contentId;
+						// 一次性打印所有内容
+						console.log(combinedOutput, ...combinedStyle.split(","));
+
+						// 更新上一次渲染的索引
 						lastRenderedFrameIndex = currentFrame;
 						lastRenderedLyricIndex = lyricIndex;
 					}
