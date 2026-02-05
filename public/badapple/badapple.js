@@ -134,6 +134,8 @@
 			// 双缓冲实现
 			let frameBuffer = null;
 			let lyricBuffer = null;
+			// 上一次渲染的内容
+			let lastRenderedContent = null;
 
 			function playFrame() {
 				if (!isPlaying) {
@@ -178,31 +180,43 @@
 
 				// 渲染缓冲区内容
 				if (frameBuffer !== null) {
-					// 清除控制台
-					console.clear();
-
-					// 显示当前帧
-					consolePrint(
-						frameBuffer,
-						"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
-					);
-
-					// 显示当前歌词
+					// 构建渲染内容的唯一标识符
+					let contentId = frameBuffer;
 					if (lyricBuffer !== null) {
-						consolePrint(
-							"\n------------------------",
-							"color: #4dabf7; font-size: 10px;",
+						contentId += `|${lyricBuffer.text.join("|")}`;
+					}
+
+					// 只有当内容真正改变时才渲染
+					if (contentId !== lastRenderedContent) {
+						// 清除控制台
+						console.clear();
+
+						// 显示当前帧
+						console.log(
+							`%c${frameBuffer}`,
+							"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;",
 						);
-						lyricBuffer.text.forEach((line) => {
-							consolePrint(
-								line,
-								"color: #ffff00; font-size: 12px; font-weight: bold; background-color: #1e88e5; padding: 2px 6px; border-radius: 3px;",
+
+						// 显示当前歌词
+						if (lyricBuffer !== null) {
+							console.log(
+								"%c------------------------",
+								"color: #4dabf7; font-size: 10px;",
 							);
-						});
-						consolePrint(
-							"------------------------",
-							"color: #4dabf7; font-size: 10px;",
-						);
+							lyricBuffer.text.forEach((line) => {
+								console.log(
+									`%c${line}`,
+									"color: #ffff00; font-size: 12px; font-weight: bold; background-color: #1e88e5; padding: 2px 6px; border-radius: 3px;",
+								);
+							});
+							console.log(
+								"%c------------------------",
+								"color: #4dabf7; font-size: 10px;",
+							);
+						}
+
+						// 更新上一次渲染的内容
+						lastRenderedContent = contentId;
 					}
 				}
 
