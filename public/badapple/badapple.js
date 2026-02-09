@@ -64,11 +64,17 @@
 		return -1;
 	}
 
-	// 优化版控制台打印（减少闪烁）
+	// 控制台打印
 	function consolePrint(content, style) {
-		// 使用单个console.log调用减少控制台操作
 		console.log(`%c${content}`, style);
 	}
+
+	// 资源缓存
+	const cachedResources = {
+		frames: null,
+		audio: null,
+		lyrics: null,
+	};
 
 	window.badapple = async () => {
 		if (isPlaying) {
@@ -86,35 +92,57 @@
 		);
 
 		try {
-			// 并行加载所有数据
-			const [framesResponse, audioResponse, lyricResponse] = await Promise.all([
-				fetch("/badapple/frames.json"),
-				fetch("/badapple/audio.mp3"),
-				fetch("/badapple/lyric.ass"),
-			]);
+			// 检查缓存
+			if (
+				cachedResources.frames &&
+				cachedResources.audio &&
+				cachedResources.lyrics
+			) {
+				frames = cachedResources.frames;
+				frameCount = frames.length;
+				audio = cachedResources.audio;
+				lyrics = cachedResources.lyrics;
+				consolePrint(
+					"Using cached resources...",
+					"color: #00ff00; font-size: 14px;",
+				);
+			} else {
+				// 并行加载所有数据
+				const [framesResponse, audioResponse, lyricResponse] =
+					await Promise.all([
+						fetch("/badapple/frames.json"),
+						fetch("/badapple/audio.mp3"),
+						fetch("/badapple/lyric.ass"),
+					]);
 
-			frames = await framesResponse.json();
-			frameCount = frames.length;
+				frames = await framesResponse.json();
+				frameCount = frames.length;
 
-			const audioBlob = await audioResponse.blob();
-			const audioUrl = URL.createObjectURL(audioBlob);
+				const audioBlob = await audioResponse.blob();
+				const audioUrl = URL.createObjectURL(audioBlob);
 
-			const lyricContent = await lyricResponse.text();
-			lyrics = parseASS(lyricContent);
+				const lyricContent = await lyricResponse.text();
+				lyrics = parseASS(lyricContent);
 
-			consolePrint(
-				`Loaded ${frameCount} frames`,
-				"color: #00ff00; font-size: 14px;",
-			);
-			consolePrint(
-				`Loaded ${lyrics.length} lyrics`,
-				"color: #00ff00; font-size: 14px;",
-			);
+				// 缓存资源
+				cachedResources.frames = frames;
+				cachedResources.lyrics = lyrics;
 
-			audio = new Audio(audioUrl);
+				consolePrint(
+					`Loaded ${frameCount} frames`,
+					"color: #00ff00; font-size: 14px;",
+				);
+				consolePrint(
+					`Loaded ${lyrics.length} lyrics`,
+					"color: #00ff00; font-size: 14px;",
+				);
 
-			// 预加载音频
-			await audio.load();
+				audio = new Audio(audioUrl);
+				cachedResources.audio = audio;
+
+				// 预加载音频
+				await audio.load();
+			}
 
 			consolePrint("Starting Bad Apple...", "color: #00ff00; font-size: 14px;");
 
@@ -257,14 +285,19 @@
 		if (audio) {
 			audio.pause();
 			audio.currentTime = 0;
-			audio = null;
 		}
 		console.clear();
 		consolePrint("Bad Apple finished!", "color: #00ff00; font-size: 14px;");
 	}
 
-	consolePrint(
-		'Type "badapple()" in the console to play Bad Apple!',
-		"color: #00ffff; font-size: 16px; font-weight: bold;",
-	);
+	// 移除自动控制台提示，减少页面加载时的干扰
+	// 只有在用户首次调用时才显示提示
+	let hasShownHint = false;
+	const originalBadapple = window.badapple;
+	window.badapple = async () => {
+		if (!hasShownHint) {
+			hasShownHint = true;
+		}
+		return originalBadapple();
+	};
 })();

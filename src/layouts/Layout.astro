@@ -109,8 +109,10 @@ const bannerOffset =
 			/>
 		))}
 
-		<!-- MiSans Font -->
-		<link rel="stylesheet" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap">
+		<!-- MiSans Font - 优化字体加载 -->
+		<link rel="preconnect" href="https://cdn-font.hyperos.mi.com" crossorigin>
+		<link rel="preload" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+		<noscript><link rel="stylesheet" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap"></noscript>
 
 		<!-- Set the theme before the page is rendered to avoid a flash -->
 		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, PAGE_WIDTH, configHue}}>
@@ -154,12 +156,33 @@ const bannerOffset =
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 		  data-overlayscrollbars-initialize
 	>
-<!-- 全局全屏背景图片 -->
+<!-- 全局全屏背景图片 - 优化加载策略 -->
   <div class="fixed inset-0 z-0 w-full h-full overflow-hidden pointer-events-none">
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden" style="background-image: url('https://pic2.zhimg.com/v2-e95f37a39026430fba530e40ef1b98dd_r.jpg');"></div>
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat hidden dark:block" style="background-image: url('https://cdnimg-v2.gamekee.com/wiki2.0/images/829/43637/2022/4/18/960209.jpg');"></div>
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden" id="light-bg"></div>
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat hidden dark:block" id="dark-bg"></div>
     <div class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
   </div>
+  
+  <!-- 背景图片异步加载 -->
+  <script is:inline>
+    if (typeof window !== 'undefined') {
+      // 预加载背景图片
+      const lightBg = new Image();
+      const darkBg = new Image();
+      
+      lightBg.onload = function() {
+        document.getElementById('light-bg').style.backgroundImage = "url('https://pic2.zhimg.com/v2-e95f37a39026430fba530e40ef1b98dd_r.jpg')";
+      };
+      
+      darkBg.onload = function() {
+        document.getElementById('dark-bg').style.backgroundImage = "url('https://cdnimg-v2.gamekee.com/wiki2.0/images/829/43637/2022/4/18/960209.jpg')";
+      };
+      
+      // 开始加载图片
+      lightBg.src = 'https://pic2.zhimg.com/v2-e95f37a39026430fba530e40ef1b98dd_r.jpg';
+      darkBg.src = 'https://cdnimg-v2.gamekee.com/wiki2.0/images/829/43637/2022/4/18/960209.jpg';
+    }
+  </script>
 
 		<ConfigCarrier></ConfigCarrier>
 		<slot />
@@ -169,8 +192,8 @@ const bannerOffset =
 
 
 
-		<!-- Pangu.js for Chinese text spacing -->
-		<script>
+		<!-- Pangu.js for Chinese text spacing - 优化加载 -->
+		<script defer>
 			// 只在客户端执行
 			if (typeof window !== 'undefined') {
 				// 动态导入pangu
@@ -197,11 +220,22 @@ const bannerOffset =
 			}
 		</script>
 
-		<!-- Ruffle Flash Emulator - 全局加载以支持Flash内容 -->
-		<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+		<!-- Ruffle Flash Emulator - 按需加载 -->
+		<script defer>
+			if (typeof window !== 'undefined') {
+				// 检查页面是否包含Flash内容
+				const hasFlashContent = document.querySelector('embed[type="application/x-shockwave-flash"], object[type="application/x-shockwave-flash"]');
+				if (hasFlashContent) {
+					// 动态加载Ruffle
+					const script = document.createElement('script');
+					script.src = 'https://unpkg.com/@ruffle-rs/ruffle';
+					document.body.appendChild(script);
+				}
+			}
+		</script>
 
 		<!-- Bad Apple Easter Egg - 延迟加载，最低优先级 -->
-		<script>
+		<script defer>
 			if (typeof window !== 'undefined') {
 				window.addEventListener('load', function() {
 					setTimeout(function() {
@@ -211,7 +245,7 @@ const bannerOffset =
 						script.async = true;
 						script.setAttribute('data-priority', 'lowest');
 						document.body.appendChild(script);
-					}, 1000);
+					}, 2000);
 				});
 			}
 		</script>
@@ -253,7 +287,7 @@ const bannerOffset =
 }
 </style>
 
-<script>
+<script defer>
 import 'overlayscrollbars/overlayscrollbars.css';
 import {
 	OverlayScrollbars,
@@ -563,7 +597,7 @@ window.onresize = () => {
 
 </script>
 
-<script>
+<script defer>
 import PhotoSwipeLightbox from "photoswipe/lightbox"
 import "photoswipe/style.css"
 

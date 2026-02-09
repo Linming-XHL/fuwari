@@ -33,6 +33,8 @@ export default defineConfig({
 	build: {
 		format: "directory",
 		assets: "_astro",
+		minify: true,
+		sourcemap: false,
 	},
 	integrations: [
 		tailwind({
@@ -174,11 +176,22 @@ export default defineConfig({
 					warn(warning);
 				},
 			},
+			minify: "terser",
+			terserOptions: {
+				compress: {
+					drop_console: true,
+					drop_debugger: true,
+				},
+			},
+			cssCodeSplit: true,
+			cssMinify: true,
+			chunkSizeWarningLimit: 1000,
+			assetsInlineLimit: 4096,
 		},
 		server: {
 			headers: {
 				"Cache-Control": "public, max-age=1800", // 30分钟
 			},
 		},
-	},
+	}
 });
