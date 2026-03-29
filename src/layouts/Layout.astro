@@ -1,6 +1,5 @@
 ---
 
-
 // import { Image } from "astro:assets";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import { profileConfig, siteConfig } from "@/config";
@@ -158,29 +157,22 @@ const bannerOffset =
 	>
 <!-- 全局全屏背景图片 - 优化加载策略 -->
   <div class="fixed inset-0 z-0 w-full h-full overflow-hidden pointer-events-none">
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden" id="light-bg"></div>
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat hidden dark:block" id="dark-bg"></div>
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" id="bg-image"></div>
     <div class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
   </div>
   
-  <!-- 背景图片异步加载 -->
-  <script is:inline>
+  <!-- 背景图片异步加载 - 最低优先级 -->
+  <script defer>
     if (typeof window !== 'undefined') {
-      // 预加载背景图片
-      const lightBg = new Image();
-      const darkBg = new Image();
-      
-      lightBg.onload = function() {
-        document.getElementById('light-bg').style.backgroundImage = "url('https://pic2.zhimg.com/v2-e95f37a39026430fba530e40ef1b98dd_r.jpg')";
-      };
-      
-      darkBg.onload = function() {
-        document.getElementById('dark-bg').style.backgroundImage = "url('https://cdnimg-v2.gamekee.com/wiki2.0/images/829/43637/2022/4/18/960209.jpg')";
-      };
-      
-      // 开始加载图片
-      lightBg.src = 'https://pic2.zhimg.com/v2-e95f37a39026430fba530e40ef1b98dd_r.jpg';
-      darkBg.src = 'https://cdnimg-v2.gamekee.com/wiki2.0/images/829/43637/2022/4/18/960209.jpg';
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const bgImage = new Image();
+          bgImage.onload = function() {
+            document.getElementById('bg-image').style.backgroundImage = "url('https://img.cdn1.vip/i/69c8eb87dd07b_1774775175.webp')";
+          };
+          bgImage.src = 'https://img.cdn1.vip/i/69c8eb87dd07b_1774775175.webp';
+        }, 1000);
+      });
     }
   </script>
 
@@ -327,12 +319,12 @@ function disableAnimation() {
 	css.appendChild(
 		document.createTextNode(
 			`*{
-              -webkit-transition:none!important;
-              -moz-transition:none!important;
-              -o-transition:none!important;
-              -ms-transition:none!important;
-              transition:none!important
-              }`
+			  -webkit-transition:none!important;
+			  -moz-transition:none!important;
+			  -o-transition:none!important;
+			  -ms-transition:none!important;
+			  transition:none!important
+			  }`
 		)
 	)
 	document.head.appendChild(css)
