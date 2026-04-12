@@ -108,10 +108,14 @@ const bannerOffset =
 			/>
 		))}
 
+		<!-- 关键资源预加载 -->
 		<!-- MiSans Font - 优化字体加载 -->
 		<link rel="preconnect" href="https://cdn-font.hyperos.mi.com" crossorigin>
 		<link rel="preload" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 		<noscript><link rel="stylesheet" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap"></noscript>
+		
+		<!-- 预加载关键JavaScript -->
+		<link rel="preload" href="/badapple/badapple.js" as="script" fetchpriority="low">
 
 		<!-- Set the theme before the page is rendered to avoid a flash -->
 		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, PAGE_WIDTH, configHue}}>
@@ -221,6 +225,8 @@ const bannerOffset =
 					// 动态加载Ruffle
 					const script = document.createElement('script');
 					script.src = 'https://unpkg.com/@ruffle-rs/ruffle';
+					script.defer = true;
+					script.async = true;
 					document.body.appendChild(script);
 				}
 			}

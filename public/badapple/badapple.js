@@ -107,187 +107,199 @@
 					"color: #00ff00; font-size: 14px;",
 				);
 			} else {
-				// 并行加载所有数据
-				const [framesResponse, audioResponse, lyricResponse] =
-					await Promise.all([
-						fetch("/badapple/frames.json"),
-						fetch("/badapple/audio.mp3"),
-						fetch("/badapple/lyric.ass"),
-					]);
-
-				frames = await framesResponse.json();
-				frameCount = frames.length;
-
-				const audioBlob = await audioResponse.blob();
-				const audioUrl = URL.createObjectURL(audioBlob);
-
-				const lyricContent = await lyricResponse.text();
-				lyrics = parseASS(lyricContent);
-
-				// 缓存资源
-				cachedResources.frames = frames;
-				cachedResources.lyrics = lyrics;
-
+				// 分批加载数据，先
 				consolePrint(
-					`Loaded ${frameCount} frames`,
-					"color: #00ff00; font-size: 14px;",
+					"Loading lyrics..."
+					"color: #00ff00; font-size: 14px
 				);
+				
+				// 先
+
+				const lyricContent = await lyricRespo
+				lyrics = parseASS(lyricCont
+
 				consolePrint(
 					`Loaded ${lyrics.length} lyrics`,
-					"color: #00ff00; font-size: 14px;",
+
 				);
 
-				audio = new Audio(audioUrl);
-				cachedResources.audio = audio;
+
+				console
+					"Loading audio...",
+					"color: #00ff00; font-size: 14p
+
+				const audioRe
+				const audioBlob = await audioRe
+				const audioUrl = URL.createObjectURL
+				au
+				cachedResourc
+				consolePrint(
+					"Loaded audio",
+					"
+
+
+				// 最后加载大的 frames.json
+
+					"Loadin
+					"color: #00ff00; f
+				
+
+				frames = await framesResponse.json();
+
+				cached
+				consolePrint(
+					`Loaded ${f
+
+				);
 
 				// 预加载音频
 				await audio.load();
 			}
 
-			consolePrint("Starting Bad Apple...", "color: #00ff00; font-size: 14px;");
+			consoleP
 
-			// 开始播放
-			startTime = performance.now();
+
+			startTim
 			audio.play();
 
 			// 上一帧的歌词索引
 			let lastLyricIndex = -1;
 			// 上一帧的字符画索引
 			let lastFrameIndex = -1;
-			// 上次更新帧的时间
-			let lastFrameUpdateTime = 0;
-			// 帧间隔时间
-			const frameInterval = 1000 / fps;
 
-			// 双缓冲实现
-			let frameBuffer = null;
-			let lyricBuffer = null;
+			let lastFrameUpdateTim
+			// 帧间隔时间
+			const frameInterv
+
+			//
+
+			let lyricBuffe
 			// 上一次渲染的帧索引
 			let lastRenderedFrameIndex = -1;
 			// 上一次渲染的歌词索引
-			let lastRenderedLyricIndex = -1;
 
-			function playFrame() {
-				if (!isPlaying) {
-					stopBadApple();
-					return;
+
+			function playFram
+				if (!isP
+					
+
 				}
 
-				// 计算当前应该播放的帧
-				const elapsed = performance.now() - startTime;
-				const currentFrame = Math.floor((elapsed / 1000) * fps);
+
+				const elapsed = 
+				cons
 				const currentTime = elapsed / 1000;
 
-				if (currentFrame >= frameCount) {
+				if 
 					stopBadApple();
 					return;
 				}
 
-				// 获取当前歌词索引
-				const lyricIndex = getCurrentLyricIndex(currentTime);
+
+				const lyricInd
 
 				// 只在帧时间到达时更新帧内容
 				if (
-					elapsed - lastFrameUpdateTime >= frameInterval ||
-					currentFrame !== lastFrameIndex
+					elapsed - lastFrameUpdateTime >=
+					cur
 				) {
-					frameBuffer = frames[currentFrame];
-					lastFrameIndex = currentFrame;
-					lastFrameUpdateTime = elapsed;
+					frameBuffer = frames
+					l
+					lastFrameUpdateTime = elapse
 				}
 
-				// 只在歌词变化时更新歌词
-				if (lyricIndex !== lastLyricIndex) {
-					if (lyricIndex !== -1) {
-						lyricBuffer = {
+				// 只在歌词变化时
+				if (lyricIndex !== lastLyri
+					if (lyricIndex !== -1)
+						lyr
 							text: lyrics[lyricIndex].text,
 						};
-					} else {
-						lyricBuffer = null;
+					} e
+						lyricBuf
 					}
-					lastLyricIndex = lyricIndex;
+
 				}
 
 				// 渲染缓冲区内容
 				if (frameBuffer !== null) {
-					// 只有当帧索引或歌词索引真正改变时才渲染
+
 					if (
-						currentFrame !== lastRenderedFrameIndex ||
+						currentFrame !== lastRender
 						lyricIndex !== lastRenderedLyricIndex
 					) {
 						// 清除控制台
-						console.clear();
+						cons
 
-						// 使用单个console.log调用减少闪烁
+
 						let combinedOutput = `%c${frameBuffer}`;
 						let combinedStyle =
-							"font-family: monospace; white-space: pre; line-height: 1; font-size: 10px; letter-spacing: 0; word-spacing: 0;";
+							"font-family: mon
 
-						// 显示当前歌词
+						// 显
 						if (lyricBuffer !== null) {
-							combinedOutput += "\n%c------------------------\n";
-							lyricBuffer.text.forEach((line) => {
-								combinedOutput += `%c${line}\n`;
-							});
-							combinedOutput += "%c------------------------";
+							
 
-							combinedStyle += ",color: #4dabf7; font-size: 10px;";
-							lyricBuffer.text.forEach(() => {
-								combinedStyle +=
-									",color: #ffff00; font-size: 12px; font-weight: bold; background-color: #1e88e5; padding: 2px 6px; border-radius: 3px;";
+								combinedOu
 							});
-							combinedStyle += ",color: #4dabf7; font-size: 10px;";
+
+
+							combinedStyle += ",color: #4dabf7; fo
+							lyricBuffer.text.forEach(() => {
+						
+					
+
+							combinedStyle += ",color: #4d
 						}
 
-						// 一次性打印所有内容
-						console.log(combinedOutput, ...combinedStyle.split(","));
 
-						// 更新上一次渲染的索引
-						lastRenderedFrameIndex = currentFrame;
-						lastRenderedLyricIndex = lyricIndex;
-					}
-				}
+						cons
 
-				// 使用requestAnimationFrame启用硬件加速
-				animationFrame = requestAnimationFrame(playFrame);
+
+						lastRenderedFrameInd
+						lastRenderedL
+					
+
+
+				// 使用requestAn
+				animationFrame = r
 			}
 
-			// 开始播放
-			playFrame();
+			// 
+			pl
 
-			audio.onended = () => {
+			audio.onended 
 				stopBadApple();
 			};
 
-			audio.onerror = (error) => {
+			au
 				console.error(
-					"%cAudio error:",
-					"color: #ff0000; font-size: 14px;",
-					error,
+			
+			
+
 				);
 			};
 		} catch (error) {
 			console.error(
-				"%cFailed to load Bad Apple:",
-				"color: #ff0000; font-size: 14px;",
+				"%cFailed to load Bad
+			
 				error,
 			);
 			stopBadApple();
 		}
 	};
 
-	function stopBadApple() {
-		isPlaying = false;
+	f
+
 		if (animationFrame) {
-			cancelAnimationFrame(animationFrame);
+			cancelAnimationF
 			animationFrame = null;
 		}
 		if (audio) {
 			audio.pause();
-			audio.currentTime = 0;
+			audio.currentTime = 
 		}
 		console.clear();
-		consolePrint("Bad Apple finished!", "color: #00ff00; font-size: 14px;");
+		c
 	}
 
 	// 移除自动控制台提示，减少页面加载时的干扰
