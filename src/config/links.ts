@@ -42,7 +42,7 @@ export const friendLinks: FriendLink[] = [
   },
   {
     name: "AcoFork Blog",
-    url: "https://blog.acofork.com/",
+    url: "https://2x.nz",
     description: "Protect What You Love.",
     avatar: "https://q2.qlogo.cn/headimg_dl?dst_uin=2726730791&spec=0",
   },
@@ -59,10 +59,10 @@ export const friendLinks: FriendLink[] = [
     avatar: "https://ahzoo.cn/img/avatar.webp",
   },
     {
-    name: "熊猫の小窝",
-    url: "https://www.pysio.online/",
-    description: "一个温暖的家",
-    avatar: "https://cdn.akaere.online/https://avatars.githubusercontent.com/u/71202163",
+    name: "ZAKOFLARE NETWORK",
+    url: "https://cloud.millenniumic.cn/",
+    description: "面向全平台与低性能服务端提供免费开源可靠的解决方案",
+    avatar: "https://www.zakoflare.com/CN/favicon.ico",
   },
   // 在这里添加更多友链
 ];

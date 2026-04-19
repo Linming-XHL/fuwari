@@ -1,6 +1,5 @@
 ---
 
-
 // import { Image } from "astro:assets";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import { profileConfig, siteConfig } from "@/config";
@@ -74,7 +73,6 @@ const bannerOffset =
 
 <!DOCTYPE html>
 <html lang={siteLang} class="bg-[var(--page-bg)] transition text-[14px] md:text-[16px]"
-	  data-overlayscrollbars-initialize
 >
 	<head>
 
@@ -153,34 +151,27 @@ const bannerOffset =
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
 
 	</head>
-	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
-		  data-overlayscrollbars-initialize
+	<body class="min-h-screen h-full transition" style="overflow-y: auto !important; position: relative;"
+		  class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 	>
 <!-- 全局全屏背景图片 - 优化加载策略 -->
   <div class="fixed inset-0 z-0 w-full h-full overflow-hidden pointer-events-none">
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden" id="light-bg"></div>
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat hidden dark:block" id="dark-bg"></div>
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" id="bg-image"></div>
     <div class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
   </div>
-  
-  <!-- 背景图片异步加载 -->
-  <script is:inline>
+
+  <!-- 背景图片异步加载 - 最低优先级 -->
+  <script defer>
     if (typeof window !== 'undefined') {
-      // 预加载背景图片
-      const lightBg = new Image();
-      const darkBg = new Image();
-      
-      lightBg.onload = function() {
-        document.getElementById('light-bg').style.backgroundImage = "url('https://pic2.zhimg.com/v2-e95f37a39026430fba530e40ef1b98dd_r.jpg')";
-      };
-      
-      darkBg.onload = function() {
-        document.getElementById('dark-bg').style.backgroundImage = "url('https://cdnimg-v2.gamekee.com/wiki2.0/images/829/43637/2022/4/18/960209.jpg')";
-      };
-      
-      // 开始加载图片
-      lightBg.src = 'https://pic2.zhimg.com/v2-e95f37a39026430fba530e40ef1b98dd_r.jpg';
-      darkBg.src = 'https://cdnimg-v2.gamekee.com/wiki2.0/images/829/43637/2022/4/18/960209.jpg';
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const bgImage = new Image();
+          bgImage.onload = function() {
+            document.getElementById('bg-image').style.backgroundImage = "url('https://img.cdn1.vip/i/69c8eb87dd07b_1774775175.webp')";
+          };
+          bgImage.src = 'https://img.cdn1.vip/i/69c8eb87dd07b_1774775175.webp';
+        }, 1000);
+      });
     }
   </script>
 
@@ -203,11 +194,11 @@ const bannerOffset =
 						// 确保pangu对象存在
 						if (panguModule) {
 							// 尝试使用spacingPage方法
-							if (typeof (panguModule as any).spacingPage === 'function') {
-								(panguModule as any).spacingPage();
+							if (typeof panguModule.spacingPage === 'function') {
+								panguModule.spacingPage();
 							} else if (typeof panguModule === 'function') {
 								// 新版本API兼容
-								const panguInstance = (panguModule as any)();
+								const panguInstance = panguModule();
 								if (panguInstance && typeof panguInstance.spacingPage === 'function') {
 									panguInstance.spacingPage();
 								}
@@ -229,6 +220,8 @@ const bannerOffset =
 					// 动态加载Ruffle
 					const script = document.createElement('script');
 					script.src = 'https://unpkg.com/@ruffle-rs/ruffle';
+					script.defer = true;
+					script.async = true;
 					document.body.appendChild(script);
 				}
 			}
@@ -288,13 +281,6 @@ const bannerOffset =
 </style>
 
 <script defer>
-import 'overlayscrollbars/overlayscrollbars.css';
-import {
-	OverlayScrollbars,
-	// ScrollbarsHidingPlugin,
-	// SizeObserverPlugin,
-	// ClickScrollPlugin
-} from 'overlayscrollbars';
 import {getHue, getStoredTheme, setHue, setTheme} from "../utils/setting-utils";
 import {pathsEqual, url} from "../utils/url-utils";
 import {
@@ -305,19 +291,6 @@ import {
 } from "../constants/constants";
 import { siteConfig } from '../config';
 
-/* Preload fonts */
-// (async function() {
-// 	try {
-// 		await Promise.all([
-// 			document.fonts.load("400 1em Roboto"),
-// 			document.fonts.load("700 1em Roboto"),
-// 		]);
-// 		document.body.classList.remove("hidden");
-// 	} catch (error) {
-// 		console.log("Failed to load fonts:", error);
-// 	}
-// })();
-
 /* TODO This is a temporary solution for style flicker issue when the transition is activated */
 /* issue link: https://github.com/withastro/astro/issues/8711, the solution get from here too */
 /* update: fixed in Astro 3.2.4 */
@@ -327,12 +300,12 @@ function disableAnimation() {
 	css.appendChild(
 		document.createTextNode(
 			`*{
-              -webkit-transition:none!important;
-              -moz-transition:none!important;
-              -o-transition:none!important;
-              -ms-transition:none!important;
-              transition:none!important
-              }`
+			  -webkit-transition:none!important;
+			  -moz-transition:none!important;
+			  -o-transition:none!important;
+			  -ms-transition:none!important;
+			  transition:none!important
+			  }`
 		)
 	)
 	document.head.appendChild(css)
@@ -379,71 +352,6 @@ function loadHue() {
 	setHue(getHue())
 }
 
-function initCustomScrollbar() {
-	const bodyElement = document.querySelector('body');
-	if (!bodyElement) return;
-	OverlayScrollbars(
-		// docs say that a initialization to the body element would affect native functionality like window.scrollTo
-		// but just leave it here for now
-		{
-			target: bodyElement,
-			cancel: {
-				nativeScrollbarsOverlaid: true,    // don't initialize the overlay scrollbar if there is a native one
-			}
-		}, {
-		scrollbars: {
-			theme: 'scrollbar-base scrollbar-auto py-1',
-			autoHide: 'move',
-			autoHideDelay: 500,
-			autoHideSuspend: false,
-		},
-	});
-
-	const katexElements = document.querySelectorAll('.katex-display') as NodeListOf<HTMLElement>;
-
-	const katexObserverOptions = {
-		root: null,
-		rootMargin: '100px',
-		threshold: 0.1
-	};
-
-	const processKatexElement = (element: HTMLElement) => {
-		if (!element.parentNode) return;
-		if (element.hasAttribute('data-scrollbar-initialized')) return;
-
-		const container = document.createElement('div');
-		container.className = 'katex-display-container';
-		container.setAttribute('aria-label', 'scrollable container for formulas');
-
-		element.parentNode.insertBefore(container, element);
-		container.appendChild(element);
-
-		OverlayScrollbars(container, {
-			scrollbars: {
-				theme: 'scrollbar-base scrollbar-auto',
-				autoHide: 'leave',
-				autoHideDelay: 500,
-				autoHideSuspend: false
-			}
-		});
-
-		element.setAttribute('data-scrollbar-initialized', 'true');
-	};
-
-	const katexObserver = new IntersectionObserver((entries, observer) => {
-		entries.forEach(entry => {
-			if (entry.isIntersecting) {
-			processKatexElement(entry.target as HTMLElement);
-			observer.unobserve(entry.target);
-			}
-		});
-	}, katexObserverOptions);
-
-	katexElements.forEach(element => {
-		katexObserver.observe(element);
-	});
-}
-
 function showBanner() {
 	if (!siteConfig.banner.enable) return;
 
@@ -460,7 +368,6 @@ function init() {
 	// disableAnimation()()		// TODO
 	loadTheme();
 	loadHue();
-	initCustomScrollbar();
 	showBanner();
 }
 
@@ -497,7 +404,6 @@ const setup = () => {
 			navbar.classList.add('navbar-hidden')
 		}
 	})
-	window.swup.hooks.on('content:replace', initCustomScrollbar)
 	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
 		// change banner height immediately when a link is clicked
 		const bodyElement = document.querySelector('body')
@@ -601,14 +507,14 @@ window.onresize = () => {
 import PhotoSwipeLightbox from "photoswipe/lightbox"
 import "photoswipe/style.css"
 
-let lightbox: PhotoSwipeLightbox
+let lightbox
 let pswp = import("photoswipe")
 
 function createPhotoSwipe() {
 	lightbox = new PhotoSwipeLightbox({
 		gallery: ".custom-md img, #post-cover img",
 		pswpModule: () => pswp,
-		closeSVG: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg>',
+		closeSVG: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11 11 28 11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg>',
 		zoomSVG: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M340-540h-40q-17 0-28.5-11.5T260-580q0-17 11.5-28.5T300-620h40v-40q0-17 11.5-28.5T380-700q17 0 28.5 11.5T420-660v40h40q17 0 28.5 11.5T500-580q0 17-11.5 28.5T460-540h-40v40q0 17-11.5 28.5T380-460q-17 0-28.5-11.5T340-500v-40Zm40 220q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>',
 		padding: { top: 20, bottom: 20, left: 20, right: 20 },
 		wheelToZoom: true,
