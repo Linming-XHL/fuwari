@@ -55,11 +55,6 @@ export const navBarConfig: NavBarConfig = {
 	     external: false,
 	    },
 		{
-			name: "监测",
-			url: "https://eo.lmxhl.top", // Internal links should not include the base path, as it is automatically added
-			external: true, // Show an external link icon and will open in a new tab
-		},
-		{
 			name: "GitHub",
 			url: "https://github.com/Linming-XHL/fuwari", // Internal links should not include the base path, as it is automatically added
 			external: true, // Show an external link icon and will open in a new tab
