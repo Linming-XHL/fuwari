@@ -151,7 +151,7 @@ const bannerOffset =
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
 
 	</head>
-	<body class="min-h-screen transition overflow-y-auto"
+	<body class="min-h-screen h-full transition" style="overflow-y: auto !important; position: relative;"
 		  class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 	>
 <!-- 全局全屏背景图片 - 优化加载策略 -->
