@@ -59,10 +59,10 @@ export const friendLinks: FriendLink[] = [
     avatar: "https://ahzoo.cn/img/avatar.webp",
   },
     {
-    name: "熊猫の小窝",
-    url: "https://www.pysio.online/",
-    description: "一个温暖的家",
-    avatar: "https://cdn.akaere.online/https://avatars.githubusercontent.com/u/71202163",
+    name: "ZAKOFLARE NETWORK",
+    url: "https://www.zakoflare.com/CN/",
+    description: "面向全平台与低性能服务端提供免费开源可靠的解决方案",
+    avatar: "https://i0.hdslb.com/bfs/face/f8019035df4f2f5391a5fd426172bbe255ae9245.jpg@128w_128h_1c_1s.webp",
   },
   // 在这里添加更多友链
 ];
