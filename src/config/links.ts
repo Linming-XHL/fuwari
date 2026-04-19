@@ -60,7 +60,7 @@ export const friendLinks: FriendLink[] = [
   },
     {
     name: "ZAKOFLARE NETWORK",
-    url: "https://clod.millenniumic.cn/",
+    url: "https://cloud.millenniumic.cn/",
     description: "面向全平台与低性能服务端提供免费开源可靠的解决方案",
     avatar: "https://www.zakoflare.com/CN/favicon.ico",
   },
