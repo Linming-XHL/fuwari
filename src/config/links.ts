@@ -42,7 +42,7 @@ export const friendLinks: FriendLink[] = [
   },
   {
     name: "AcoFork Blog",
-    url: "https://blog.acofork.com/",
+    url: "https://2x.nz",
     description: "Protect What You Love.",
     avatar: "https://q2.qlogo.cn/headimg_dl?dst_uin=2726730791&spec=0",
   },
