@@ -152,7 +152,8 @@ const bannerOffset =
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
 
 	</head>
-	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
+	<body class="min-h-screen transition overflow-y-auto"
+		  class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 		  data-overlayscrollbars-initialize
 	>
 <!-- 全局全屏背景图片 - 优化加载策略 -->
@@ -195,11 +196,11 @@ const bannerOffset =
 						// 确保pangu对象存在
 						if (panguModule) {
 							// 尝试使用spacingPage方法
-							if (typeof (panguModule as any).spacingPage === 'function') {
-								(panguModule as any).spacingPage();
+							if (typeof panguModule.spacingPage === 'function') {
+								panguModule.spacingPage();
 							} else if (typeof panguModule === 'function') {
 								// 新版本API兼容
-								const panguInstance = (panguModule as any)();
+								const panguInstance = panguModule();
 								if (panguInstance && typeof panguInstance.spacingPage === 'function') {
 									panguInstance.spacingPage();
 								}
@@ -221,6 +222,8 @@ const bannerOffset =
 					// 动态加载Ruffle
 					const script = document.createElement('script');
 					script.src = 'https://unpkg.com/@ruffle-rs/ruffle';
+					script.defer = true;
+					script.async = true;
 					document.body.appendChild(script);
 				}
 			}
@@ -375,12 +378,10 @@ function initCustomScrollbar() {
 	const bodyElement = document.querySelector('body');
 	if (!bodyElement) return;
 	OverlayScrollbars(
-		// docs say that a initialization to the body element would affect native functionality like window.scrollTo
-		// but just leave it here for now
 		{
 			target: bodyElement,
 			cancel: {
-				nativeScrollbarsOverlaid: true,    // don't initialize the overlay scrollbar if there is a native one
+				nativeScrollbarsOverlaid: false,    // don't initialize the overlay scrollbar if there is a native one
 			}
 		}, {
 		scrollbars: {
@@ -593,7 +594,7 @@ window.onresize = () => {
 import PhotoSwipeLightbox from "photoswipe/lightbox"
 import "photoswipe/style.css"
 
-let lightbox: PhotoSwipeLightbox
+let lightbox
 let pswp = import("photoswipe")
 
 function createPhotoSwipe() {
