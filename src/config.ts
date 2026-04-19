@@ -1,6 +1,5 @@
 import type {
 	ExpressiveCodeConfig,
-	GiscusConfig,
 	LicenseConfig,
 	NavBarConfig,
 	ProfileConfig,
@@ -46,15 +45,15 @@ export const navBarConfig: NavBarConfig = {
 		LinkPreset.Archive,
 		LinkPreset.About,
 		{
-	    	name: "友链",
-	    	url: "/links/", // 友链页面路径
-	    	external: false,
+	     name: "友链",
+	     url: "/links/", // 友链页面路径
+	     external: false,
 	    },
 		{
-			name: "监测",
-			url: "https://eo.lmxhl.top", // Internal links should not include the base path, as it is automatically added
-			external: true, // Show an external link icon and will open in a new tab
-		},
+	     name: "赞助",
+	     url: "/sponsor/", // 赞助页面路径
+	     external: false,
+	    },
 		{
 			name: "GitHub",
 			url: "https://github.com/Linming-XHL/fuwari", // Internal links should not include the base path, as it is automatically added
@@ -100,17 +99,4 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	theme: "github-dark",
 };
 
-export const giscusConfig: GiscusConfig = {
-	enable: true,
-	repo: "Linming-XHL/fuwari",
-	repoId: "R_kgDOQ_sEMA",
-	category: "Announcements",
-	categoryId: "DIC_kwDOQ_sEMM4C1Wfe",
-	mapping: "pathname",
-	reactionsEnabled: "1",
-	dataStrict: "0",
-	inputPosition: "top",
-	theme: "preferred_color_scheme",
-	lang: "zh-CN",
-	loading: "lazy",
-};
+
