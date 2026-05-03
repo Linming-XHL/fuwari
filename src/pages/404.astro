@@ -1,0 +1,19 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { siteConfig } from "@/config";
+---
+
+<Layout title="404 - 页面未找到" description="您访问的页面不存在，让我们一起帮助失踪儿童回家">
+	<main class="py-12 px-4 md:px-6">
+		<div class="container mx-auto max-w-4xl text-center">
+			<h1 class="text-4xl md:text-6xl font-bold mb-6 text-primary">404</h1>
+			<h2 class="text-2xl md:text-3xl font-semibold mb-8">页面未找到</h2>
+			<p class="text-lg mb-8">您访问的页面可能已被删除或移动，让我们一起帮助失踪儿童回家</p>
+			<a href="/" class="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors">
+				返回首页
+			</a>
+		</div>
+	</main>
+
+	<script type="text/javascript" src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" charset="utf-8"></script>
+</Layout>
