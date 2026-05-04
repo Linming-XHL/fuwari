@@ -4,16 +4,17 @@ import { onMount } from "svelte";
 
 let currentLang = $state("zh-CN");
 let isOpen = $state(false);
+let isTranslating = $state(false);
 
 const languages = [
-	{ code: "zh-CN", name: "简体中文", icon: "material-symbols:language-chinese-array" },
-	{ code: "zh-TW", name: "繁體中文", icon: "material-symbols:language-chinese-array" },
-	{ code: "en", name: "English", icon: "material-symbols:language" },
-	{ code: "ja", name: "日本語", icon: "material-symbols:language" },
-	{ code: "ko", name: "한국어", icon: "material-symbols:language" },
-	{ code: "fr", name: "Français", icon: "material-symbols:language" },
-	{ code: "de", name: "Deutsch", icon: "material-symbols:language" },
-	{ code: "ru", name: "Русский", icon: "material-symbols:language" },
+	{ code: "zh-CN", name: "简体中文", icon: "material-symbols:translate" },
+	{ code: "zh-TW", name: "繁體中文", icon: "material-symbols:translate" },
+	{ code: "en", name: "English", icon: "material-symbols:translate" },
+	{ code: "ja", name: "日本語", icon: "material-symbols:translate" },
+	{ code: "ko", name: "한국어", icon: "material-symbols:translate" },
+	{ code: "fr", name: "Français", icon: "material-symbols:translate" },
+	{ code: "de", name: "Deutsch", icon: "material-symbols:translate" },
+	{ code: "ru", name: "Русский", icon: "material-symbols:translate" },
 ];
 
 onMount(() => {
@@ -32,11 +33,19 @@ onMount(() => {
 	return () => document.removeEventListener("click", handleClickOutside);
 });
 
-function togglePanel() {
+function togglePanel(e: Event) {
+	e.preventDefault();
+	e.stopPropagation();
 	isOpen = !isOpen;
 }
 
 function changeLanguage(langCode: string) {
+	if (isTranslating || langCode === currentLang) {
+		isOpen = false;
+		return;
+	}
+
+	isTranslating = true;
 	currentLang = langCode;
 	localStorage.setItem("translate-lang", langCode);
 	isOpen = false;
@@ -44,9 +53,18 @@ function changeLanguage(langCode: string) {
 	if (typeof window !== "undefined") {
 		const w = window as unknown as Record<string, unknown>;
 		if (w.translate) {
-			(w.translate as Record<string, (lang: string) => void>).changeLanguage(langCode);
+			const translateObj = w.translate as Record<string, unknown>;
+			if (typeof translateObj.changeLanguage === "function") {
+				(translateObj.changeLanguage as (lang: string) => void)(langCode);
+			} else if (typeof translateObj.to === "function") {
+				(translateObj.to as (lang: string) => void)(langCode);
+			}
 		}
 	}
+
+	setTimeout(() => {
+		isTranslating = false;
+	}, 500);
 }
 </script>
 
@@ -69,7 +87,12 @@ function changeLanguage(langCode: string) {
 					<button
 						class="flex transition whitespace-nowrap items-center !justify-start w-full btn-plain scale-animation rounded-lg h-9 px-3 font-medium active:scale-95 mb-0.5"
 						class:current-theme-btn={currentLang === lang.code}
-						onclick={() => changeLanguage(lang.code)}
+						onclick={(e: Event) => {
+							e.preventDefault();
+							e.stopPropagation();
+							changeLanguage(lang.code);
+						}}
+						disabled={isTranslating}
 					>
 						<Icon icon={lang.icon} class="text-[1.25rem] mr-3"></Icon>
 						{lang.name}
