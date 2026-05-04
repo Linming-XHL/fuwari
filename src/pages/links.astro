@@ -5,6 +5,7 @@ import Markdown from "@components/misc/Markdown.astro";
 import { Icon } from "astro-icon/components";
 import { friendLinks } from "../config/links";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
+import Giscus from "../components/Giscus.astro";
 
 const linksPost = await getEntry("spec", "links");
 
@@ -55,4 +56,6 @@ console.log("友链列表:", friendLinks);
       </Markdown>
     </div>
   </div>
+
+  <Giscus class="mt-6"></Giscus>
 </MainGridLayout>

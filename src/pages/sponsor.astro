@@ -1,5 +1,6 @@
 ---
 import MainGridLayout from "../layouts/MainGridLayout.astro";
+import Giscus from "../components/Giscus.astro";
 ---
 <MainGridLayout title="赞助支持" description="感谢您的支持与鼓励">
   <div class="w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32 mb-6">
@@ -8,4 +9,6 @@ import MainGridLayout from "../layouts/MainGridLayout.astro";
       <a href="https://www.ifdian.net/a/LinmingXHL" target="_blank" rel="noopener noreferrer" class="text-sm text-[var(--primary)] hover:underline opacity-70 hover:opacity-100 transition-opacity">我还是想赞助</a>
     </div>
   </div>
+
+  <Giscus class="mt-6"></Giscus>
 </MainGridLayout>

@@ -13,6 +13,7 @@ import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../components/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../config";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
+import Giscus from "../../components/Giscus.astro";
 
 export async function getStaticPaths() {
 	const blogEntries = await getSortedPosts();
@@ -111,6 +112,8 @@ const jsonLd = {
 
         </div>
     </div>
+
+    <Giscus class="mt-6"></Giscus>
 
 
 
