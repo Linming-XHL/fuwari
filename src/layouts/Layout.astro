@@ -175,30 +175,6 @@ const bannerOffset =
     }
   </script>
 
-  <!-- translate.js 自动翻译 -->
-  <script defer>
-    if (typeof window !== 'undefined') {
-      (function() {
-        var translateScript = document.createElement('script');
-        translateScript.src = 'https://cdn.staticfile.net/translate.js/3.18.66/translate.js';
-        translateScript.onload = function() {
-          translate.language.setLocal('chinese_simplified');
-          translate.service.use('client.edge');
-          translate.selectLanguageTag.show = false;
-          translate.execute();
-
-          var savedLang = localStorage.getItem('translate-lang');
-          if (savedLang && savedLang !== 'zh-CN') {
-            setTimeout(function() {
-              translate.changeLanguage(savedLang);
-            }, 500);
-          }
-        };
-        document.head.appendChild(translateScript);
-      })();
-    }
-  </script>
-
 		<ConfigCarrier></ConfigCarrier>
 		<slot />
 
