@@ -39,6 +39,7 @@
     "astro-icon": "^1.1.5",
     "giscus": "^1.6.0",
     "hastscript": "^9.0.1",
+    "i18n-jsautotranslate": "^4.0.0",
     "katex": "^0.16.27",
     "markdown-it": "^14.1.0",
     "mdast-util-to-string": "^4.0.0",

@@ -77,6 +77,9 @@ importers:
       hastscript:
         specifier: ^9.0.1
         version: 9.0.1
+      i18n-jsautotranslate:
+        specifier: ^4.0.0
+        version: 4.0.0
       katex:
         specifier: ^0.16.27
         version: 0.16.27
@@ -3273,6 +3276,9 @@ packages:
 
   http-cache-semantics@4.2.0:
     resolution: {integrity: sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ==}
+
+  i18n-jsautotranslate@4.0.0:
+    resolution: {integrity: sha512-QYxFKYWn8FTxlSAaAcoUwXmQMTU7rZnu61q0lpogb2EmrLmay5L4OoSFPF9/xo0NGHOEI/yK3KbbSVzfhRDL3g==}
 
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
@@ -9261,6 +9267,8 @@ snapshots:
       entities: 4.5.0
 
   http-cache-semantics@4.2.0: {}
+
+  i18n-jsautotranslate@4.0.0: {}
 
   iconv-lite@0.6.3:
     dependencies:
