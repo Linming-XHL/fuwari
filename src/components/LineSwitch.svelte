@@ -22,10 +22,10 @@ function getStatusIcon(status: string): string {
 
 function getLatencyStatus(ms: number | null): string {
   if (ms === null) return "failed";
-  if (ms <= 100) return "excellent";
-  if (ms <= 200) return "good";
-  if (ms <= 400) return "fair";
-  if (ms <= 800) return "poor";
+  if (ms < 50) return "excellent";
+  if (ms < 150) return "good";
+  if (ms < 280) return "fair";
+  if (ms < 390) return "poor";
   return "bad";
 }
 
@@ -126,7 +126,7 @@ function togglePanel() {
   <button aria-label="Line Switch" role="menuitem"
           class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90"
           onclick={togglePanel} onmouseenter={showPanel}>
-    <Icon icon="material-symbols:alt-route-rounded" class="text-[1.25rem]"></Icon>
+    <Icon icon="material-symbols:swap-horiz-rounded" class="text-[1.25rem]"></Icon>
   </button>
 
   {#if isOpen}
