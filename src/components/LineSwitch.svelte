@@ -55,7 +55,7 @@ async function checkLatency(line: Line): Promise<{ status: string; ms: number | 
   }
 }
 
-async function checkAllLatencies() {
+async function checkAllLatencies(force: boolean = false) {
   isChecking = true;
 
   const cachedLatencies: Record<string, { status: string; ms: number | null; timestamp: number }> = {};
@@ -63,7 +63,7 @@ async function checkAllLatencies() {
 
   for (const line of linesConfig.lines) {
     const cached = latencies[line.url];
-    if (cached && isCacheValid(cached.timestamp)) {
+    if (!force && cached && isCacheValid(cached.timestamp)) {
       cachedLatencies[line.url] = cached;
     } else {
       cachedLatencies[line.url] = { status: "checking", ms: null, timestamp: 0 };
@@ -73,7 +73,7 @@ async function checkAllLatencies() {
 
   latencies = cachedLatencies;
 
-  if (needCheck.length === 0) {
+  if (needCheck.length === 0 && !force) {
     isChecking = false;
     return;
   }
@@ -135,7 +135,7 @@ function togglePanel() {
         <div class="flex items-center justify-between mb-3">
           <span class="font-bold text-sm">线路选择</span>
           <button class="flex items-center gap-1 text-xs btn-plain scale-animation rounded px-2 py-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                  onclick={(e) => { e.stopPropagation(); checkAllLatencies(); }}
+                  onclick={(e) => { e.stopPropagation(); checkAllLatencies(true); }}
                   disabled={isChecking}>
             <Icon icon="material-symbols:refresh-rounded" class={isChecking ? "text-[0.875rem] text-animate" : "text-[0.875rem]"}></Icon>
             {isChecking ? '检测中...' : '重试'}
