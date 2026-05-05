@@ -122,16 +122,17 @@ function togglePanel() {
 }
 </script>
 
-<div class="relative z-50" role="menu" tabindex="-1" onmouseleave={hidePanel}>
+<div class="relative z-50" role="menu" tabindex="-1">
   <button aria-label="Line Switch" role="menuitem"
           class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90"
-          onclick={togglePanel} onmouseenter={showPanel}>
+          onclick={(e) => { e.preventDefault(); togglePanel(); }} onmouseenter={showPanel} onmouseleave={hidePanel}>
     <Icon icon="material-symbols:swap-horiz-rounded" class="text-[1.25rem]"></Icon>
   </button>
 
   {#if isOpen}
-    <div id="line-switch-panel" class="absolute transition top-11 -right-2 pt-5">
-      <div class="card-base float-panel p-3 min-w-[280px] max-w-[320px]">
+    <div id="line-switch-panel" class="absolute transition top-11 -right-2 pt-5"
+         onmouseenter={showPanel} onmouseleave={hidePanel}>
+      <div class="card-base float-panel p-3 min-w-[280px] max-w-[320px] text-gray-900 dark:text-gray-100">
         <div class="flex items-center justify-between mb-3">
           <span class="font-bold text-sm">线路选择</span>
           <button class="flex items-center gap-1 text-xs btn-plain scale-animation rounded px-2 py-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
