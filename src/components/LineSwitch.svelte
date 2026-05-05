@@ -134,11 +134,11 @@ function togglePanel() {
       <div class="card-base float-panel p-3 min-w-[280px] max-w-[320px]">
         <div class="flex items-center justify-between mb-3">
           <span class="font-bold text-sm">线路选择</span>
-          <button class="flex items-center gap-1 text-xs btn-plain scale-animation rounded px-2 py-1 active:scale-95"
+          <button class="flex items-center gap-1 text-xs btn-plain scale-animation rounded px-2 py-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   onclick={(e) => { e.stopPropagation(); checkAllLatencies(); }}
                   disabled={isChecking}>
             <Icon icon="material-symbols:refresh-rounded" class={isChecking ? "text-[0.875rem] text-animate" : "text-[0.875rem]"}></Icon>
-            重试
+            {isChecking ? '检测中...' : '重试'}
           </button>
         </div>
 
