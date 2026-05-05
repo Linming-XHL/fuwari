@@ -130,7 +130,7 @@ function togglePanel() {
   </button>
 
   {#if isOpen}
-    <div id="line-switch-panel" class="hidden lg:block absolute transition top-11 -right-2 pt-5">
+    <div id="line-switch-panel" class="absolute transition top-11 -right-2 pt-5">
       <div class="card-base float-panel p-3 min-w-[280px] max-w-[320px]">
         <div class="flex items-center justify-between mb-3">
           <span class="font-bold text-sm">线路选择</span>
