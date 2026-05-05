@@ -27,5 +27,14 @@ export const linesConfig = {
         { name: "HTTP2" },
       ],
     },
+    {
+      name: "免费域名线路",
+      url: "https://lmxhl.dpdns.org",
+      features: [
+        { name: "SSL" },
+        { name: "QUIC" },
+        { name: "FREE" },
+      ],
+    },
   ],
 };
