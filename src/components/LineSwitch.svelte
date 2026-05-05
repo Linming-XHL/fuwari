@@ -113,7 +113,7 @@ function togglePanel() {
           <button class="flex items-center gap-1 text-xs btn-plain scale-animation rounded px-2 py-1 active:scale-95"
                   onclick={(e) => { e.stopPropagation(); checkAllLatencies(); }}
                   disabled={isChecking}>
-            <Icon icon="material-symbols:refresh-rounded" class:text-animate={isChecking} class="text-[0.875rem]"></Icon>
+            <Icon icon="material-symbols:refresh-rounded" class={isChecking ? "text-[0.875rem] text-animate" : "text-[0.875rem]"}></Icon>
             重试
           </button>
         </div>
