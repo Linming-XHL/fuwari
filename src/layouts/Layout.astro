@@ -156,17 +156,32 @@ const bannerOffset =
 	>
 <!-- 全局全屏背景图片 - 优化加载策略 -->
   <div class="fixed inset-0 z-0 w-full h-full overflow-hidden pointer-events-none">
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" id="bg-image"></div>
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat bg-[var(--page-bg)]" id="bg-image"></div>
     <div class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
   </div>
 
-  <!-- 背景图片 - 优先加载 -->
+  <!-- 背景图片 - 预加载并立即显示 -->
   <script>
     if (typeof window !== 'undefined') {
       (function() {
         var bgEl = document.getElementById('bg-image');
-        if (bgEl) {
-          bgEl.style.backgroundImage = "url('https://esaimg.cdn1.vip/i/69f7404d2691c_1777811533.webp')";
+        if (!bgEl) return;
+
+        var bgUrl = "url('https://esaimg.cdn1.vip/i/69f7404d2691c_1777811533.webp')";
+
+        var img = new Image();
+        img.onload = function() {
+          bgEl.style.backgroundImage = bgUrl;
+          bgEl.style.transition = 'opacity 0.3s ease-in-out';
+          bgEl.style.opacity = '1';
+        };
+        img.onerror = function() {
+          bgEl.style.backgroundImage = bgUrl;
+        };
+        img.src = 'https://esaimg.cdn1.vip/i/69f7404d2691c_1777811533.webp';
+
+        if (img.complete) {
+          bgEl.style.backgroundImage = bgUrl;
         }
       })();
     }

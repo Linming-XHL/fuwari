@@ -3,8 +3,9 @@ import Icon from "@iconify/svelte";
 import { linesConfig, type Line } from "../config/lines";
 
 let isOpen = $state(false);
-let latencies = $state<Record<string, { status: string; ms: number | null }>>({});
+let latencies = $state<Record<string, { status: string; ms: number | null; timestamp: number }>>({});
 let isChecking = $state(false);
+const CACHE_DURATION = 30000;
 
 function getStatusIcon(status: string): string {
   const icons: Record<string, string> = {
@@ -21,11 +22,15 @@ function getStatusIcon(status: string): string {
 
 function getLatencyStatus(ms: number | null): string {
   if (ms === null) return "failed";
-  if (ms <= 50) return "excellent";
-  if (ms <= 100) return "good";
-  if (ms <= 200) return "fair";
-  if (ms <= 500) return "poor";
+  if (ms <= 100) return "excellent";
+  if (ms <= 200) return "good";
+  if (ms <= 400) return "fair";
+  if (ms <= 800) return "poor";
   return "bad";
+}
+
+function isCacheValid(timestamp: number): boolean {
+  return Date.now() - timestamp < CACHE_DURATION;
 }
 
 async function checkLatency(line: Line): Promise<{ status: string; ms: number | null }> {
@@ -52,23 +57,37 @@ async function checkLatency(line: Line): Promise<{ status: string; ms: number | 
 
 async function checkAllLatencies() {
   isChecking = true;
-  const newLatencies: Record<string, { status: string; ms: number | null }> = {};
+
+  const cachedLatencies: Record<string, { status: string; ms: number | null; timestamp: number }> = {};
+  const needCheck: Line[] = [];
 
   for (const line of linesConfig.lines) {
-    newLatencies[line.url] = { status: "checking", ms: null };
+    const cached = latencies[line.url];
+    if (cached && isCacheValid(cached.timestamp)) {
+      cachedLatencies[line.url] = cached;
+    } else {
+      cachedLatencies[line.url] = { status: "checking", ms: null, timestamp: 0 };
+      needCheck.push(line);
+    }
   }
-  latencies = newLatencies;
+
+  latencies = cachedLatencies;
+
+  if (needCheck.length === 0) {
+    isChecking = false;
+    return;
+  }
 
   const results = await Promise.all(
-    linesConfig.lines.map(async (line) => {
+    needCheck.map(async (line) => {
       const result = await checkLatency(line);
       return { url: line.url, result };
     })
   );
 
-  const finalLatencies: Record<string, { status: string; ms: number | null }> = {};
+  const finalLatencies = { ...latencies };
   for (const { url, result } of results) {
-    finalLatencies[url] = result;
+    finalLatencies[url] = { ...result, timestamp: Date.now() };
   }
   latencies = finalLatencies;
   isChecking = false;
@@ -77,7 +96,12 @@ async function checkAllLatencies() {
 function switchLine(line: Line) {
   const currentPath = window.location.pathname;
   const newUrl = `${line.url}${currentPath}`;
-  window.location.href = newUrl;
+
+  if (window.swup) {
+    window.swup.navigate(newUrl);
+  } else {
+    window.location.href = newUrl;
+  }
 }
 
 function showPanel() {
@@ -102,7 +126,7 @@ function togglePanel() {
   <button aria-label="Line Switch" role="menuitem"
           class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90"
           onclick={togglePanel} onmouseenter={showPanel}>
-    <Icon icon="material-symbols:route-rounded" class="text-[1.25rem]"></Icon>
+    <Icon icon="material-symbols:alt-route-rounded" class="text-[1.25rem]"></Icon>
   </button>
 
   {#if isOpen}
@@ -140,7 +164,7 @@ function togglePanel() {
 
               <div class="flex items-center gap-2 ml-2 shrink-0">
                 {#if latency}
-                  <div class="relative group" title={`${latency.ms !== null ? latency.ms + 'ms' : '超时'}`}>
+                  <div class="relative group cursor-help" title={`${latency.ms !== null ? latency.ms + 'ms' : '超时'}`}>
                     <img src={getStatusIcon(latency.status)} alt={latency.status} class="w-6 h-4 object-contain">
                   </div>
                 {:else}
