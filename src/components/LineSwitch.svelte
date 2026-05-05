@@ -1,6 +1,6 @@
 <script lang="ts">
 import Icon from "@iconify/svelte";
-import { linesConfig, type Line } from "@config/lines.ts";
+import { linesConfig, type Line } from "../config/lines";
 
 let isOpen = $state(false);
 let latencies = $state<Record<string, { status: string; ms: number | null }>>({});
