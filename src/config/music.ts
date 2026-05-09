@@ -66,7 +66,7 @@ export const musicPlayerConfig = {
       cover: "https://p3.music.126.net/Y62X27B0BSy4iksxrGsZcg==/109951169746596184.jpg",
       title: "Pure Ocean",
       artist: "Jamvana",
-      url: "https://music.163.com/song/media/outer/url?id=2604822332.mp3",
+      url: "https://cdn.240900.xyz/music/pureocean.mp3",
     },
     {
       cover: "https://p3.music.126.net/6mmoxID_rOAuGal0OoQi0g==/109951172949161096.jpg",
@@ -78,19 +78,19 @@ export const musicPlayerConfig = {
       cover: "https://p3.music.126.net/4hbR27M-uaKZVAOUojERTA==/109951168003842438.jpg",
       title: "Alone",
       artist: "Rentz",
-      url: "https://music.163.com/song/media/outer/url?id=1992859765.mp3",
+      url: "https://cdn.240900.xyz/music/alone-rentz.mp3",
     },
     {
       cover: "https://p3.music.126.net/YvnCFnzoQLEZZ3BPlL_wvg==/109951169611905073.jpg",
       title: "Hero",
       artist: "Charlie Puth",
-      url: "https://music.163.com/song/media/outer/url?id=2158286660.mp3",
+      url: "https://cdn.240900.xyz/music/hero-c-p.mp3",
     },
     {
       cover: "https://p3.music.126.net/LSNp2g4GIUaQBT1yvOq6XQ==/109951165983599325.jpg",
       title: "All Falls Down",
       artist: "Alan Walker/Noah Cyrus/Digital Farm Animals/Juliander",
-      url: "https://music.163.com/song/media/outer/url?id=515453363.mp3",
+      url: "https://cdn.240900.xyz/music/allfallsdown.mp3",
     },
     {
       cover: "https://p4.music.126.net/0JqA5WWFblL9dDvW6Ugutg==/109951168907663478.jpg",
