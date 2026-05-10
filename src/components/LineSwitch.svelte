@@ -93,14 +93,13 @@ async function checkAllLatencies(force: boolean = false) {
   isChecking = false;
 }
 
-function switchLine(line: Line) {
+function switchLine(line: Line, event: MouseEvent) {
   const currentPath = window.location.pathname;
   const newUrl = `${line.url}${currentPath}`;
 
   if (window.swup) {
+    event.preventDefault();
     window.swup.navigate(newUrl);
-  } else {
-    window.location.href = newUrl;
   }
 }
 
@@ -146,8 +145,10 @@ function togglePanel() {
         <div class="space-y-1">
           {#each linesConfig.lines as line (line.url)}
             {@const latency = latencies[line.url]}
-            <button class="w-full flex items-center justify-between p-2 rounded-lg transition hover:bg-[var(--btn-plain-bg-hover)] active:scale-[0.98]"
-                    onclick={() => switchLine(line)}>
+            <a href={line.url + (typeof window !== 'undefined' ? window.location.pathname : '')}
+               rel="nofollow noopener noreferrer"
+               onclick={(e) => switchLine(line, e)}
+               class="w-full flex items-center justify-between p-2 rounded-lg transition hover:bg-[var(--btn-plain-bg-hover)] active:scale-[0.98]">
               <div class="flex flex-col items-start gap-1 flex-1 min-w-0">
                 <div class="flex items-center gap-2 w-full">
                   <span class="font-medium text-sm truncate">{line.name}</span>
@@ -172,7 +173,7 @@ function togglePanel() {
                   <div class="w-6 h-4"></div>
                 {/if}
               </div>
-            </button>
+            </a>
           {/each}
         </div>
       </div>
