@@ -469,21 +469,27 @@
           <span class="text-xs w-10 text-right text-black dark:text-white"
             >{formatTime(currentTime)}</span
           >
-          <div class="relative flex-1 h-1.5 rounded-full overflow-hidden">
+          <div class="relative flex-1 h-1.5 rounded-full">
+            <!-- 背景轨道 -->
             <div
               class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"
             ></div>
+            <!-- 已播放部分（高亮） -->
             <div
-              class="absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full transition-[width] duration-150 z-10"
-              style:width={duration ? (currentTime / duration) * 100 : 0 + "%"}
+              class="absolute left-0 top-0 bottom-0 bg-[var(--primary)] rounded-full pointer-events-none"
+              style:width={duration
+                ? `${(currentTime / duration) * 100}%`
+                : "0%"}
             ></div>
+            <!-- 滑块控件（透明覆盖层） -->
             <input
               type="range"
               min="0"
               max={duration || 100}
               value={currentTime}
               oninput={seek}
-              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer appearance-none"
+              style="background: transparent;"
             />
           </div>
           <span class="text-xs w-10 text-black dark:text-white"
