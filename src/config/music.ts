@@ -156,63 +156,63 @@ export const musicPlayerConfig = {
 		},
 		{
 			cover:
-				"https://p1.music.126.net/hKqBtL1apL1VjHZyjOuAEQ==/109951164420598496.jpg",
+				"https://p3.music.126.net/TeeyPkcM41fLSllFbxJC3A==/109951164420598496.jpg",
 			title: "End Of The Abyss",
 			artist: "Little End/Pam_dinosaur",
 			url: "https://music.163.com/song/media/outer/url?id=1396261700.mp3",
 		},
 		{
 			cover:
-				"https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/109951168039311342.jpg",
+				"https://p4.music.126.net/Xw4BqtIAhGFdZf6vp-LJ5g==/109951168039311342.jpg",
 			title: "City",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1296641291.mp3",
 		},
 		{
 			cover:
-				"https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/109951167886118894.jpg",
+				"https://p3.music.126.net/KVGxV5xAMVcH2yi8IEFusg==/109951167886118894.jpg",
 			title: "Sky",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=544556228.mp3",
 		},
 		{
 			cover:
-				"https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/109951167886206890.jpg",
+				"https://p3.music.126.net/TLOj_t8V86GtMp4crKq3cw==/109951167886206890.jpg",
 			title: "Hometown",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=530425152.mp3",
 		},
 		{
 			cover:
-				"https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/109951166153280123.jpg",
+				"https://p3.music.126.net/0W1NB5TRfzPml3joV8OkBQ==/109951166153280123.jpg",
 			title: "Ocean",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1818940986.mp3",
 		},
 		{
 			cover:
-				"https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/109951167886195333.jpg",
+				"https://p3.music.126.net/iGnbsz4FHCMK4PQyAv2DlA==/109951167886195333.jpg",
 			title: "Everything",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1323390484.mp3",
 		},
 		{
 			cover:
-				"https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/109951163999149688.jpg",
+				"https://p3.music.126.net/Gb_CxkopkT4BZJ7JnRSwdg==/109951163999149688.jpg",
 			title: "Alive",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1358775119.mp3",
 		},
 		{
 			cover:
-				"https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/109951164657965525.jpg",
+				"https://p4.music.126.net/1usb6oTgHCw_dRuUBtKcjg==/109951164657965525.jpg",
 			title: "Wind With Clouds",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1419278912.mp3",
 		},
 		{
 			cover:
-				"https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/109951170914788907.jpg",
+				"https://p3.music.126.net/b6Cjz1cgkbtwG5rZj9NvoQ==/109951170914788907.jpg",
 			title: "Line",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=2696820965.mp3",
