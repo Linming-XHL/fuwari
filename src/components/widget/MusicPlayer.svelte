@@ -450,6 +450,12 @@
         >
           {lyrics[currentLyricIndex].text}
         </div>
+      {:else if lyrics.length > 0 && isPlaying}
+        <div
+          class="text-center text-xs py-0.5 text-black/40 dark:text-white/40"
+        >
+          Idle...
+        </div>
       {:else if lyrics.length > 0}
         <div
           class="text-center text-xs py-0.5 text-black/40 dark:text-white/40"
