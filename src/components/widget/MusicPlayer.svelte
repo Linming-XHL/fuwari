@@ -19,13 +19,20 @@ let isChangingSong = $state(false);
 let forcePlayAfterLoad = $state(false);
 
 // 歌词相关状态
-interface LyricLine {
-	time: number;
+interface LyricWord {
 	text: string;
+	startTime: number; // 相对于行开始的偏移时间（毫秒）
+	duration: number; // 持续时间（毫秒）
+}
+
+interface LyricLine {
+	time: number; // 行开始时间（秒）
+	duration: number; // 行持续时间（秒）
+	words: LyricWord[];
+	text: string; // 完整文本
 }
 
 let lyricsYrc = $state<LyricLine[]>([]);
-let lyricsTrans = $state<LyricLine[]>([]);
 let currentLyricIndex = $state(-1);
 let lyricContainerRef: HTMLDivElement;
 
@@ -51,70 +58,83 @@ function formatTime(seconds: number): string {
 	return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-// 解析 yrc 格式歌词
+// 解析 yrc 格式歌词（逐字时间轴）
 function parseYrc(yrcStr: string): LyricLine[] {
 	const lines: LyricLine[] = [];
 	if (!yrcStr) return lines;
 
-	const lineRegex = /(\[(\d+),(\d+)\])([^[\n]*)/g;
-	let match;
+	// 按行分割
+	const lineList = yrcStr.split("\n");
 
-	while ((match = lineRegex.exec(yrcStr)) !== null) {
-		const startTime = parseInt(match[2], 10) / 1000; // 毫秒转秒
-		const content = match[4].trim();
+	for (const line of lineList) {
+		// 匹配行格式：[startTime,duration](wordTime,wordDur,0)word(wordTime,wordDur,0)word...
+		const lineMatch = line.match(/^\[(\d+),(\d+)\](.*)$/);
+		if (!lineMatch) continue;
 
-		if (content && !content.startsWith("作词") && !content.startsWith("作曲") && !content.startsWith("编曲")) {
+		const startTime = Number.parseInt(lineMatch[1], 10) / 1000; // 转换为秒
+		const duration = Number.parseInt(lineMatch[2], 10) / 1000; // 转换为秒
+		const content = lineMatch[3];
+
+		if (
+			!content ||
+			content.startsWith("作词") ||
+			content.startsWith("作曲") ||
+			content.startsWith("编曲")
+		) {
+			continue;
+		}
+
+		// 解析逐字信息
+		const words: LyricWord[] = [];
+		const wordRegex = /\((\d+),(\d+),0\)([^(]*)/g;
+		let wordMatch;
+		let fullText = "";
+
+		while ((wordMatch = wordRegex.exec(content)) !== null) {
+			const wordStartTime = Number.parseInt(wordMatch[1], 10);
+			const wordDuration = Number.parseInt(wordMatch[2], 10);
+			const wordText = wordMatch[3];
+
+			if (wordText) {
+				words.push({
+					text: wordText,
+					startTime: wordStartTime,
+					duration: wordDuration,
+				});
+				fullText += wordText;
+			}
+		}
+
+		if (fullText && words.length > 0) {
 			lines.push({
 				time: startTime,
-				text: content,
+				duration: duration,
+				words: words,
+				text: fullText,
 			});
 		}
 	}
 
-	return lines.sort((a, b) => a.time - b.time);
-}
-
-// 解析 lrc 格式歌词（用于翻译）
-function parseLrc(lrcStr: string): LyricLine[] {
-	const lines: LyricLine[] = [];
-	if (!lrcStr) return lines;
-
-	const lineRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]([^\n]+)/g;
-	let match;
-
-	while ((match = lineRegex.exec(lrcStr)) !== null) {
-		const minutes = parseInt(match[1], 10);
-		const seconds = parseInt(match[2], 10);
-		const ms = parseInt(match[3].padEnd(3, "0"), 10);
-		const time = minutes * 60 + seconds + ms / 1000;
-		const text = match[4].trim();
-
-		if (text && !text.startsWith("[by:") && !text.startsWith("作词") && !text.startsWith("作曲")) {
-			lines.push({ time, text });
-		}
-	}
-
-	return lines.sort((a, b) => a.time - b.time);
+	return lines;
 }
 
 // 获取歌词
 async function fetchLyrics(songId: number) {
 	try {
-		const response = await fetch(`https://api.vkeys.cn/v2/music/netease/lyric?id=${songId}`);
+		const response = await fetch(
+			`https://api.vkeys.cn/v2/music/netease/lyric?id=${songId}`,
+		);
 		const data = await response.json();
 
 		if (data.code === 200 && data.data) {
 			lyricsYrc = parseYrc(data.data.yrc || data.data.lrc || "");
-			lyricsTrans = parseLrc(data.data.trans || "");
 			currentLyricIndex = -1;
 		} else {
 			lyricsYrc = [];
-			lyricsTrans = [];
 		}
 	} catch (error) {
 		console.error("获取歌词失败:", error);
 		lyricsYrc = [];
-		lyricsTrans = [];
 	}
 }
 
@@ -144,7 +164,9 @@ async function scrollToCurrentLyric() {
 	await tick();
 	if (!lyricContainerRef || currentLyricIndex < 0) return;
 
-	const activeElement = lyricContainerRef.querySelector(`[data-lyric-index="${currentLyricIndex}"]`);
+	const activeElement = lyricContainerRef.querySelector(
+		`[data-lyric-index="${currentLyricIndex}"]`,
+	);
 	if (activeElement) {
 		activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
 	}
@@ -445,42 +467,38 @@ onMount(() => {
       </div>
 
       <!-- 歌词显示区域 -->
-      {#if lyricsYrc.length > 0 || lyricsTrans.length > 0}
+      {#if lyricsYrc.length > 0}
         <div
           bind:this={lyricContainerRef}
-          class="lyric-container overflow-y-auto max-h-[120px] px-2"
+          class="lyric-container overflow-y-auto max-h-[100px] px-2"
         >
-          {#if lyricsTrans.length > 0}
-            <!-- 双语模式：翻译在上 -->
-            <div class="space-y-1">
-              {#each lyricsYrc as line, index}
-                {@const transText = lyricsTrans[index]?.text}
-                <div
-                  data-lyric-index={index}
-                  class="text-center transition-all duration-300 py-0.5"
-                  class:active-lyric={index === currentLyricIndex}
-                >
-                  {#if transText}
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">{transText}</div>
-                  {/if}
-                  <div class="text-sm text-black dark:text-white leading-relaxed font-medium">{line.text}</div>
-                </div>
-              {/each}
-            </div>
-          {:else}
-            <!-- 单语模式：源歌词在上 -->
-            <div class="space-y-1">
-              {#each lyricsYrc as line, index}
-                <div
-                  data-lyric-index={index}
-                  class="text-center transition-all duration-300 py-0.5"
-                  class:active-lyric={index === currentLyricIndex}
-                >
-                  <div class="text-sm text-black dark:text-white leading-relaxed font-medium">{line.text}</div>
-                </div>
-              {/each}
-            </div>
-          {/if}
+          <div class="space-y-0.5">
+            {#each lyricsYrc as line, index}
+              {@const isActive = index === currentLyricIndex}
+              <div
+                data-lyric-index={index}
+                class="text-center transition-all duration-300 py-0.5 {isActive ? 'scale-110' : 'opacity-50'}"
+              >
+                {#if isActive}
+                  <!-- 当前行：逐字显示，已过词用主题色 -->
+                  <div class="text-xs leading-relaxed font-medium">
+                    {#each line.words as word}
+                      <span
+                        class="transition-colors duration-100 {(currentTime * 1000 >= (line.time * 1000 + word.startTime)) ? 'text-[var(--primary)] font-bold' : 'text-black dark:text-white'}"
+                      >
+                        {word.text}
+                      </span>
+                    {/each}
+                  </div>
+                {:else}
+                  <!-- 非当前行：普通显示 -->
+                  <div class="text-[10px] leading-relaxed text-black dark:text-white">
+                    {line.text}
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
         </div>
       {/if}
 
@@ -791,11 +809,5 @@ onMount(() => {
 
   .lyric-container::-webkit-scrollbar {
     display: none;
-  }
-
-  /* 当前播放歌词高亮 */
-  .active-lyric {
-    color: var(--primary);
-    transform: scale(1.05);
   }
 </style>
