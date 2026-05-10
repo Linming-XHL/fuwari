@@ -1,372 +1,358 @@
 <script lang="ts">
-import { onMount, tick } from "svelte";
-import type { Song } from "../../config/music";
-import { musicPlayerConfig } from "../../config/music";
+  import { onMount, tick } from "svelte";
+  import type { Song } from "../../config/music";
+  import { musicPlayerConfig } from "../../config/music";
 
-const { enabled, songs } = musicPlayerConfig;
+  const { enabled, songs } = musicPlayerConfig;
 
-let isExpanded = $state(false);
-let isPlaying = $state(false);
-let isLooping = $state(false);
-let isMuted = $state(false);
-let currentTime = $state(0);
-let duration = $state(0);
-let volume = $state(0.7);
-let currentSongIndex = $state(0);
-let isLoading = $state(false);
-let hasError = $state(false);
-let isChangingSong = $state(false);
-let forcePlayAfterLoad = $state(false);
+  let isExpanded = $state(false);
+  let isPlaying = $state(false);
+  let isLooping = $state(false);
+  let isMuted = $state(false);
+  let currentTime = $state(0);
+  let duration = $state(0);
+  let volume = $state(0.7);
+  let currentSongIndex = $state(0);
+  let isLoading = $state(false);
+  let hasError = $state(false);
+  let isChangingSong = $state(false);
+  let forcePlayAfterLoad = $state(false);
 
-// 歌词相关状态
-interface LyricWord {
-	text: string;
-	startTime: number; // 相对于行开始的偏移时间（毫秒）
-	duration: number; // 持续时间（毫秒）
-}
+  // 歌词相关状态
+  interface LyricLine {
+    time: number;
+    text: string;
+  }
 
-interface LyricLine {
-	time: number; // 行开始时间（秒）
-	duration: number; // 行持续时间（秒）
-	words: LyricWord[];
-	text: string; // 完整文本
-}
+  let lyrics = $state<LyricLine[]>([]);
+  let currentLyricIndex = $state(-1);
 
-let lyricsYrc = $state<LyricLine[]>([]);
-let currentLyricIndex = $state(-1);
+  let currentSong = $derived(songs[currentSongIndex]);
 
-let currentSong = $derived(songs[currentSongIndex]);
+  let audio: HTMLAudioElement;
 
-let audio: HTMLAudioElement;
+  const STORAGE_PREFIX = "music_";
 
-const STORAGE_PREFIX = "music_";
+  function loadValue(name: string): string | null {
+    if (typeof localStorage === "undefined") return null;
+    return localStorage.getItem(STORAGE_PREFIX + name);
+  }
 
-function loadValue(name: string): string | null {
-	if (typeof localStorage === "undefined") return null;
-	return localStorage.getItem(STORAGE_PREFIX + name);
-}
+  function saveValue(name: string, value: string) {
+    if (typeof localStorage === "undefined") return;
+    localStorage.setItem(STORAGE_PREFIX + name, value);
+  }
 
-function saveValue(name: string, value: string) {
-	if (typeof localStorage === "undefined") return;
-	localStorage.setItem(STORAGE_PREFIX + name, value);
-}
+  function formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  }
 
-function formatTime(seconds: number): string {
-	const mins = Math.floor(seconds / 60);
-	const secs = Math.floor(seconds % 60);
-	return `${mins}:${secs.toString().padStart(2, "0")}`;
-}
+  // 解析歌词（支持YRC和LRC格式）
+  function parseLyrics(lyricStr: string): LyricLine[] {
+    const lines: LyricLine[] = [];
+    if (!lyricStr) return lines;
 
-// 解析 yrc 格式歌词（逐字时间轴）
-function parseYrc(yrcStr: string): LyricLine[] {
-	const lines: LyricLine[] = [];
-	if (!yrcStr) return lines;
+    // 按行分割
+    const lineList = lyricStr.split("\n");
 
-	// 按行分割
-	const lineList = yrcStr.split("\n");
+    for (const line of lineList) {
+      // 尝试匹配YRC格式：[startTime,duration]content
+      let yrcMatch = line.match(/^\[(\d+),(\d+)\](.*)$/);
+      if (yrcMatch) {
+        const startTime = Number.parseInt(yrcMatch[1], 10) / 1000;
+        let content = yrcMatch[3];
+        // 移除逐字时间轴标记
+        content = content.replace(/\(\d+,\d+,0\)/g, "");
+        content = content.trim();
 
-	for (const line of lineList) {
-		// 匹配行格式：[startTime,duration](wordTime,wordDur,0)word(wordTime,wordDur,0)word...
-		const lineMatch = line.match(/^\[(\d+),(\d+)\](.*)$/);
-		if (!lineMatch) continue;
+        if (
+          content &&
+          !content.startsWith("作词") &&
+          !content.startsWith("作曲") &&
+          !content.startsWith("编曲")
+        ) {
+          lines.push({ time: startTime, text: content });
+        }
+        continue;
+      }
 
-		const startTime = Number.parseInt(lineMatch[1], 10) / 1000; // 转换为秒
-		const duration = Number.parseInt(lineMatch[2], 10) / 1000; // 转换为秒
-		const content = lineMatch[3];
+      // 尝试匹配LRC格式：[mm:ss.xx] 或 [mm:ss.xxx]
+      let lrcMatch = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\]([^\n]+)/);
+      if (lrcMatch) {
+        const minutes = Number.parseInt(lrcMatch[1], 10);
+        const seconds = Number.parseInt(lrcMatch[2], 10);
+        const ms = Number.parseInt(lrcMatch[3].padEnd(3, "0"), 10);
+        const time = minutes * 60 + seconds + ms / 1000;
+        const text = lrcMatch[4].trim();
 
-		if (
-			!content ||
-			content.startsWith("作词") ||
-			content.startsWith("作曲") ||
-			content.startsWith("编曲")
-		) {
-			continue;
-		}
+        if (
+          text &&
+          !text.startsWith("[by:") &&
+          !text.startsWith("作词") &&
+          !text.startsWith("作曲")
+        ) {
+          lines.push({ time, text });
+        }
+      }
+    }
 
-		// 解析逐字信息
-		const words: LyricWord[] = [];
-		const wordRegex = /\((\d+),(\d+),0\)([^(]*)/g;
-		let wordMatch;
-		let fullText = "";
+    return lines.sort((a, b) => a.time - b.time);
+  }
 
-		while ((wordMatch = wordRegex.exec(content)) !== null) {
-			const wordStartTime = Number.parseInt(wordMatch[1], 10);
-			const wordDuration = Number.parseInt(wordMatch[2], 10);
-			const wordText = wordMatch[3];
+  // 获取歌词
+  async function fetchLyrics(songId: number) {
+    try {
+      const response = await fetch(
+        `https://api.vkeys.cn/v2/music/netease/lyric?id=${songId}`,
+      );
+      const data = await response.json();
 
-			if (wordText) {
-				words.push({
-					text: wordText,
-					startTime: wordStartTime,
-					duration: wordDuration,
-				});
-				fullText += wordText;
-			}
-		}
+      if (data.code === 200 && data.data) {
+        lyrics = parseLyrics(data.data.yrc || data.data.lrc || "");
+        currentLyricIndex = -1;
+      } else {
+        lyrics = [];
+      }
+    } catch (error) {
+      console.error("获取歌词失败:", error);
+      lyrics = [];
+    }
+  }
 
-		if (fullText && words.length > 0) {
-			lines.push({
-				time: startTime,
-				duration: duration,
-				words: words,
-				text: fullText,
-			});
-		}
-	}
+  // 更新当前歌词行索引
+  function updateCurrentLyricIndex() {
+    if (!lyrics.length) {
+      currentLyricIndex = -1;
+      return;
+    }
 
-	return lines;
-}
+    let newIndex = -1;
+    for (let i = lyrics.length - 1; i >= 0; i--) {
+      if (currentTime >= lyrics[i].time) {
+        newIndex = i;
+        break;
+      }
+    }
 
-// 获取歌词
-async function fetchLyrics(songId: number) {
-	try {
-		const response = await fetch(
-			`https://api.vkeys.cn/v2/music/netease/lyric?id=${songId}`,
-		);
-		const data = await response.json();
+    if (newIndex !== currentLyricIndex) {
+      currentLyricIndex = newIndex;
+    }
+  }
 
-		if (data.code === 200 && data.data) {
-			lyricsYrc = parseYrc(data.data.yrc || data.data.lrc || "");
-			currentLyricIndex = -1;
-		} else {
-			lyricsYrc = [];
-		}
-	} catch (error) {
-		console.error("获取歌词失败:", error);
-		lyricsYrc = [];
-	}
-}
+  function togglePlay() {
+    if (audio && !isLoading && !isChangingSong) {
+      if (isPlaying) {
+        audio.pause();
+      } else {
+        audio.play().catch(() => {});
+      }
+    }
+  }
 
-// 更新当前歌词行索引
-function updateCurrentLyricIndex() {
-	if (!lyricsYrc.length) {
-		currentLyricIndex = -1;
-		return;
-	}
+  function toggleLoop() {
+    isLooping = !isLooping;
+    if (audio) {
+      audio.loop = isLooping;
+    }
+    saveValue("isLooping", isLooping.toString());
+  }
 
-	let newIndex = -1;
-	for (let i = lyricsYrc.length - 1; i >= 0; i--) {
-		if (currentTime >= lyricsYrc[i].time) {
-			newIndex = i;
-			break;
-		}
-	}
+  function toggleMute() {
+    isMuted = !isMuted;
+    if (audio) {
+      audio.muted = isMuted;
+    }
+    saveValue("isMuted", isMuted.toString());
+  }
 
-	if (newIndex !== currentLyricIndex) {
-		currentLyricIndex = newIndex;
-	}
-}
+  function changeSong(index: number) {
+    if (index === currentSongIndex && !isLoading) return;
 
-function togglePlay() {
-	if (audio && !isLoading && !isChangingSong) {
-		if (isPlaying) {
-			audio.pause();
-		} else {
-			audio.play().catch(() => {});
-		}
-	}
-}
+    isChangingSong = true;
+    forcePlayAfterLoad = isPlaying;
+    currentSongIndex = index;
+    currentTime = 0;
+    hasError = false;
+    isLoading = true;
 
-function toggleLoop() {
-	isLooping = !isLooping;
-	if (audio) {
-		audio.loop = isLooping;
-	}
-	saveValue("isLooping", isLooping.toString());
-}
+    // 获取新歌曲的歌词
+    fetchLyrics(songs[index].id);
 
-function toggleMute() {
-	isMuted = !isMuted;
-	if (audio) {
-		audio.muted = isMuted;
-	}
-	saveValue("isMuted", isMuted.toString());
-}
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.load();
+    }
 
-function changeSong(index: number) {
-	if (index === currentSongIndex && !isLoading) return;
+    saveValue("currentSong", index.toString());
+    saveValue("playTime", "0");
+  }
 
-	isChangingSong = true;
-	forcePlayAfterLoad = isPlaying;
-	currentSongIndex = index;
-	currentTime = 0;
-	hasError = false;
-	isLoading = true;
+  function prevSong() {
+    const newIndex = currentSongIndex - 1;
+    changeSong(newIndex < 0 ? songs.length - 1 : newIndex);
+  }
 
-	// 获取新歌曲的歌词
-	fetchLyrics(songs[index].id);
+  function nextSong() {
+    const newIndex = currentSongIndex + 1;
+    changeSong(newIndex >= songs.length ? 0 : newIndex);
+  }
 
-	if (audio) {
-		audio.pause();
-		audio.currentTime = 0;
-		audio.load();
-	}
+  let lastSavedTime = 0;
 
-	saveValue("currentSong", index.toString());
-	saveValue("playTime", "0");
-}
+  function handleTimeUpdate() {
+    if (audio) {
+      currentTime = audio.currentTime;
+      updateCurrentLyricIndex();
+      if (isPlaying && currentTime - lastSavedTime > 5) {
+        lastSavedTime = currentTime;
+        saveValue("playTime", currentTime.toString());
+      }
+    }
+  }
 
-function prevSong() {
-	const newIndex = currentSongIndex - 1;
-	changeSong(newIndex < 0 ? songs.length - 1 : newIndex);
-}
+  function handleLoadedMetadata() {
+    if (audio) {
+      duration = audio.duration;
+      isLoading = false;
+      hasError = false;
 
-function nextSong() {
-	const newIndex = currentSongIndex + 1;
-	changeSong(newIndex >= songs.length ? 0 : newIndex);
-}
+      if (currentTime > 0) {
+        audio.currentTime = currentTime;
+      }
 
-let lastSavedTime = 0;
+      if (forcePlayAfterLoad) {
+        forcePlayAfterLoad = false;
+        audio
+          .play()
+          .then(() => {
+            isPlaying = true;
+          })
+          .catch(() => {
+            isPlaying = false;
+          });
+      }
 
-function handleTimeUpdate() {
-	if (audio) {
-		currentTime = audio.currentTime;
-		updateCurrentLyricIndex();
-		if (isPlaying && currentTime - lastSavedTime > 5) {
-			lastSavedTime = currentTime;
-			saveValue("playTime", currentTime.toString());
-		}
-	}
-}
+      queueMicrotask(() => {
+        isChangingSong = false;
+      });
+    }
+  }
 
-function handleLoadedMetadata() {
-	if (audio) {
-		duration = audio.duration;
-		isLoading = false;
-		hasError = false;
+  function handleWaiting() {
+    isLoading = true;
+  }
 
-		if (currentTime > 0) {
-			audio.currentTime = currentTime;
-		}
+  function handleCanPlay() {
+    isLoading = false;
+    if (audio && Number.isNaN(duration)) {
+      duration = audio.duration;
+    }
+  }
 
-		if (forcePlayAfterLoad) {
-			forcePlayAfterLoad = false;
-			audio
-				.play()
-				.then(() => {
-					isPlaying = true;
-				})
-				.catch(() => {
-					isPlaying = false;
-				});
-		}
+  function handleError() {
+    if (!isChangingSong) {
+      isLoading = false;
+      hasError = true;
+      isPlaying = false;
+    }
+  }
 
-		queueMicrotask(() => {
-			isChangingSong = false;
-		});
-	}
-}
+  function handleEnded() {
+    if (!isLooping) {
+      nextSong();
+    }
+  }
 
-function handleWaiting() {
-	isLoading = true;
-}
+  function handlePlay() {
+    isPlaying = true;
+    saveValue("isPlaying", "true");
+  }
 
-function handleCanPlay() {
-	isLoading = false;
-	if (audio && Number.isNaN(duration)) {
-		duration = audio.duration;
-	}
-}
+  function handlePause() {
+    isPlaying = false;
+    saveValue("isPlaying", "false");
+  }
 
-function handleError() {
-	if (!isChangingSong) {
-		isLoading = false;
-		hasError = true;
-		isPlaying = false;
-	}
-}
+  function seek(e: Event) {
+    const target = e.target as HTMLInputElement;
+    if (audio) {
+      audio.currentTime = Number.parseFloat(target.value);
+      currentTime = audio.currentTime;
+    }
+  }
 
-function handleEnded() {
-	if (!isLooping) {
-		nextSong();
-	}
-}
+  function setVolume(e: Event) {
+    const target = e.target as HTMLInputElement;
+    volume = Number.parseFloat(target.value);
+    if (audio) {
+      audio.volume = volume;
+    }
+    if (volume > 0 && isMuted) {
+      isMuted = false;
+      if (audio) audio.muted = false;
+    }
+    saveValue("volume", volume.toString());
+    saveValue("isMuted", isMuted.toString());
+  }
 
-function handlePlay() {
-	isPlaying = true;
-	saveValue("isPlaying", "true");
-}
+  function retry() {
+    if (audio) {
+      hasError = false;
+      isLoading = true;
+      audio.load();
+    }
+  }
 
-function handlePause() {
-	isPlaying = false;
-	saveValue("isPlaying", "false");
-}
+  onMount(() => {
+    tick().then(() => {
+      if (audio) {
+        const savedSongIndex = loadValue("currentSong");
+        const savedVolume = loadValue("volume");
+        const savedLoopState = loadValue("isLooping");
+        const savedMuteState = loadValue("isMuted");
+        const savedPlayTime = loadValue("playTime");
 
-function seek(e: Event) {
-	const target = e.target as HTMLInputElement;
-	if (audio) {
-		audio.currentTime = Number.parseFloat(target.value);
-		currentTime = audio.currentTime;
-	}
-}
+        if (savedSongIndex !== null) {
+          currentSongIndex = Number.parseInt(savedSongIndex, 10);
+        }
 
-function setVolume(e: Event) {
-	const target = e.target as HTMLInputElement;
-	volume = Number.parseFloat(target.value);
-	if (audio) {
-		audio.volume = volume;
-	}
-	if (volume > 0 && isMuted) {
-		isMuted = false;
-		if (audio) audio.muted = false;
-	}
-	saveValue("volume", volume.toString());
-	saveValue("isMuted", isMuted.toString());
-}
+        if (savedVolume !== null) {
+          volume = Number.parseFloat(savedVolume);
+          audio.volume = volume;
+        }
 
-function retry() {
-	if (audio) {
-		hasError = false;
-		isLoading = true;
-		audio.load();
-	}
-}
+        if (savedLoopState !== null) {
+          isLooping = savedLoopState === "true";
+          audio.loop = isLooping;
+        }
 
-onMount(() => {
-	tick().then(() => {
-		if (audio) {
-			const savedSongIndex = loadValue("currentSong");
-			const savedVolume = loadValue("volume");
-			const savedLoopState = loadValue("isLooping");
-			const savedMuteState = loadValue("isMuted");
-			const savedPlayTime = loadValue("playTime");
+        if (savedMuteState !== null) {
+          isMuted = savedMuteState === "true";
+          audio.muted = isMuted;
+        }
 
-			if (savedSongIndex !== null) {
-				currentSongIndex = Number.parseInt(savedSongIndex, 10);
-			}
+        currentTime = savedPlayTime ? Number.parseFloat(savedPlayTime) : 0;
+        isPlaying = false;
 
-			if (savedVolume !== null) {
-				volume = Number.parseFloat(savedVolume);
-				audio.volume = volume;
-			}
+        // 加载初始歌曲的歌词
+        fetchLyrics(songs[currentSongIndex].id);
 
-			if (savedLoopState !== null) {
-				isLooping = savedLoopState === "true";
-				audio.loop = isLooping;
-			}
-
-			if (savedMuteState !== null) {
-				isMuted = savedMuteState === "true";
-				audio.muted = isMuted;
-			}
-
-			currentTime = savedPlayTime ? Number.parseFloat(savedPlayTime) : 0;
-			isPlaying = false;
-
-			// 加载初始歌曲的歌词
-			fetchLyrics(songs[currentSongIndex].id);
-
-			audio.load();
-		}
-	});
-});
+        audio.load();
+      }
+    });
+  });
 </script>
 
 {#if enabled}
   <div class="card-base p-3">
     <div class="flex flex-col gap-3">
       <div class="flex items-center justify-between">
-        <h3 class="font-bold text-lg text-black dark:text-white">Music Player</h3>
+        <h3 class="font-bold text-lg text-black dark:text-white">
+          Music Player
+        </h3>
         <button
           onclick={() => (isExpanded = !isExpanded)}
           class="btn-plain p-1 rounded"
@@ -382,7 +368,7 @@ onMount(() => {
             stroke-linecap="round"
             stroke-linejoin="round"
             class="transition-transform duration-300"
-            style:transform={isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}
+            style:transform={isExpanded ? "rotate(180deg)" : "rotate(0deg)"}
           >
             <polyline points="6 9 12 15 18 9" />
           </svg>
@@ -397,8 +383,14 @@ onMount(() => {
         />
         <div class="flex-1 min-w-0 flex items-center gap-2">
           <div class="flex-1 min-w-0">
-            <div class="font-bold truncate text-black dark:text-white">{currentSong.title}</div>
-            <div class="text-sm text-neutral-600 dark:text-neutral-400 truncate">{currentSong.artist}</div>
+            <div class="font-bold truncate text-black dark:text-white">
+              {currentSong.title}
+            </div>
+            <div
+              class="text-sm text-neutral-600 dark:text-neutral-400 truncate"
+            >
+              {currentSong.artist}
+            </div>
           </div>
           <div class="flex-shrink-0 w-4 h-4">
             {#if isLoading && !hasError}
@@ -451,41 +443,30 @@ onMount(() => {
         </div>
       </div>
 
-      <!-- 歌词显示区域 - 单行显示 -->
-      {#if lyricsYrc.length > 0 && currentLyricIndex >= 0}
-        {@const currentLine = lyricsYrc[currentLyricIndex]}
-        <div class="lyric-single-line px-2 py-1 overflow-hidden">
-          <div class="text-center text-xs leading-relaxed font-medium">
-            {#each currentLine.words as word, wordIndex}
-              {@const wordStartTime = currentLine.time * 1000 + word.startTime}
-              {@const wordEndTime = wordStartTime + word.duration}
-              {@const isPlayed = currentTime * 1000 >= wordStartTime}
-              {@const isCurrent = currentTime * 1000 >= wordStartTime && currentTime * 1000 < wordEndTime}
-              <span
-                class="inline-block transition-all duration-150 ease-out
-                  {isPlayed ? 'text-[var(--primary)]' : 'text-black/60 dark:text-white/60'}
-                  {isCurrent ? 'scale-110 font-bold' : ''}
-                  {isPlayed && !isCurrent ? 'font-semibold' : ''}"
-                style:animation={isCurrent ? 'lyricPulse 0.5s ease-in-out infinite' : ''}
-              >
-                {word.text}
-              </span>
-            {/each}
-          </div>
+      <!-- 歌词显示区域 -->
+      {#if lyrics.length > 0 && currentLyricIndex >= 0}
+        <div
+          class="text-center text-xs py-0.5 transition-all duration-300 text-[var(--primary)] font-medium"
+        >
+          {lyrics[currentLyricIndex].text}
         </div>
-      {:else if lyricsYrc.length > 0}
-        <div class="lyric-single-line px-2 py-1">
-          <div class="text-center text-xs text-black/40 dark:text-white/40 leading-relaxed">
-            等待播放...
-          </div>
+      {:else if lyrics.length > 0}
+        <div
+          class="text-center text-xs py-0.5 text-black/40 dark:text-white/40"
+        >
+          等待播放...
         </div>
       {/if}
 
       <div class="space-y-2">
         <div class="flex items-center gap-2">
-          <span class="text-xs w-10 text-right text-black dark:text-white">{formatTime(currentTime)}</span>
+          <span class="text-xs w-10 text-right text-black dark:text-white"
+            >{formatTime(currentTime)}</span
+          >
           <div class="relative flex-1 h-1.5 rounded-full overflow-hidden">
-            <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+            <div
+              class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"
+            ></div>
             <div
               class="absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full transition-[width] duration-150 z-10"
               style:width={duration ? (currentTime / duration) * 100 : 0 + "%"}
@@ -499,7 +480,9 @@ onMount(() => {
               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
             />
           </div>
-          <span class="text-xs w-10 text-black dark:text-white">{formatTime(duration)}</span>
+          <span class="text-xs w-10 text-black dark:text-white"
+            >{formatTime(duration)}</span
+          >
         </div>
 
         <div class="flex items-center justify-between">
@@ -507,7 +490,7 @@ onMount(() => {
             onclick={toggleLoop}
             class="btn-plain p-1 rounded"
             title="单曲循环"
-            style:color={isLooping ? 'var(--primary)' : ''}
+            style:color={isLooping ? "var(--primary)" : ""}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -527,7 +510,11 @@ onMount(() => {
             </svg>
           </button>
 
-          <button onclick={prevSong} class="btn-plain p-1 rounded" title="上一首">
+          <button
+            onclick={prevSong}
+            class="btn-plain p-1 rounded"
+            title="上一首"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -546,7 +533,7 @@ onMount(() => {
           <button
             onclick={togglePlay}
             class="btn-plain w-12 h-12 rounded-full flex items-center justify-center"
-            title={isPlaying ? '暂停' : '播放'}
+            title={isPlaying ? "暂停" : "播放"}
             disabled={isLoading || hasError}
           >
             {#if isPlaying}
@@ -581,7 +568,11 @@ onMount(() => {
             {/if}
           </button>
 
-          <button onclick={nextSong} class="btn-plain p-1 rounded" title="下一首">
+          <button
+            onclick={nextSong}
+            class="btn-plain p-1 rounded"
+            title="下一首"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -598,7 +589,11 @@ onMount(() => {
           </button>
 
           <div class="flex items-center gap-1">
-            <button onclick={toggleMute} class="btn-plain p-1 rounded" title={isMuted ? '取消静音' : '静音'}>
+            <button
+              onclick={toggleMute}
+              class="btn-plain p-1 rounded"
+              title={isMuted ? "取消静音" : "静音"}
+            >
               {#if isMuted}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -634,7 +629,9 @@ onMount(() => {
               {/if}
             </button>
             <div class="relative w-16 h-1.5 rounded-full overflow-hidden">
-              <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+              <div
+                class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"
+              ></div>
               <div
                 class="absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full"
                 style:width={volume * 100 + "%"}
@@ -667,8 +664,14 @@ onMount(() => {
                   class="w-12 h-12 rounded-lg object-cover"
                 />
                 <div class="flex-1 min-w-0">
-                  <div class="font-medium truncate text-black dark:text-white">{song.title}</div>
-                  <div class="text-xs text-neutral-600 dark:text-neutral-400 truncate">{song.artist}</div>
+                  <div class="font-medium truncate text-black dark:text-white">
+                    {song.title}
+                  </div>
+                  <div
+                    class="text-xs text-neutral-600 dark:text-neutral-400 truncate"
+                  >
+                    {song.artist}
+                  </div>
                 </div>
                 {#if index === currentSongIndex}
                   {#if isLoading && !hasError}
@@ -721,8 +724,14 @@ onMount(() => {
                   {:else if isPlaying}
                     <div class="flex gap-0.5 items-end h-4">
                       <div class="w-1 h-2 bg-[var(--primary)] animate-pulse" />
-                      <div class="w-1 h-3 bg-[var(--primary)] animate-pulse" style="animation-delay: 75ms" />
-                      <div class="w-1 h-4 bg-[var(--primary)] animate-pulse" style="animation-delay: 150ms" />
+                      <div
+                        class="w-1 h-3 bg-[var(--primary)] animate-pulse"
+                        style="animation-delay: 75ms"
+                      />
+                      <div
+                        class="w-1 h-4 bg-[var(--primary)] animate-pulse"
+                        style="animation-delay: 150ms"
+                      />
                     </div>
                   {/if}
                 {/if}
@@ -768,7 +777,9 @@ onMount(() => {
     background: var(--primary);
     border-radius: 10px;
     opacity: 0.4;
-    transition: opacity 0.2s, width 0.2s;
+    transition:
+      opacity 0.2s,
+      width 0.2s;
   }
 
   .song-list-scroll:hover::-webkit-scrollbar-thumb {
@@ -778,25 +789,5 @@ onMount(() => {
   .song-list-scroll::-webkit-scrollbar-thumb:hover {
     opacity: 1;
     width: 7px;
-  }
-
-  /* 歌词单行显示样式 */
-  .lyric-single-line {
-    position: relative;
-    touch-action: none;
-    -webkit-touch-callout: none;
-    user-select: none;
-  }
-
-  /* 逐字脉冲动画 */
-  @keyframes lyricPulse {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.05);
-    }
   }
 </style>
