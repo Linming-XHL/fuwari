@@ -34,7 +34,6 @@ interface LyricLine {
 
 let lyricsYrc = $state<LyricLine[]>([]);
 let currentLyricIndex = $state(-1);
-let lyricContainerRef: HTMLDivElement;
 
 let currentSong = $derived(songs[currentSongIndex]);
 
@@ -155,20 +154,6 @@ function updateCurrentLyricIndex() {
 
 	if (newIndex !== currentLyricIndex) {
 		currentLyricIndex = newIndex;
-		scrollToCurrentLyric();
-	}
-}
-
-// 滚动到当前歌词行
-async function scrollToCurrentLyric() {
-	await tick();
-	if (!lyricContainerRef || currentLyricIndex < 0) return;
-
-	const activeElement = lyricContainerRef.querySelector(
-		`[data-lyric-index="${currentLyricIndex}"]`,
-	);
-	if (activeElement) {
-		activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
 	}
 }
 
@@ -466,38 +451,32 @@ onMount(() => {
         </div>
       </div>
 
-      <!-- 歌词显示区域 -->
-      {#if lyricsYrc.length > 0}
-        <div
-          bind:this={lyricContainerRef}
-          class="lyric-container overflow-y-auto max-h-[100px] px-2"
-        >
-          <div class="space-y-0.5">
-            {#each lyricsYrc as line, index}
-              {@const isActive = index === currentLyricIndex}
-              <div
-                data-lyric-index={index}
-                class="text-center transition-all duration-300 py-0.5 {isActive ? 'scale-110' : 'opacity-50'}"
+      <!-- 歌词显示区域 - 单行显示 -->
+      {#if lyricsYrc.length > 0 && currentLyricIndex >= 0}
+        {@const currentLine = lyricsYrc[currentLyricIndex]}
+        <div class="lyric-single-line px-2 py-1 overflow-hidden">
+          <div class="text-center text-xs leading-relaxed font-medium">
+            {#each currentLine.words as word, wordIndex}
+              {@const wordStartTime = currentLine.time * 1000 + word.startTime}
+              {@const wordEndTime = wordStartTime + word.duration}
+              {@const isPlayed = currentTime * 1000 >= wordStartTime}
+              {@const isCurrent = currentTime * 1000 >= wordStartTime && currentTime * 1000 < wordEndTime}
+              <span
+                class="inline-block transition-all duration-150 ease-out
+                  {isPlayed ? 'text-[var(--primary)]' : 'text-black/60 dark:text-white/60'}
+                  {isCurrent ? 'scale-110 font-bold' : ''}
+                  {isPlayed && !isCurrent ? 'font-semibold' : ''}"
+                style:animation={isCurrent ? 'lyricPulse 0.5s ease-in-out infinite' : ''}
               >
-                {#if isActive}
-                  <!-- 当前行：逐字显示，已过词用主题色 -->
-                  <div class="text-xs leading-relaxed font-medium">
-                    {#each line.words as word}
-                      <span
-                        class="transition-colors duration-100 {(currentTime * 1000 >= (line.time * 1000 + word.startTime)) ? 'text-[var(--primary)] font-bold' : 'text-black dark:text-white'}"
-                      >
-                        {word.text}
-                      </span>
-                    {/each}
-                  </div>
-                {:else}
-                  <!-- 非当前行：普通显示 -->
-                  <div class="text-[10px] leading-relaxed text-black dark:text-white">
-                    {line.text}
-                  </div>
-                {/if}
-              </div>
+                {word.text}
+              </span>
             {/each}
+          </div>
+        </div>
+      {:else if lyricsYrc.length > 0}
+        <div class="lyric-single-line px-2 py-1">
+          <div class="text-center text-xs text-black/40 dark:text-white/40 leading-relaxed">
+            等待播放...
           </div>
         </div>
       {/if}
@@ -508,7 +487,7 @@ onMount(() => {
           <div class="relative flex-1 h-1.5 rounded-full overflow-hidden">
             <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
             <div
-              class="absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full transition-[width] duration-150"
+              class="absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full transition-[width] duration-150 z-10"
               style:width={duration ? (currentTime / duration) * 100 : 0 + "%"}
             ></div>
             <input
@@ -517,7 +496,7 @@ onMount(() => {
               max={duration || 100}
               value={currentTime}
               oninput={seek}
-              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
             />
           </div>
           <span class="text-xs w-10 text-black dark:text-white">{formatTime(duration)}</span>
@@ -801,13 +780,23 @@ onMount(() => {
     width: 7px;
   }
 
-  /* 歌词容器样式 */
-  .lyric-container {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+  /* 歌词单行显示样式 */
+  .lyric-single-line {
+    position: relative;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    user-select: none;
   }
 
-  .lyric-container::-webkit-scrollbar {
-    display: none;
+  /* 逐字脉冲动画 */
+  @keyframes lyricPulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
   }
 </style>
