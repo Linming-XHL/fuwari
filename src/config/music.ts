@@ -7,6 +7,8 @@ export interface Song {
 	artist: string;
 	// 音乐 mp3 地址
 	url: string;
+	// 网易云音乐ID（用于获取歌词）
+	id: number;
 }
 
 export const musicPlayerConfig = {
@@ -20,6 +22,7 @@ export const musicPlayerConfig = {
 			title: "Inspiration",
 			artist: "WavebeatsMusic",
 			url: "https://music.163.com/song/media/outer/url?id=1443334642.mp3",
+			id: 1443334642,
 		},
 		{
 			cover:
@@ -27,6 +30,7 @@ export const musicPlayerConfig = {
 			title: "葬花",
 			artist: "THT",
 			url: "https://music.163.com/song/media/outer/url?id=503426999.mp3",
+			id: 503426999,
 		},
 		{
 			cover:
@@ -34,6 +38,7 @@ export const musicPlayerConfig = {
 			title: "The Way I Still Love You",
 			artist: "Reynard Silva",
 			url: "https://music.163.com/song/media/outer/url?id=2053342443.mp3",
+			id: 2053342443,
 		},
 		{
 			cover:
@@ -41,6 +46,7 @@ export const musicPlayerConfig = {
 			title: "Past Lives",
 			artist: "Martin Arteta,creamy,11:11 Music Group",
 			url: "https://music.163.com/song/media/outer/url?id=1813454565.mp3",
+			id: 1813454565,
 		},
 		{
 			cover:
@@ -48,6 +54,7 @@ export const musicPlayerConfig = {
 			title: "Snowdream",
 			artist: "VibeNova",
 			url: "https://music.163.com/song/media/outer/url?id=568709232.mp3",
+			id: 568709232,
 		},
 		{
 			cover:
@@ -55,6 +62,7 @@ export const musicPlayerConfig = {
 			title: "Collapsing World",
 			artist: "Lightscape",
 			url: "https://music.163.com/song/media/outer/url?id=2150413480.mp3",
+			id: 2150413480,
 		},
 		{
 			cover:
@@ -62,6 +70,7 @@ export const musicPlayerConfig = {
 			title: "室内系的TrackMaker",
 			artist: "Reze",
 			url: "https://music.163.com/song/media/outer/url?id=3374977079.mp3",
+			id: 3374977079,
 		},
 		{
 			cover:
@@ -69,6 +78,7 @@ export const musicPlayerConfig = {
 			title: "it's 6pm but I miss u already.",
 			artist: "BlueLee,Furyl,Siren",
 			url: "https://music.163.com/song/media/outer/url?id=1890756154.mp3",
+			id: 1890756154,
 		},
 		{
 			cover:
@@ -76,6 +86,7 @@ export const musicPlayerConfig = {
 			title: "Pure Ocean",
 			artist: "Jamvana",
 			url: "https://cdn.240900.xyz/music/pureocean.mp3",
+			id: 2604822332,
 		},
 		{
 			cover:
@@ -83,6 +94,7 @@ export const musicPlayerConfig = {
 			title: "Jackpot",
 			artist: "TheFatRat",
 			url: "https://music.163.com/song/media/outer/url?id=441612737.mp3",
+			id: 441612737,
 		},
 		{
 			cover:
@@ -90,6 +102,7 @@ export const musicPlayerConfig = {
 			title: "Alone",
 			artist: "Rentz",
 			url: "https://cdn.240900.xyz/music/alone-rentz.mp3",
+			id: 1992859765,
 		},
 		{
 			cover:
@@ -97,6 +110,7 @@ export const musicPlayerConfig = {
 			title: "Hero",
 			artist: "Charlie Puth",
 			url: "https://cdn.240900.xyz/music/hero-c-p.mp3",
+			id: 2158286660,
 		},
 		{
 			cover:
@@ -104,6 +118,7 @@ export const musicPlayerConfig = {
 			title: "All Falls Down",
 			artist: "Alan Walker/Noah Cyrus/Digital Farm Animals/Juliander",
 			url: "https://cdn.240900.xyz/music/allfallsdown.mp3",
+			id: 515453363,
 		},
 		{
 			cover:
@@ -111,6 +126,7 @@ export const musicPlayerConfig = {
 			title: "cyanic",
 			artist: "LhoU",
 			url: "https://music.163.com/song/media/outer/url?id=5319447.mp3",
+			id: 5319447,
 		},
 		{
 			cover:
@@ -118,6 +134,7 @@ export const musicPlayerConfig = {
 			title: "Lake Arrowhead (Radio Mix)",
 			artist: "Nora En Pure",
 			url: "https://music.163.com/song/media/outer/url?id=477742336.mp3",
+			id: 477742336,
 		},
 		{
 			cover:
@@ -125,6 +142,7 @@ export const musicPlayerConfig = {
 			title: "Adventures",
 			artist: "Alex Skrindo",
 			url: "https://music.163.com/song/media/outer/url?id=33922813.mp3",
+			id: 33922813,
 		},
 		{
 			cover:
@@ -132,6 +150,7 @@ export const musicPlayerConfig = {
 			title: "Oblivion",
 			artist: "TheFatRat/Lola Blanc",
 			url: "https://music.163.com/song/media/outer/url?id=515540639.mp3",
+			id: 515540639,
 		},
 		{
 			cover:
@@ -139,6 +158,7 @@ export const musicPlayerConfig = {
 			title: "Here",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1461445180.mp3",
+			id: 1461445180,
 		},
 		{
 			cover:
@@ -146,6 +166,7 @@ export const musicPlayerConfig = {
 			title: "Forever Away",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1346903862.mp3",
+			id: 1346903862,
 		},
 		{
 			cover:
@@ -153,6 +174,7 @@ export const musicPlayerConfig = {
 			title: "Shooting Star",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1315960996.mp3",
+			id: 1315960996,
 		},
 		{
 			cover:
@@ -160,6 +182,7 @@ export const musicPlayerConfig = {
 			title: "End Of The Abyss",
 			artist: "Little End/Pam_dinosaur",
 			url: "https://music.163.com/song/media/outer/url?id=1396261700.mp3",
+			id: 1396261700,
 		},
 		{
 			cover:
@@ -167,6 +190,7 @@ export const musicPlayerConfig = {
 			title: "City",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1296641291.mp3",
+			id: 1296641291,
 		},
 		{
 			cover:
@@ -174,6 +198,7 @@ export const musicPlayerConfig = {
 			title: "Sky",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=544556228.mp3",
+			id: 544556228,
 		},
 		{
 			cover:
@@ -181,6 +206,7 @@ export const musicPlayerConfig = {
 			title: "Hometown",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=530425152.mp3",
+			id: 530425152,
 		},
 		{
 			cover:
@@ -188,6 +214,7 @@ export const musicPlayerConfig = {
 			title: "Ocean",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1818940986.mp3",
+			id: 1818940986,
 		},
 		{
 			cover:
@@ -195,6 +222,7 @@ export const musicPlayerConfig = {
 			title: "Everything",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1323390484.mp3",
+			id: 1323390484,
 		},
 		{
 			cover:
@@ -202,6 +230,7 @@ export const musicPlayerConfig = {
 			title: "Alive",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1358775119.mp3",
+			id: 1358775119,
 		},
 		{
 			cover:
@@ -209,6 +238,7 @@ export const musicPlayerConfig = {
 			title: "Wind With Clouds",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1419278912.mp3",
+			id: 1419278912,
 		},
 		{
 			cover:
@@ -216,6 +246,7 @@ export const musicPlayerConfig = {
 			title: "Line",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=2696820965.mp3",
+			id: 2696820965,
 		},
 		{
 			cover:
@@ -223,6 +254,7 @@ export const musicPlayerConfig = {
 			title: "Wet Cat Steps",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=1956596535.mp3",
+			id: 1956596535,
 		},
 		{
 			cover:
@@ -230,6 +262,7 @@ export const musicPlayerConfig = {
 			title: "Memory",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=553895481.mp3",
+			id: 553895481,
 		},
 		{
 			cover:
@@ -237,6 +270,7 @@ export const musicPlayerConfig = {
 			title: "Summer",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=548888492.mp3",
+			id: 548888492,
 		},
 		{
 			cover:
@@ -244,6 +278,7 @@ export const musicPlayerConfig = {
 			title: "Nowhere",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=557620630.mp3",
+			id: 557620630,
 		},
 		{
 			cover:
@@ -251,6 +286,7 @@ export const musicPlayerConfig = {
 			title: "無錫",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=520180940.mp3",
+			id: 520180940,
 		},
 		{
 			cover:
@@ -258,6 +294,7 @@ export const musicPlayerConfig = {
 			title: "Journey",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=506657703.mp3",
+			id: 506657703,
 		},
 		{
 			cover:
@@ -265,6 +302,7 @@ export const musicPlayerConfig = {
 			title: "MINT SODA",
 			artist: "Little End",
 			url: "https://music.163.com/song/media/outer/url?id=541075125.mp3",
+			id: 541075125,
 		},
 	],
 };

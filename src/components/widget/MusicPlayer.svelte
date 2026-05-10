@@ -18,6 +18,17 @@ let hasError = $state(false);
 let isChangingSong = $state(false);
 let forcePlayAfterLoad = $state(false);
 
+// 歌词相关状态
+interface LyricLine {
+	time: number;
+	text: string;
+}
+
+let lyricsYrc = $state<LyricLine[]>([]);
+let lyricsTrans = $state<LyricLine[]>([]);
+let currentLyricIndex = $state(-1);
+let lyricContainerRef: HTMLDivElement;
+
 let currentSong = $derived(songs[currentSongIndex]);
 
 let audio: HTMLAudioElement;
@@ -38,6 +49,105 @@ function formatTime(seconds: number): string {
 	const mins = Math.floor(seconds / 60);
 	const secs = Math.floor(seconds % 60);
 	return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+// 解析 yrc 格式歌词
+function parseYrc(yrcStr: string): LyricLine[] {
+	const lines: LyricLine[] = [];
+	if (!yrcStr) return lines;
+
+	const lineRegex = /(\[(\d+),(\d+)\])([^[\n]*)/g;
+	let match;
+
+	while ((match = lineRegex.exec(yrcStr)) !== null) {
+		const startTime = parseInt(match[2], 10) / 1000; // 毫秒转秒
+		const content = match[4].trim();
+
+		if (content && !content.startsWith("作词") && !content.startsWith("作曲") && !content.startsWith("编曲")) {
+			lines.push({
+				time: startTime,
+				text: content,
+			});
+		}
+	}
+
+	return lines.sort((a, b) => a.time - b.time);
+}
+
+// 解析 lrc 格式歌词（用于翻译）
+function parseLrc(lrcStr: string): LyricLine[] {
+	const lines: LyricLine[] = [];
+	if (!lrcStr) return lines;
+
+	const lineRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]([^\n]+)/g;
+	let match;
+
+	while ((match = lineRegex.exec(lrcStr)) !== null) {
+		const minutes = parseInt(match[1], 10);
+		const seconds = parseInt(match[2], 10);
+		const ms = parseInt(match[3].padEnd(3, "0"), 10);
+		const time = minutes * 60 + seconds + ms / 1000;
+		const text = match[4].trim();
+
+		if (text && !text.startsWith("[by:") && !text.startsWith("作词") && !text.startsWith("作曲")) {
+			lines.push({ time, text });
+		}
+	}
+
+	return lines.sort((a, b) => a.time - b.time);
+}
+
+// 获取歌词
+async function fetchLyrics(songId: number) {
+	try {
+		const response = await fetch(`https://api.vkeys.cn/v2/music/netease/lyric?id=${songId}`);
+		const data = await response.json();
+
+		if (data.code === 200 && data.data) {
+			lyricsYrc = parseYrc(data.data.yrc || data.data.lrc || "");
+			lyricsTrans = parseLrc(data.data.trans || "");
+			currentLyricIndex = -1;
+		} else {
+			lyricsYrc = [];
+			lyricsTrans = [];
+		}
+	} catch (error) {
+		console.error("获取歌词失败:", error);
+		lyricsYrc = [];
+		lyricsTrans = [];
+	}
+}
+
+// 更新当前歌词行索引
+function updateCurrentLyricIndex() {
+	if (!lyricsYrc.length) {
+		currentLyricIndex = -1;
+		return;
+	}
+
+	let newIndex = -1;
+	for (let i = lyricsYrc.length - 1; i >= 0; i--) {
+		if (currentTime >= lyricsYrc[i].time) {
+			newIndex = i;
+			break;
+		}
+	}
+
+	if (newIndex !== currentLyricIndex) {
+		currentLyricIndex = newIndex;
+		scrollToCurrentLyric();
+	}
+}
+
+// 滚动到当前歌词行
+async function scrollToCurrentLyric() {
+	await tick();
+	if (!lyricContainerRef || currentLyricIndex < 0) return;
+
+	const activeElement = lyricContainerRef.querySelector(`[data-lyric-index="${currentLyricIndex}"]`);
+	if (activeElement) {
+		activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
+	}
 }
 
 function togglePlay() {
@@ -76,6 +186,9 @@ function changeSong(index: number) {
 	hasError = false;
 	isLoading = true;
 
+	// 获取新歌曲的歌词
+	fetchLyrics(songs[index].id);
+
 	if (audio) {
 		audio.pause();
 		audio.currentTime = 0;
@@ -101,6 +214,7 @@ let lastSavedTime = 0;
 function handleTimeUpdate() {
 	if (audio) {
 		currentTime = audio.currentTime;
+		updateCurrentLyricIndex();
 		if (isPlaying && currentTime - lastSavedTime > 5) {
 			lastSavedTime = currentTime;
 			saveValue("playTime", currentTime.toString());
@@ -232,6 +346,9 @@ onMount(() => {
 			currentTime = savedPlayTime ? Number.parseFloat(savedPlayTime) : 0;
 			isPlaying = false;
 
+			// 加载初始歌曲的歌词
+			fetchLyrics(songs[currentSongIndex].id);
+
 			audio.load();
 		}
 	});
@@ -258,7 +375,7 @@ onMount(() => {
             stroke-linecap="round"
             stroke-linejoin="round"
             class="transition-transform duration-300"
-            style="transform: {isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}"
+            style:transform={isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}
           >
             <polyline points="6 9 12 15 18 9" />
           </svg>
@@ -297,7 +414,7 @@ onMount(() => {
                 <line x1="2" y1="12" x2="6" y2="12" />
                 <line x1="18" y1="12" x2="22" y2="12" />
                 <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
-                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
+                <line x1="16.24" y1="7.24" x2="19.07" y2="4.93" />
               </svg>
             {/if}
             {#if hasError}
@@ -327,6 +444,46 @@ onMount(() => {
         </div>
       </div>
 
+      <!-- 歌词显示区域 -->
+      {#if lyricsYrc.length > 0 || lyricsTrans.length > 0}
+        <div
+          bind:this={lyricContainerRef}
+          class="lyric-container overflow-y-auto max-h-[120px] px-2"
+        >
+          {#if lyricsTrans.length > 0}
+            <!-- 双语模式：翻译在上 -->
+            <div class="space-y-1">
+              {#each lyricsYrc as line, index}
+                {@const transText = lyricsTrans[index]?.text}
+                <div
+                  data-lyric-index={index}
+                  class="text-center transition-all duration-300 py-0.5"
+                  class:active-lyric={index === currentLyricIndex}
+                >
+                  {#if transText}
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">{transText}</div>
+                  {/if}
+                  <div class="text-sm text-black dark:text-white leading-relaxed font-medium">{line.text}</div>
+                </div>
+              {/each}
+            </div>
+          {:else}
+            <!-- 单语模式：源歌词在上 -->
+            <div class="space-y-1">
+              {#each lyricsYrc as line, index}
+                <div
+                  data-lyric-index={index}
+                  class="text-center transition-all duration-300 py-0.5"
+                  class:active-lyric={index === currentLyricIndex}
+                >
+                  <div class="text-sm text-black dark:text-white leading-relaxed font-medium">{line.text}</div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
+
       <div class="space-y-2">
         <div class="flex items-center gap-2">
           <span class="text-xs w-10 text-right text-black dark:text-white">{formatTime(currentTime)}</span>
@@ -334,7 +491,7 @@ onMount(() => {
             <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
             <div
               class="absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full transition-[width] duration-150"
-              style="width: {duration ? (currentTime / duration) * 100 : 0}%"
+              style:width={duration ? (currentTime / duration) * 100 : 0 + "%"}
             ></div>
             <input
               type="range"
@@ -353,7 +510,7 @@ onMount(() => {
             onclick={toggleLoop}
             class="btn-plain p-1 rounded"
             title="单曲循环"
-            style="color: {isLooping ? 'var(--primary)' : ''}"
+            style:color={isLooping ? 'var(--primary)' : ''}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -483,7 +640,7 @@ onMount(() => {
               <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
               <div
                 class="absolute left-0 top-0 h-full bg-[var(--primary)] rounded-full"
-                style="width: {volume * 100}%"
+                style:width={volume * 100 + "%"}
               ></div>
               <input
                 type="range"
@@ -537,7 +694,7 @@ onMount(() => {
                       <line x1="2" y1="12" x2="6" y2="12" />
                       <line x1="18" y1="12" x2="22" y2="12" />
                       <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
-                      <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
+                      <line x1="16.24" y1="7.24" x2="19.07" y2="4.93" />
                     </svg>
                   {:else if hasError}
                     <button
@@ -624,5 +781,21 @@ onMount(() => {
   .song-list-scroll::-webkit-scrollbar-thumb:hover {
     opacity: 1;
     width: 7px;
+  }
+
+  /* 歌词容器样式 */
+  .lyric-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .lyric-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 当前播放歌词高亮 */
+  .active-lyric {
+    color: var(--primary);
+    transform: scale(1.05);
   }
 </style>
