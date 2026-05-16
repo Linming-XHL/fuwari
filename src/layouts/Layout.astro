@@ -107,10 +107,14 @@ const bannerOffset =
 			/>
 		))}
 
-		<!-- MiSans Font - 优化字体加载 -->
-		<link rel="preconnect" href="https://cdn-font.hyperos.mi.com" crossorigin>
-		<link rel="preload" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-		<noscript><link rel="stylesheet" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap"></noscript>
+		<!-- HYWenHei-85W Font - CDN 加载 -->
+		<link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin>
+		<link rel="preload" href="https://fonts.cdnfonts.com/s/92322/zhcn.woff" as="font" type="font/woff" crossorigin>
+
+		<!-- Google Fonts Fallback -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
 
 		<!-- Set the theme before the page is rendered to avoid a flash -->
 		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, PAGE_WIDTH, configHue}}>
@@ -170,30 +174,47 @@ const bannerOffset =
 
 
 
-		<!-- Pangu.js for Chinese text spacing - 优化加载 -->
+		<!-- Font loading detection - 检测 HYWenHei-85W 是否加载成功 -->
 		<script defer>
-			// 只在客户端执行
-			if (typeof window !== 'undefined') {
-				// 动态导入pangu
-				import('pangu').then((module) => {
-					const panguModule = module.default || module.pangu;
-					document.addEventListener("DOMContentLoaded", function() {
-						// 确保pangu对象存在
-						if (panguModule) {
-							// 尝试使用spacingPage方法
-							if (typeof panguModule.spacingPage === 'function') {
-								panguModule.spacingPage();
-							} else if (typeof panguModule === 'function') {
-								// 新版本API兼容
-								const panguInstance = panguModule();
-								if (panguInstance && typeof panguInstance.spacingPage === 'function') {
-									panguInstance.spacingPage();
-								}
-							}
-						}
-					});
-				}).catch((error) => {
-					console.warn('Failed to load pangu.js:', error);
+			if (typeof document !== 'undefined' && document.fonts) {
+				document.fonts.ready.then(() => {
+					const loaded = document.fonts.check('1em "HYWenHei 85W"');
+					if (!loaded) {
+						console.error(
+							'[Font] HYWenHei-85W 加载失败，已降级到 Noto Sans SC。',
+							'请检查 CDN 链接：https://fonts.cdnfonts.com/s/92322/zhcn.woff'
+						);
+					}
+				});
+				setTimeout(() => {
+					if (!document.fonts.check('1em "HYWenHei 85W"')) {
+						console.error(
+							'[Font] HYWenHei-85W 加载超时，已降级到 Noto Sans SC。'
+						);
+					}
+				}, 8000);
+			}
+		</script>
+
+		<!-- Pangu.js for Chinese text spacing -->
+		<script defer>
+			import pangu from 'pangu';
+
+			function applyPangu() {
+				try {
+					pangu.spacingPage();
+				} catch (e) {
+					console.warn('pangu.spacingPage failed:', e);
+				}
+			}
+
+			applyPangu();
+
+			if (window.swup) {
+				window.swup.hooks.on('page:view', applyPangu);
+			} else {
+				document.addEventListener('swup:enable', () => {
+					window.swup.hooks.on('page:view', applyPangu);
 				});
 			}
 		</script>
