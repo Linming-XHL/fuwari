@@ -1,13 +1,3 @@
-/* HYWenHei-85W Font - cdnfonts.com CDN */
-@font-face {
-	font-family: "HYWenHei 85W";
-	font-style: normal;
-	font-weight: normal;
-	src: local("HYWenHei 85W"),
-		url("https://fonts.cdnfonts.com/s/92322/zhcn.woff") format("woff");
-	font-display: swap;
-}
-
 @tailwind components;
 
 @layer components {
