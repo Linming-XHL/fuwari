@@ -12,12 +12,9 @@ interface Props {
 const className = Astro.props.class;
 ---
 <div id="sidebar" class:list={[className, "w-full"]}>
-    <div class="flex flex-col w-full gap-4 mb-4">
+    <div class="flex flex-col w-full gap-2 mb-4">
         <Profile></Profile>
         <MusicPlayer client:load></MusicPlayer>
         <Advertisement></Advertisement>
-    </div>
-    <div id="sidebar-sticky" class="transition-[transform,opacity] duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
-        <!-- 分类和标签菜单已移除 -->
     </div>
 </div>
