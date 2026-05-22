@@ -51,8 +51,8 @@ export const navBarConfig: NavBarConfig = {
 	    },
 		{
 	     name: "赞助",
-	     url: "/sponsor/", // 赞助页面路径
-	     external: false,
+	     url: "https://www.ifdian.net/a/LinmingXHL",
+	     external: true,
 	    },
 		{
 			name: "GitHub",
