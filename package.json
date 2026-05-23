@@ -35,7 +35,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@waline/client": "^3.8.0",
     "astro": "5.13.10",
-    "astro-expressive-code": "^0.41.4",
+    "astro-expressive-code": "^0.42.0",
     "astro-icon": "^1.1.5",
     "giscus": "^1.6.0",
     "hastscript": "^9.0.1",
