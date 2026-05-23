@@ -347,110 +347,52 @@
 </script>
 
 {#if enabled}
-  <div class="card-base p-2.5">
-    <div class="flex flex-col gap-1.5">
-        <div class="flex items-center justify-between gap-0.5">
-          <button
-            onclick={toggleLoop}
-            class="btn-plain p-0.5 rounded"
-            title="单曲循环"
-            style:color={isLooping ? "var(--primary)" : ""}
+  <div class="card-base p-3">
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-lg text-black dark:text-white">
+          Music Player
+        </h3>
+        <button
+          onclick={() => (isExpanded = !isExpanded)}
+          class="btn-plain p-1 rounded"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="transition-transform duration-300"
+            style:transform={isExpanded ? "rotate(180deg)" : "rotate(0deg)"}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="17 1 21 5 17 9" />
-              <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-              <polyline points="7 23 3 19 7 15" />
-              <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-            </svg>
-          </button>
-
-          <button
-            onclick={prevSong}
-            class="btn-plain p-0.5 rounded"
-            title="上一首"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="19 17 19 7 5 17 19 17" />
-            </svg>
-          </button>
-
-          <button
-            onclick={togglePlay}
-            class="btn-plain w-9 h-9 rounded-full flex items-center justify-center"
-            title={isPlaying ? "暂停" : "播放"}
-            disabled={isLoading || hasError}
-          >
-            {#if isPlaying}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="6" y="4" width="4" height="16" />
-                <rect x="14" y="4" width="4" height="16" />
-              </svg>
-            {:else}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
-            {/if}
-          </button>
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
         <img
           src={currentSong.cover}
           alt={currentSong.title}
-          class="w-10 h-10 rounded-lg object-cover"
+          class="w-16 h-16 rounded-lg object-cover"
         />
-        <div class="flex-1 min-w-0 flex items-center gap-1">
+        <div class="flex-1 min-w-0 flex items-center gap-2">
           <div class="flex-1 min-w-0">
-            <div class="font-medium text-sm truncate text-black dark:text-white">
+            <div class="font-bold truncate text-black dark:text-white">
               {currentSong.title}
             </div>
             <div
-              class="text-xs text-neutral-600 dark:text-neutral-400 truncate"
+              class="text-sm text-neutral-600 dark:text-neutral-400 truncate"
             >
               {currentSong.artist}
             </div>
           </div>
-          <div class="flex-shrink-0 w-3.5 h-3.5">
+          <div class="flex-shrink-0 w-4 h-4">
             {#if isLoading && !hasError}
               <svg
                 class="animate-spin text-neutral-400"
@@ -504,30 +446,30 @@
       <!-- 歌词显示区域 -->
       {#if lyrics.length > 0 && currentLyricIndex >= 0}
         <div
-          class="text-center text-[11px] py-0 transition-all duration-300 text-[var(--primary)] font-medium"
+          class="text-center text-xs py-0.5 transition-all duration-300 text-[var(--primary)] font-medium"
         >
           {lyrics[currentLyricIndex].text}
         </div>
       {:else if lyrics.length > 0 && isPlaying}
         <div
-          class="text-center text-[11px] py-0 text-black/40 dark:text-white/40"
+          class="text-center text-xs py-0.5 text-black/40 dark:text-white/40"
         >
           Idle...
         </div>
       {:else if lyrics.length > 0}
         <div
-          class="text-center text-[11px] py-0 text-black/40 dark:text-white/40"
+          class="text-center text-xs py-0.5 text-black/40 dark:text-white/40"
         >
           等待播放...
         </div>
       {/if}
 
-      <div class="space-y-1">
-        <div class="flex items-center gap-1.5">
-          <span class="text-[11px] w-8 text-right text-black dark:text-white"
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xs w-10 text-right text-black dark:text-white"
             >{formatTime(currentTime)}</span
           >
-          <div class="relative flex-1 h-1 rounded-full">
+          <div class="relative flex-1 h-1.5 rounded-full">
             <!-- 背景轨道 -->
             <div
               class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"
@@ -550,12 +492,12 @@
               style="background: transparent;"
             />
           </div>
-          <span class="text-[11px] w-8 text-black dark:text-white"
+          <span class="text-xs w-10 text-black dark:text-white"
             >{formatTime(duration)}</span
           >
         </div>
 
-        <div class="flex items-center justify-between gap-0.5">
+        <div class="flex items-center justify-between">
           <button
             onclick={toggleLoop}
             class="btn-plain p-1 rounded"
@@ -640,13 +582,13 @@
 
           <button
             onclick={nextSong}
-            class="btn-plain p-0.5 rounded"
+            class="btn-plain p-1 rounded"
             title="下一首"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -658,17 +600,17 @@
             </svg>
           </button>
 
-          <div class="flex items-center gap-0.5">
+          <div class="flex items-center gap-1">
             <button
               onclick={toggleMute}
-              class="btn-plain p-0.5 rounded"
+              class="btn-plain p-1 rounded"
               title={isMuted ? "取消静音" : "静音"}
             >
               {#if isMuted}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -683,8 +625,8 @@
               {:else}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -698,7 +640,7 @@
                 </svg>
               {/if}
             </button>
-            <div class="relative w-12 h-1 rounded-full overflow-hidden">
+            <div class="relative w-16 h-1.5 rounded-full overflow-hidden">
               <div
                 class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"
               ></div>
@@ -721,24 +663,24 @@
       </div>
 
       {#if isExpanded}
-        <div class="mt-1 border-t pt-1.5">
-          <div class="song-list-scroll space-y-1 max-h-[144px] overflow-y-auto">
+        <div class="mt-2 border-t pt-3">
+          <div class="song-list-scroll space-y-2 max-h-[208px] overflow-y-auto">
             {#each songs as song, index}
               <div
-                class="flex items-center gap-2 p-1.5 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                class="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                 onclick={() => changeSong(index)}
               >
                 <img
                   src={song.cover}
                   alt={song.title}
-                  class="w-8 h-8 rounded-lg object-cover"
+                  class="w-12 h-12 rounded-lg object-cover"
                 />
                 <div class="flex-1 min-w-0">
-                  <div class="text-sm font-medium truncate text-black dark:text-white">
+                  <div class="font-medium truncate text-black dark:text-white">
                     {song.title}
                   </div>
                   <div
-                    class="text-[11px] text-neutral-600 dark:text-neutral-400 truncate"
+                    class="text-xs text-neutral-600 dark:text-neutral-400 truncate"
                   >
                     {song.artist}
                   </div>
