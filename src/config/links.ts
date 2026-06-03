@@ -52,5 +52,11 @@ export const friendLinks: FriendLink[] = [
     description: "面向全平台与低性能服务端提供免费开源可靠的解决方案",
     avatar: "https://www.zakoflare.com/CN/favicon.ico",
   },
+  {
+    name: "泯轲日记",
+    url: "https://m-n.top/",
+    description: "---",
+    avatar: "https://s2.loli.net/2025/10/05/Gxufqrsk4mV5wbT.jpg",
+  },
   // 在这里添加更多友链
 ];
