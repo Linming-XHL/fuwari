@@ -2,7 +2,7 @@
 title: 宇宙的尽头是西红柿
 published: 2026-06-16
 description: 一篇严肃的学术论文，论证为什么宇宙的尽头不是铁岭，而是西红柿。
-image: /images/universe-tomato.jpg
+image: https://storage.moegirl.org.cn/moegirl/commons/f/fc/%E7%95%AA%E8%8C%84%E5%A8%98.jpg
 tags:
   - 哲学
   - 宇宙学
