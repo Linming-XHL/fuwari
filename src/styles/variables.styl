@@ -1,4 +1,4 @@
-/* Material Design Color Tokens */
+/* utils */
 white(a)
   rgba(255, 255, 255, a)
 
@@ -9,17 +9,10 @@ rainbow-light = linear-gradient(to right, oklch(0.80 0.08 20), oklch(0.80 0.08 4
 rainbow-dark = linear-gradient(to right, oklch(0.70 0.08 20), oklch(0.70 0.08 40), oklch(0.70 0.08 60), oklch(0.70 0.08 80), oklch(0.70 0.08 100), oklch(0.70 0.08 120), oklch(0.70 0.08 140), oklch(0.70 0.08 160), oklch(0.70 0.08 180), oklch(0.70 0.08 200), oklch(0.70 0.08 220), oklch(0.70 0.08 240), oklch(0.70 0.08 260))
 
 :root
-  /* Material Design 8dp grid */
-  --radius-large 12px
-  --radius-medium 8px
-  --radius-small 4px
+  --radius-large 1rem
   --content-delay 150ms
-  /* Material Design elevation shadows */
-  --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)
-  --elevation-2: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.12)
-  --elevation-3: 0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.10)
-  --elevation-4: 0 15px 25px rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.05)
 
+/* An util to define variables that vary with light and dark mode */
 define(vars)
   :root
     for key, value in vars
@@ -30,72 +23,57 @@ define(vars)
         {key}: value[1]
 
 define({
-  /* Material Design color scheme */
-  --primary: oklch(0.62 0.08 55) oklch(0.72 0.06 55)
-  --on-primary: white oklch(0.20 0.02 55)
-  --primary-container: oklch(0.92 0.04 85) oklch(0.30 0.04 55)
-  --on-primary-container: oklch(0.30 0.04 55) oklch(0.90 0.04 85)
+  --primary: oklch(0.65 0.08 55) oklch(0.70 0.08 55)
+  --page-bg: oklch(0.95 0.06 85) oklch(0.16 0.02 55)
+  --card-bg: white oklch(0.23 0.015 55)
 
-  --secondary: oklch(0.55 0.06 55) oklch(0.60 0.06 55)
-  --on-secondary: white oklch(0.25 0.02 55)
+  --btn-content: oklch(0.55 0.08 55) oklch(0.75 0.06 55)
 
-  --surface: oklch(0.98 0.01 85) oklch(0.18 0.015 55)
-  --on-surface: oklch(0.20 0.02 55) oklch(0.92 0.01 55)
-  --on-surface-variant: oklch(0.50 0.04 55) oklch(0.65 0.04 55)
+  --btn-regular-bg: oklch(0.95 0.02 55) oklch(0.33 0.025 55)
+  --btn-regular-bg-hover: oklch(0.9 0.04 55) oklch(0.38 0.03 55)
+  --btn-regular-bg-active: oklch(0.85 0.06 55) oklch(0.43 0.035 55)
 
-  --surface-container-lowest: oklch(1.0 0 0) oklch(0.12 0.01 55)
-  --surface-container-low: oklch(0.97 0.005 85) oklch(0.15 0.01 55)
-  --surface-container: oklch(0.95 0.01 85) oklch(0.18 0.015 55)
-  --surface-container-high: oklch(0.93 0.015 85) oklch(0.21 0.015 55)
-  --surface-container-highest: oklch(0.90 0.02 85) oklch(0.24 0.02 55)
+  --btn-plain-bg-hover: oklch(0.95 0.02 55) oklch(0.30 0.025 55)
+  --btn-plain-bg-active: oklch(0.98 0.008 55) oklch(0.27 0.02 55)
 
-  --outline: oklch(0.75 0.02 55) oklch(0.40 0.02 55)
-  --outline-variant: oklch(0.88 0.02 85) oklch(0.30 0.02 55)
+  --btn-card-bg-hover: oklch(0.98 0.005 55) oklch(0.3 0.02 55)
+  --btn-card-bg-active: oklch(0.9 0.02 55) oklch(0.35 0.025 55)
 
-  /* Legacy compatibility */
-  --page-bg: var(--surface) var(--surface)
-  --card-bg: var(--surface-container-lowest) var(--surface-container-lowest)
-  --card-border: var(--outline-variant) var(--outline-variant)
+  --enter-btn-bg: var(--btn-regular-bg)
+  --enter-btn-bg-hover: var(--btn-regular-bg-hover)
+  --enter-btn-bg-active: var(--btn-regular-bg-active)
 
-  --btn-content: var(--on-primary) var(--on-primary)
-  --btn-regular-bg: var(--primary-container) var(--primary-container)
-  --btn-regular-bg-hover: oklch(0.88 0.05 85) oklch(0.35 0.04 55)
-  --btn-regular-bg-active: oklch(0.82 0.06 85) oklch(0.40 0.05 55)
+  --deep-text: oklch(0.25 0.02 55)
 
-  --btn-plain-bg-hover: var(--surface-container-high) var(--surface-container-high)
-  --btn-plain-bg-active: var(--surface-container-highest) var(--surface-container-highest)
+  --title-active: oklch(0.6 0.08 55)
 
-  --btn-card-bg-hover: var(--surface-container-high) var(--surface-container-high)
-  --btn-card-bg-active: var(--surface-container-highest) var(--surface-container-highest)
+  --line-divider: black(0.08) white(0.08)
 
-  --deep-text: oklch(0.18 0.02 55)
-  --title-active: oklch(0.55 0.08 55)
+  --line-color: black(0.1) white(0.1)
+  --meta-divider: black(0.2) white(0.2)
 
-  --line-divider: var(--outline-variant) var(--outline-variant)
-  --line-color: oklch(0.85 0.01 55) oklch(0.35 0.02 55)
-  --meta-divider: oklch(0.70 0.02 55) oklch(0.45 0.02 55)
+  --inline-code-bg: var(--btn-regular-bg)
+  --inline-code-color: var(--btn-content)
+  --selection-bg: oklch(0.90 0.04 85) oklch(0.40 0.06 55)
+  --codeblock-selection: oklch(0.40 0.06 55)
+  --codeblock-bg: oklch(0.17 0.015 55) oklch(0.17 0.015 55)
+  --codeblock-topbar-bg: oklch(0.3 0.02 55) oklch(0.12 0.015 55)
 
-  --inline-code-bg: var(--surface-container-high) var(--surface-container-high)
-  --inline-code-color: var(--on-surface) var(--on-surface)
-  --selection-bg: oklch(0.88 0.06 85) oklch(0.38 0.06 55)
-  --codeblock-selection: oklch(0.38 0.06 55)
-  --codeblock-bg: oklch(0.15 0.01 55) oklch(0.15 0.01 55)
-  --codeblock-topbar-bg: oklch(0.25 0.02 55) oklch(0.22 0.015 55)
   --license-block-bg: black(0.03) var(--codeblock-bg)
 
-  --link-underline: oklch(0.62 0.08 55) oklch(0.72 0.06 55)
-  --link-hover: oklch(0.55 0.08 55) oklch(0.78 0.06 55)
-  --link-active: oklch(0.48 0.08 55) oklch(0.65 0.06 55)
+  --link-underline: oklch(0.93 0.04 85) oklch(0.40 0.06 55)
+  --link-hover: oklch(0.95 0.025 85) oklch(0.40 0.06 55)
+  --link-active: oklch(0.90 0.04 85) oklch(0.35 0.05 55)
 
-  --float-panel-bg: var(--surface-container-low) var(--surface-container-low)
+  --float-panel-bg: white oklch(0.19 0.015 55)
 
-  --scrollbar-bg-light: oklch(0.82 0.01 55)
-  --scrollbar-bg-hover-light: oklch(0.75 0.02 55)
-  --scrollbar-bg-active-light: oklch(0.68 0.03 55)
+  --scrollbar-bg-light: black(0.4)
+  --scrollbar-bg-hover-light: black(0.5)
+  --scrollbar-bg-active-light: black(0.6)
 
-  --scrollbar-bg-dark: oklch(0.40 0.02 55)
-  --scrollbar-bg-hover-dark: oklch(0.48 0.02 55)
-  --scrollbar-bg-active-dark: oklch(0.55 0.02 55)
+  --scrollbar-bg-dark: white(0.4)
+  --scrollbar-bg-hover-dark: white(0.5)
+  --scrollbar-bg-active-dark: white(0.6)
 
   --scrollbar-bg: var(--scrollbar-bg-light) var(--scrollbar-bg-dark)
   --scrollbar-bg-hover: var(--scrollbar-bg-hover-light) var(--scrollbar-bg-hover-dark)
@@ -112,9 +90,9 @@ define({
   --admonitions-color-warning: oklch(0.7 0.12 85) oklch(0.75 0.12 85)
   --admonitions-color-caution: oklch(0.6 0.15 25) oklch(0.65 0.15 25)
 
-  --toc-badge-bg: var(--primary-container) var(--primary-container)
-  --toc-btn-hover: var(--surface-container-high) var(--surface-container-high)
-  --toc-btn-active: var(--surface-container-highest) var(--surface-container-highest)
+  --toc-badge-bg: oklch(0.89 0.04 85) var(--btn-regular-bg)
+  --toc-btn-hover: oklch(0.926 0.015 55) oklch(0.22 0.02 55)
+  --toc-btn-active: oklch(0.90 0.015 55) oklch(0.25 0.02 55)
   --toc-width: calc((100vw - var(--page-width)) / 2 - 1rem)
-  --toc-item-active: var(--primary) var(--primary)
+  --toc-item-active: oklch(0.70 0.10 55) oklch(0.35 0.05 55)
 })

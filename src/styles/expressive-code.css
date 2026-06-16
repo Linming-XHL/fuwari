@@ -1,12 +1,9 @@
 .expressive-code {
     .frame {
-        @apply !shadow-none rounded-lg overflow-hidden;
-        border: 1px solid var(--outline-variant);
-        background: var(--surface-container-lowest);
+        @apply !shadow-none;
     }
+
     .title {
         font-family: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        @apply text-sm;
     }
-    pre { @apply text-sm; line-height: 1.7; }
 }
