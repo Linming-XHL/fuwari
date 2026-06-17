@@ -109,10 +109,36 @@ const bannerOffset =
 			/>
 		))}
 
-		<!-- MiSans Font - 优化字体加载 -->
-		<link rel="preconnect" href="https://cdn-font.hyperos.mi.com" crossorigin>
-		<link rel="preload" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-		<noscript><link rel="stylesheet" href="https://cdn-font.hyperos.mi.com/font/css?family=MiSans:0:Chinese_Simplify,Latin&display=swap"></noscript>
+		<!-- 字体：LXGW WenKai GB（正文）、Noto Serif SC（标题）、Maple Mono（代码） -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+		<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap"></noscript>
+		<link rel="preload" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+		<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css"></noscript>
+		<style>
+			@font-face {
+				font-family: 'Maple Mono';
+				font-style: normal;
+				font-weight: 400;
+				font-display: swap;
+				src: url(https://cdn.jsdelivr.net/fontsource/fonts/maple-mono@latest/latin-400-normal.woff2) format('woff2');
+			}
+			@font-face {
+				font-family: 'Maple Mono';
+				font-style: normal;
+				font-weight: 500;
+				font-display: swap;
+				src: url(https://cdn.jsdelivr.net/fontsource/fonts/maple-mono@latest/latin-500-normal.woff2) format('woff2');
+			}
+			@font-face {
+				font-family: 'Maple Mono';
+				font-style: normal;
+				font-weight: 700;
+				font-display: swap;
+				src: url(https://cdn.jsdelivr.net/fontsource/fonts/maple-mono@latest/latin-700-normal.woff2) format('woff2');
+			}
+		</style>
 
 		<!-- Set the theme before the page is rendered to avoid a flash -->
 		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, PAGE_WIDTH, configHue}}>

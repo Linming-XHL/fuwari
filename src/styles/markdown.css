@@ -2,7 +2,13 @@
     @apply min-w-0;
 
     h1 {
-        @apply text-3xl;
+        @apply text-3xl font-medium;
+        font-family: "Noto Serif SC", serif;
+    }
+
+    h2, h3, h4, h5, h6 {
+        @apply font-medium;
+        font-family: "Noto Serif SC", serif;
     }
 
     h1, h2, h3, h4, h5, h6, p, li, td, th, dd, dt, figcaption {
@@ -44,7 +50,7 @@
     code {
         @apply bg-[var(--inline-code-bg)] text-[var(--inline-code-color)] px-1 py-0.5 rounded-md overflow-hidden;
 
-        font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+        font-family: 'Maple Mono', 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
         word-break: break-word;
         overflow-wrap: break-word;
         &:before {
