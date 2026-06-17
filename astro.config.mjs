@@ -84,7 +84,7 @@ export default defineConfig({
 				borderColor: "none",
 				codeFontSize: "0.875rem",
 				codeFontFamily:
-					"'Maple Mono', 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+					"'Maple Mono'",
 				codeLineHeight: "1.5rem",
 				frames: {
 					editorBackground: "var(--codeblock-bg)",
