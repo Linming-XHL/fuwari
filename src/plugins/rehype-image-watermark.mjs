@@ -1,10 +1,10 @@
-import { visit } from "unist-util-visit";
-import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
+import { visit } from "unist-util-visit";
 
 const WATERMARK_TEXT = "临明小狐狸の小窝";
-const WATERMARK_URL = "https://lmxhl.top";
+const WATERMARK_URL = "https://240900.xyz";
 const MIN_WIDTH = 480;
 const MIN_HEIGHT = 360;
 
@@ -21,11 +21,20 @@ export function rehypeImageWatermark() {
 		for (const node of imageNodes) {
 			const src = node.properties.src;
 
-			if (!src || src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:")) {
+			if (
+				!src ||
+				src.startsWith("http://") ||
+				src.startsWith("https://") ||
+				src.startsWith("data:")
+			) {
 				continue;
 			}
 
-			const imagePath = path.resolve(process.cwd(), "public", src.replace(/^\//, ""));
+			const imagePath = path.resolve(
+				process.cwd(),
+				"public",
+				src.replace(/^\//, ""),
+			);
 
 			if (!fs.existsSync(imagePath)) {
 				continue;
@@ -40,7 +49,12 @@ export function rehypeImageWatermark() {
 				}
 
 				if (metadata.width >= MIN_WIDTH && metadata.height >= MIN_HEIGHT) {
-					const outputPath = path.resolve(process.cwd(), "dist", "_astro", path.basename(src));
+					const outputPath = path.resolve(
+						process.cwd(),
+						"dist",
+						"_astro",
+						path.basename(src),
+					);
 
 					if (!fs.existsSync(path.dirname(outputPath))) {
 						fs.mkdirSync(path.dirname(outputPath), { recursive: true });

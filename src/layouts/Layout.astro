@@ -109,6 +109,9 @@ const bannerOffset =
 			/>
 		))}
 
+		<!-- 预加载背景图片 -->
+		<link rel="preload" as="image" href="/background.webp">
+
 		<!-- 字体：LXGW WenKai GB（正文）、Noto Serif SC（标题）、Maple Mono（代码） -->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -189,7 +192,7 @@ const bannerOffset =
   <div class="fixed inset-0 z-0 w-full h-full overflow-hidden pointer-events-none">
     <div class="absolute inset-0 bg-cover bg-center bg-no-repeat"
          id="bg-image"
-          style="background-image: url('https://esaimg.cdn1.vip/i/6a34e6307ce0d_1781851696.webp');"></div>
+          style="background-image: url('/background.webp');"></div>
     <div class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
   </div>
 

@@ -1,349 +1,349 @@
 <script lang="ts">
-  import { onMount, tick } from "svelte";
-  import type { Song } from "../../config/music";
-  import { musicPlayerConfig } from "../../config/music";
+import { onMount, tick } from "svelte";
+import type { Song } from "../../config/music";
+import { musicPlayerConfig } from "../../config/music";
 
-  const { enabled, songs } = musicPlayerConfig;
+const { enabled, songs } = musicPlayerConfig;
 
-  let isExpanded = $state(false);
-  let isPlaying = $state(false);
-  let isLooping = $state(false);
-  let isMuted = $state(false);
-  let currentTime = $state(0);
-  let duration = $state(0);
-  let volume = $state(0.7);
-  let currentSongIndex = $state(0);
-  let isLoading = $state(false);
-  let hasError = $state(false);
-  let isChangingSong = $state(false);
-  let forcePlayAfterLoad = $state(false);
+let isExpanded = $state(false);
+let isPlaying = $state(false);
+let isLooping = $state(false);
+let isMuted = $state(false);
+let currentTime = $state(0);
+let duration = $state(0);
+let volume = $state(0.7);
+let currentSongIndex = $state(0);
+let isLoading = $state(false);
+let hasError = $state(false);
+let isChangingSong = $state(false);
+let forcePlayAfterLoad = $state(false);
 
-  // 歌词相关状态
-  interface LyricLine {
-    time: number;
-    text: string;
-  }
+// 歌词相关状态
+interface LyricLine {
+	time: number;
+	text: string;
+}
 
-  let lyrics = $state<LyricLine[]>([]);
-  let currentLyricIndex = $state(-1);
+let lyrics = $state<LyricLine[]>([]);
+let currentLyricIndex = $state(-1);
 
-  let currentSong = $derived(songs[currentSongIndex]);
+let currentSong = $derived(songs[currentSongIndex]);
 
-  let audio: HTMLAudioElement;
+let audio: HTMLAudioElement;
 
-  const STORAGE_PREFIX = "music_";
+const STORAGE_PREFIX = "music_";
 
-  function loadValue(name: string): string | null {
-    if (typeof localStorage === "undefined") return null;
-    return localStorage.getItem(STORAGE_PREFIX + name);
-  }
+function loadValue(name: string): string | null {
+	if (typeof localStorage === "undefined") return null;
+	return localStorage.getItem(STORAGE_PREFIX + name);
+}
 
-  function saveValue(name: string, value: string) {
-    if (typeof localStorage === "undefined") return;
-    localStorage.setItem(STORAGE_PREFIX + name, value);
-  }
+function saveValue(name: string, value: string) {
+	if (typeof localStorage === "undefined") return;
+	localStorage.setItem(STORAGE_PREFIX + name, value);
+}
 
-  function formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  }
+function formatTime(seconds: number): string {
+	const mins = Math.floor(seconds / 60);
+	const secs = Math.floor(seconds % 60);
+	return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
 
-  // 解析歌词（支持YRC和LRC格式）
-  function parseLyrics(lyricStr: string): LyricLine[] {
-    const lines: LyricLine[] = [];
-    if (!lyricStr) return lines;
+// 解析歌词（支持YRC和LRC格式）
+function parseLyrics(lyricStr: string): LyricLine[] {
+	const lines: LyricLine[] = [];
+	if (!lyricStr) return lines;
 
-    // 按行分割
-    const lineList = lyricStr.split("\n");
+	// 按行分割
+	const lineList = lyricStr.split("\n");
 
-    for (const line of lineList) {
-      // 尝试匹配YRC格式：[startTime,duration]content
-      let yrcMatch = line.match(/^\[(\d+),(\d+)\](.*)$/);
-      if (yrcMatch) {
-        const startTime = Number.parseInt(yrcMatch[1], 10) / 1000;
-        let content = yrcMatch[3];
-        // 移除逐字时间轴标记
-        content = content.replace(/\(\d+,\d+,0\)/g, "");
-        content = content.trim();
+	for (const line of lineList) {
+		// 尝试匹配YRC格式：[startTime,duration]content
+		let yrcMatch = line.match(/^\[(\d+),(\d+)\](.*)$/);
+		if (yrcMatch) {
+			const startTime = Number.parseInt(yrcMatch[1], 10) / 1000;
+			let content = yrcMatch[3];
+			// 移除逐字时间轴标记
+			content = content.replace(/\(\d+,\d+,0\)/g, "");
+			content = content.trim();
 
-        if (
-          content &&
-          !content.startsWith("作词") &&
-          !content.startsWith("作曲") &&
-          !content.startsWith("编曲")
-        ) {
-          lines.push({ time: startTime, text: content });
-        }
-        continue;
-      }
+			if (
+				content &&
+				!content.startsWith("作词") &&
+				!content.startsWith("作曲") &&
+				!content.startsWith("编曲")
+			) {
+				lines.push({ time: startTime, text: content });
+			}
+			continue;
+		}
 
-      // 尝试匹配LRC格式：[mm:ss.xx] 或 [mm:ss.xxx]
-      let lrcMatch = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\]([^\n]+)/);
-      if (lrcMatch) {
-        const minutes = Number.parseInt(lrcMatch[1], 10);
-        const seconds = Number.parseInt(lrcMatch[2], 10);
-        const ms = Number.parseInt(lrcMatch[3].padEnd(3, "0"), 10);
-        const time = minutes * 60 + seconds + ms / 1000;
-        const text = lrcMatch[4].trim();
+		// 尝试匹配LRC格式：[mm:ss.xx] 或 [mm:ss.xxx]
+		let lrcMatch = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\]([^\n]+)/);
+		if (lrcMatch) {
+			const minutes = Number.parseInt(lrcMatch[1], 10);
+			const seconds = Number.parseInt(lrcMatch[2], 10);
+			const ms = Number.parseInt(lrcMatch[3].padEnd(3, "0"), 10);
+			const time = minutes * 60 + seconds + ms / 1000;
+			const text = lrcMatch[4].trim();
 
-        if (
-          text &&
-          !text.startsWith("[by:") &&
-          !text.startsWith("作词") &&
-          !text.startsWith("作曲")
-        ) {
-          lines.push({ time, text });
-        }
-      }
-    }
+			if (
+				text &&
+				!text.startsWith("[by:") &&
+				!text.startsWith("作词") &&
+				!text.startsWith("作曲")
+			) {
+				lines.push({ time, text });
+			}
+		}
+	}
 
-    return lines.sort((a, b) => a.time - b.time);
-  }
+	return lines.sort((a, b) => a.time - b.time);
+}
 
-  // 获取歌词
-  async function fetchLyrics(songId: number) {
-    try {
-      const response = await fetch(
-        `https://api.vkeys.cn/v2/music/netease/lyric?id=${songId}`,
-      );
-      const data = await response.json();
+// 获取歌词
+async function fetchLyrics(songId: number) {
+	try {
+		const response = await fetch(
+			`https://api.vkeys.cn/v2/music/netease/lyric?id=${songId}`,
+		);
+		const data = await response.json();
 
-      if (data.code === 200 && data.data) {
-        lyrics = parseLyrics(data.data.yrc || data.data.lrc || "");
-        currentLyricIndex = -1;
-      } else {
-        lyrics = [];
-      }
-    } catch (error) {
-      console.error("获取歌词失败:", error);
-      lyrics = [];
-    }
-  }
+		if (data.code === 200 && data.data) {
+			lyrics = parseLyrics(data.data.yrc || data.data.lrc || "");
+			currentLyricIndex = -1;
+		} else {
+			lyrics = [];
+		}
+	} catch (error) {
+		console.error("获取歌词失败:", error);
+		lyrics = [];
+	}
+}
 
-  // 更新当前歌词行索引
-  function updateCurrentLyricIndex() {
-    if (!lyrics.length) {
-      currentLyricIndex = -1;
-      return;
-    }
+// 更新当前歌词行索引
+function updateCurrentLyricIndex() {
+	if (!lyrics.length) {
+		currentLyricIndex = -1;
+		return;
+	}
 
-    let newIndex = -1;
-    for (let i = lyrics.length - 1; i >= 0; i--) {
-      if (currentTime >= lyrics[i].time) {
-        newIndex = i;
-        break;
-      }
-    }
+	let newIndex = -1;
+	for (let i = lyrics.length - 1; i >= 0; i--) {
+		if (currentTime >= lyrics[i].time) {
+			newIndex = i;
+			break;
+		}
+	}
 
-    if (newIndex !== currentLyricIndex) {
-      currentLyricIndex = newIndex;
-    }
-  }
+	if (newIndex !== currentLyricIndex) {
+		currentLyricIndex = newIndex;
+	}
+}
 
-  function togglePlay() {
-    if (audio && !isLoading && !isChangingSong) {
-      if (isPlaying) {
-        audio.pause();
-      } else {
-        audio.play().catch(() => {});
-      }
-    }
-  }
+function togglePlay() {
+	if (audio && !isLoading && !isChangingSong) {
+		if (isPlaying) {
+			audio.pause();
+		} else {
+			audio.play().catch(() => {});
+		}
+	}
+}
 
-  function toggleLoop() {
-    isLooping = !isLooping;
-    if (audio) {
-      audio.loop = isLooping;
-    }
-    saveValue("isLooping", isLooping.toString());
-  }
+function toggleLoop() {
+	isLooping = !isLooping;
+	if (audio) {
+		audio.loop = isLooping;
+	}
+	saveValue("isLooping", isLooping.toString());
+}
 
-  function toggleMute() {
-    isMuted = !isMuted;
-    if (audio) {
-      audio.muted = isMuted;
-    }
-    saveValue("isMuted", isMuted.toString());
-  }
+function toggleMute() {
+	isMuted = !isMuted;
+	if (audio) {
+		audio.muted = isMuted;
+	}
+	saveValue("isMuted", isMuted.toString());
+}
 
-  function changeSong(index: number) {
-    if (index === currentSongIndex && !isLoading) return;
+function changeSong(index: number) {
+	if (index === currentSongIndex && !isLoading) return;
 
-    isChangingSong = true;
-    forcePlayAfterLoad = isPlaying;
-    currentSongIndex = index;
-    currentTime = 0;
-    hasError = false;
-    isLoading = true;
+	isChangingSong = true;
+	forcePlayAfterLoad = isPlaying;
+	currentSongIndex = index;
+	currentTime = 0;
+	hasError = false;
+	isLoading = true;
 
-    // 获取新歌曲的歌词
-    fetchLyrics(songs[index].id);
+	// 获取新歌曲的歌词
+	fetchLyrics(songs[index].id);
 
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.load();
-    }
+	if (audio) {
+		audio.pause();
+		audio.currentTime = 0;
+		audio.load();
+	}
 
-    saveValue("currentSong", index.toString());
-    saveValue("playTime", "0");
-  }
+	saveValue("currentSong", index.toString());
+	saveValue("playTime", "0");
+}
 
-  function prevSong() {
-    const newIndex = currentSongIndex - 1;
-    changeSong(newIndex < 0 ? songs.length - 1 : newIndex);
-  }
+function prevSong() {
+	const newIndex = currentSongIndex - 1;
+	changeSong(newIndex < 0 ? songs.length - 1 : newIndex);
+}
 
-  function nextSong() {
-    const newIndex = currentSongIndex + 1;
-    changeSong(newIndex >= songs.length ? 0 : newIndex);
-  }
+function nextSong() {
+	const newIndex = currentSongIndex + 1;
+	changeSong(newIndex >= songs.length ? 0 : newIndex);
+}
 
-  let lastSavedTime = 0;
+let lastSavedTime = 0;
 
-  function handleTimeUpdate() {
-    if (audio) {
-      currentTime = audio.currentTime;
-      updateCurrentLyricIndex();
-      if (isPlaying && currentTime - lastSavedTime > 5) {
-        lastSavedTime = currentTime;
-        saveValue("playTime", currentTime.toString());
-      }
-    }
-  }
+function handleTimeUpdate() {
+	if (audio) {
+		currentTime = audio.currentTime;
+		updateCurrentLyricIndex();
+		if (isPlaying && currentTime - lastSavedTime > 5) {
+			lastSavedTime = currentTime;
+			saveValue("playTime", currentTime.toString());
+		}
+	}
+}
 
-  function handleLoadedMetadata() {
-    if (audio) {
-      duration = audio.duration;
-      isLoading = false;
-      hasError = false;
+function handleLoadedMetadata() {
+	if (audio) {
+		duration = audio.duration;
+		isLoading = false;
+		hasError = false;
 
-      if (currentTime > 0) {
-        audio.currentTime = currentTime;
-      }
+		if (currentTime > 0) {
+			audio.currentTime = currentTime;
+		}
 
-      if (forcePlayAfterLoad) {
-        forcePlayAfterLoad = false;
-        audio
-          .play()
-          .then(() => {
-            isPlaying = true;
-          })
-          .catch(() => {
-            isPlaying = false;
-          });
-      }
+		if (forcePlayAfterLoad) {
+			forcePlayAfterLoad = false;
+			audio
+				.play()
+				.then(() => {
+					isPlaying = true;
+				})
+				.catch(() => {
+					isPlaying = false;
+				});
+		}
 
-      queueMicrotask(() => {
-        isChangingSong = false;
-      });
-    }
-  }
+		queueMicrotask(() => {
+			isChangingSong = false;
+		});
+	}
+}
 
-  function handleWaiting() {
-    isLoading = true;
-  }
+function handleWaiting() {
+	isLoading = true;
+}
 
-  function handleCanPlay() {
-    isLoading = false;
-    if (audio && Number.isNaN(duration)) {
-      duration = audio.duration;
-    }
-  }
+function handleCanPlay() {
+	isLoading = false;
+	if (audio && Number.isNaN(duration)) {
+		duration = audio.duration;
+	}
+}
 
-  function handleError() {
-    if (!isChangingSong) {
-      isLoading = false;
-      hasError = true;
-      isPlaying = false;
-    }
-  }
+function handleError() {
+	if (!isChangingSong) {
+		isLoading = false;
+		hasError = true;
+		isPlaying = false;
+	}
+}
 
-  function handleEnded() {
-    if (!isLooping) {
-      nextSong();
-    }
-  }
+function handleEnded() {
+	if (!isLooping) {
+		nextSong();
+	}
+}
 
-  function handlePlay() {
-    isPlaying = true;
-    saveValue("isPlaying", "true");
-  }
+function handlePlay() {
+	isPlaying = true;
+	saveValue("isPlaying", "true");
+}
 
-  function handlePause() {
-    isPlaying = false;
-    saveValue("isPlaying", "false");
-  }
+function handlePause() {
+	isPlaying = false;
+	saveValue("isPlaying", "false");
+}
 
-  function seek(e: Event) {
-    const target = e.target as HTMLInputElement;
-    if (audio) {
-      audio.currentTime = Number.parseFloat(target.value);
-      currentTime = audio.currentTime;
-    }
-  }
+function seek(e: Event) {
+	const target = e.target as HTMLInputElement;
+	if (audio) {
+		audio.currentTime = Number.parseFloat(target.value);
+		currentTime = audio.currentTime;
+	}
+}
 
-  function setVolume(e: Event) {
-    const target = e.target as HTMLInputElement;
-    volume = Number.parseFloat(target.value);
-    if (audio) {
-      audio.volume = volume;
-    }
-    if (volume > 0 && isMuted) {
-      isMuted = false;
-      if (audio) audio.muted = false;
-    }
-    saveValue("volume", volume.toString());
-    saveValue("isMuted", isMuted.toString());
-  }
+function setVolume(e: Event) {
+	const target = e.target as HTMLInputElement;
+	volume = Number.parseFloat(target.value);
+	if (audio) {
+		audio.volume = volume;
+	}
+	if (volume > 0 && isMuted) {
+		isMuted = false;
+		if (audio) audio.muted = false;
+	}
+	saveValue("volume", volume.toString());
+	saveValue("isMuted", isMuted.toString());
+}
 
-  function retry() {
-    if (audio) {
-      hasError = false;
-      isLoading = true;
-      audio.load();
-    }
-  }
+function retry() {
+	if (audio) {
+		hasError = false;
+		isLoading = true;
+		audio.load();
+	}
+}
 
-  onMount(() => {
-    tick().then(() => {
-      if (audio) {
-        const savedSongIndex = loadValue("currentSong");
-        const savedVolume = loadValue("volume");
-        const savedLoopState = loadValue("isLooping");
-        const savedMuteState = loadValue("isMuted");
-        const savedPlayTime = loadValue("playTime");
+onMount(() => {
+	tick().then(() => {
+		if (audio) {
+			const savedSongIndex = loadValue("currentSong");
+			const savedVolume = loadValue("volume");
+			const savedLoopState = loadValue("isLooping");
+			const savedMuteState = loadValue("isMuted");
+			const savedPlayTime = loadValue("playTime");
 
-        if (savedSongIndex !== null) {
-          currentSongIndex = Number.parseInt(savedSongIndex, 10);
-        }
+			if (savedSongIndex !== null) {
+				currentSongIndex = Number.parseInt(savedSongIndex, 10);
+			}
 
-        if (savedVolume !== null) {
-          volume = Number.parseFloat(savedVolume);
-          audio.volume = volume;
-        }
+			if (savedVolume !== null) {
+				volume = Number.parseFloat(savedVolume);
+				audio.volume = volume;
+			}
 
-        if (savedLoopState !== null) {
-          isLooping = savedLoopState === "true";
-          audio.loop = isLooping;
-        }
+			if (savedLoopState !== null) {
+				isLooping = savedLoopState === "true";
+				audio.loop = isLooping;
+			}
 
-        if (savedMuteState !== null) {
-          isMuted = savedMuteState === "true";
-          audio.muted = isMuted;
-        }
+			if (savedMuteState !== null) {
+				isMuted = savedMuteState === "true";
+				audio.muted = isMuted;
+			}
 
-        currentTime = savedPlayTime ? Number.parseFloat(savedPlayTime) : 0;
-        isPlaying = false;
+			currentTime = savedPlayTime ? Number.parseFloat(savedPlayTime) : 0;
+			isPlaying = false;
 
-        // 加载初始歌曲的歌词
-        fetchLyrics(songs[currentSongIndex].id);
+			// 加载初始歌曲的歌词
+			fetchLyrics(songs[currentSongIndex].id);
 
-        audio.load();
-      }
-    });
-  });
+			audio.load();
+		}
+	});
+});
 </script>
 
 {#if enabled}

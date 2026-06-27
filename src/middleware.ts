@@ -1,16 +1,25 @@
-import { defineMiddleware } from 'astro:middleware';
+import { defineMiddleware } from "astro:middleware";
+
+function escapeHtml(str: string): string {
+	return str
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
+}
 
 export const onRequest = defineMiddleware((context, next) => {
-  // 检查是否从旧域名访问
-  const host = context.request.headers.get('host');
-  if (host && (host.includes('lmxhl.top') || host.includes('www.lmxhl.top'))) {
-    // 构建新域名的 URL
-    const url = new URL(context.request.url);
-    url.host = '240900.xyz';
-    
-    // 返回重定向响应，提示用户更新域名
-    return new Response(
-      `
+	// 检查是否从旧域名访问
+	const host = context.request.headers.get("host");
+	if (host && (host.includes("lmxhl.top") || host.includes("www.lmxhl.top"))) {
+		// 构建新域名的 URL
+		const url = new URL(context.request.url);
+		url.host = "240900.xyz";
+
+		// 返回重定向响应，提示用户更新域名
+		return new Response(
+			`
       <!DOCTYPE html>
       <html lang="zh-CN">
       <head>
@@ -77,21 +86,21 @@ export const onRequest = defineMiddleware((context, next) => {
           <div class="new-domain">240900.xyz</div>
           <p>请尽快更新您的书签和链接，旧域名 <span class="expiry-date">lmxhl.top</span> 将于 2026-08-12 过期。</p>
           <p>点击下方按钮访问新域名：</p>
-          <a href="${url.toString()}" class="button">访问新域名</a>
+          <a href="${escapeHtml(url.toString())}" class="button">访问新域名</a>
         </div>
       </body>
       </html>
       `,
-      {
-        status: 301,
-        headers: {
-          'Content-Type': 'text/html',
-          'Location': url.toString(),
-        },
-      }
-    );
-  }
-  
-  // 继续处理请求
-  return next();
+			{
+				status: 301,
+				headers: {
+					"Content-Type": "text/html",
+					Location: url.toString(),
+				},
+			},
+		);
+	}
+
+	// 继续处理请求
+	return next();
 });
