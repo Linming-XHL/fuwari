@@ -4,6 +4,10 @@
     html, body {
         @apply overflow-x-hidden;
         font-family: 'LXGW WenKai GB', 'Noto Serif SC', serif;
+        scrollbar-width: none;
+    }
+    body::-webkit-scrollbar {
+        display: none;
     }
     .card-base {
         @apply rounded-[var(--radius-large)] overflow-hidden bg-[rgba(255,255,255,0.8)] dark:bg-[rgba(17,24,39,0.8)];
