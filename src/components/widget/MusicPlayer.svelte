@@ -347,8 +347,8 @@ onMount(() => {
 </script>
 
 {#if enabled}
-  <div class="card-base p-3">
-    <div class="flex flex-col gap-3">
+  <div class="card-base p-2">
+    <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between">
         <h3 class="font-bold text-lg text-black dark:text-white">
           Music Player
