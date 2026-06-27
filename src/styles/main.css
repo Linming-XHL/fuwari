@@ -4,7 +4,6 @@
     html, body {
         @apply overflow-x-hidden;
         font-family: 'LXGW WenKai GB', 'Noto Serif SC', serif;
-        scrollbar-width: none;
     }
     body::-webkit-scrollbar {
         display: none;
