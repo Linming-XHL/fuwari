@@ -305,4 +305,4 @@ export const musicPlayerConfig = {
 			id: 541075125,
 		},
 	],
-};
+} as const;

@@ -18,7 +18,7 @@ const isPublic = avatar?.startsWith("/");
 const isLocal = avatar && !isExternal && !isPublic;
 
 // 处理本地图片
-let localImage;
+let localImage: ImageMetadata | null = null;
 if (isLocal && avatar) {
 	try {
 		const files = import.meta.glob<ImageMetadata>("../../**", {

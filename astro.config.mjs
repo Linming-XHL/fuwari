@@ -33,7 +33,6 @@ export default defineConfig({
 	build: {
 		format: "directory",
 		assets: "_astro",
-		minify: true,
 		sourcemap: false,
 	},
 	integrations: [

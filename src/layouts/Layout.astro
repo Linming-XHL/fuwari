@@ -340,18 +340,20 @@ function disableAnimation() {
 
 const bannerEnabled = !!document.getElementById('banner-wrapper')
 
-function setClickOutsideToClose(panel: string, ignores: string[]) {
+function setClickOutsideToClose(panel, ignores) {
 	document.addEventListener("click", event => {
 		let panelDom = document.getElementById(panel);
 		let tDom = event.target;
-		if (!(tDom instanceof Node)) return;		// Ensure the event target is an HTML Node
+		if (!(tDom instanceof Node)) return;
 		for (let ig of ignores) {
 			let ie = document.getElementById(ig)
 			if (ie == tDom || (ie?.contains(tDom))) {
 				return;
 			}
 		}
-		panelDom!.classList.add("float-panel-closed");
+		if (panelDom) {
+			panelDom.classList.add("float-panel-closed");
+		}
 	});
 }
 setClickOutsideToClose("display-setting", ["display-setting", "display-settings-switch"])
@@ -420,13 +422,15 @@ const setup = () => {
 			navbar.classList.add('navbar-hidden')
 		}
 	})
-	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
+	window.swup.hooks.on('visit:start', (visit) => {
 		// change banner height immediately when a link is clicked
 		const bodyElement = document.querySelector('body')
-		if (pathsEqual(visit.to.url, url('/'))) {
-			bodyElement!.classList.add('lg:is-home');
-		} else {
-			bodyElement!.classList.remove('lg:is-home');
+		if (bodyElement) {
+			if (pathsEqual(visit.to.url, url('/'))) {
+				bodyElement.classList.add('lg:is-home');
+			} else {
+				bodyElement.classList.remove('lg:is-home');
+			}
 		}
 
 		// increase the page height during page transition to prevent the scrolling animation from jumping
@@ -448,7 +452,7 @@ const setup = () => {
 			heightExtend.classList.remove('hidden')
 		}
 	});
-	window.swup.hooks.on('visit:end', (_visit: {to: {url: string}}) => {
+	window.swup.hooks.on('visit:end', (_visit) => {
 		setTimeout(() => {
 			const heightExtend = document.getElementById('page-height-extend')
 			if (heightExtend) {
@@ -557,7 +561,7 @@ function createPhotoSwipe() {
 	lightbox.init()
 }
 
-const setup = () => {
+const setupLightbox = () => {
 	if (!lightbox) {
 		createPhotoSwipe()
 	}
@@ -575,8 +579,8 @@ const setup = () => {
 }
 
 if (window.swup) {
-	setup()
+	setupLightbox()
 } else {
-	document.addEventListener("swup:enable", setup)
+	document.addEventListener("swup:enable", setupLightbox)
 }
 </script>

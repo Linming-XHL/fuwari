@@ -1,7 +1,3 @@
----
-title: "Crazy Entertainment Page";
-description: "An outrageous and visually striking entertainment page with SVG animations and emoji";
----
 
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -304,9 +300,11 @@ description: "An outrageous and visually striking entertainment page with SVG an
     </div>
     
     <script>
+        // @ts-nocheck
         // Enable fullscreen
         function enterFullscreen() {
-            const container = document.getElementById('crazy-container');
+            var container = document.getElementById('crazy-container');
+            if (!container) return;
             if (container.requestFullscreen) {
                 container.requestFullscreen();
             } else if (container.mozRequestFullScreen) {
@@ -317,22 +315,22 @@ description: "An outrageous and visually striking entertainment page with SVG an
                 container.msRequestFullscreen();
             }
         }
-        
+
         // Play music when user interacts with the page
         function playMusic() {
-            const audio = document.getElementById('music');
-            if (audio.paused) {
-                audio.play().catch(e => {
+            var audio = document.getElementById('music');
+            if (audio && audio.paused) {
+                audio.play().catch(function(e) {
                     console.log('Audio play failed, will try again on user interaction:', e);
                 });
             }
         }
-        
+
         // Add event listeners for user interaction
         document.addEventListener('click', playMusic);
         document.addEventListener('touchstart', playMusic);
         document.addEventListener('keydown', playMusic);
-        
+
         // Try to enter fullscreen on load
         window.addEventListener('load', function() {
             // Try to enter fullscreen after a short delay

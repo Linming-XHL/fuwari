@@ -1,4 +1,9 @@
 <script lang="ts">
+import { $props } from "svelte";
+
+// @ts-expect-error - Astro client directives
+let props = $props();
+
 import { onMount, tick } from "svelte";
 import type { Song } from "../../config/music";
 import { musicPlayerConfig } from "../../config/music";
