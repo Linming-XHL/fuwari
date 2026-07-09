@@ -6,6 +6,36 @@ html.is-animating .transition-swup-fade {
     @apply opacity-0
 }
 
+/* Progressive assembly animation for page transitions */
+.progressive-assemble {
+    animation: progressive-fade-in 300ms cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@keyframes progressive-fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(0.75rem);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Staggered delays for progressive assembly */
+.progressive-assembly-navbar {
+    animation-delay: 0ms;
+}
+.progressive-assembly-sidebar {
+    animation-delay: 80ms;
+}
+.progressive-assembly-content {
+    animation-delay: 160ms;
+}
+.progressive-assembly-footer {
+    animation-delay: 240ms;
+}
+
 /* Fade-in animations for components */
 @keyframes fade-in-up {
     0% {

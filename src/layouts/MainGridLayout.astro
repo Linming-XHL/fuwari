@@ -1,6 +1,7 @@
 ---
 import BackToTop from "@components/control/BackToTop.astro";
 import Footer from "@components/Footer.astro";
+import LoadingSkeleton from "@components/LoadingSkeleton.astro";
 import Navbar from "@components/Navbar.astro";
 import SideBar from "@components/widget/SideBar.astro";
 import type { MarkdownHeading } from "astro";
@@ -100,6 +101,11 @@ const mainPanelTop = siteConfig.banner.enable
 
         <BackToTop></BackToTop>
     </div>
+</div>
+
+<!-- Progressive Assembly Skeleton -->
+<div id="loading-skeleton" class="hidden">
+    <LoadingSkeleton></LoadingSkeleton>
 </div>
 
 <!-- The things that should be under the banner, only the TOC for now -->

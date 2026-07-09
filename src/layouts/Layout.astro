@@ -393,18 +393,6 @@ function init() {
 init();
 
 const setup = () => {
-	// TODO: temp solution to change the height of the banner
-/*
-	window.swup.hooks.on('animation:out:start', () => {
-		const path = window.location.pathname
-		const body = document.querySelector('body')
-		if (path[path.length - 1] === '/' && !body.classList.contains('is-home')) {
-			body.classList.add('is-home')
-		} else if (path[path.length - 1] !== '/' && body.classList.contains('is-home')) {
-			body.classList.remove('is-home')
-		}
-	})
-*/
 	window.swup.hooks.on('link:click', () => {
 		// Remove the delay for the first time page load
 		document.documentElement.style.setProperty('--content-delay', '0ms')
@@ -422,11 +410,25 @@ const setup = () => {
 			navbar.classList.add('navbar-hidden')
 		}
 	})
-	window.swup.hooks.on('visit:start', (visit) => {
+	window.swup.hooks.on('visit:start', () => {
+		// Show loading skeleton
+		const skeleton = document.getElementById('loading-skeleton')
+		if (skeleton) {
+			skeleton.classList.remove('hidden')
+		}
+
+		// Hide main content with fade out
+		const mainGrid = document.getElementById('main-grid')
+		if (mainGrid) {
+			mainGrid.style.opacity = '0'
+			mainGrid.style.transition = 'opacity 150ms ease-out'
+		}
+
 		// change banner height immediately when a link is clicked
 		const bodyElement = document.querySelector('body')
 		if (bodyElement) {
-			if (pathsEqual(visit.to.url, url('/'))) {
+			const url = new URL(window.location.href)
+			if (url.pathname === '/' || url.pathname === '/index.html') {
 				bodyElement.classList.add('lg:is-home');
 			} else {
 				bodyElement.classList.remove('lg:is-home');
@@ -446,6 +448,47 @@ const setup = () => {
 		}
 	});
 	window.swup.hooks.on('page:view', () => {
+		// Hide loading skeleton
+		const skeleton = document.getElementById('loading-skeleton')
+		if (skeleton) {
+			skeleton.classList.add('hidden')
+		}
+
+		// Show main content with progressive assembly
+		const mainGrid = document.getElementById('main-grid')
+		if (mainGrid) {
+			mainGrid.style.opacity = '1'
+			mainGrid.style.transition = 'opacity 200ms ease-in'
+
+			// Add progressive assembly classes to key components
+			const navbar = document.getElementById('navbar-wrapper')
+			const sidebar = document.getElementById('sidebar')
+			const content = document.getElementById('swup-container')
+			const footer = document.querySelector('.footer')
+
+			if (navbar) {
+				navbar.classList.add('progressive-assemble', 'progressive-assembly-navbar')
+			}
+			if (sidebar) {
+				sidebar.classList.add('progressive-assemble', 'progressive-assembly-sidebar')
+			}
+			if (content) {
+				content.classList.add('progressive-assemble', 'progressive-assembly-content')
+			}
+			if (footer) {
+				footer.classList.add('progressive-assemble', 'progressive-assembly-footer')
+			}
+
+			// Clean up animation classes after animation completes
+			setTimeout(() => {
+				[navbar, sidebar, content, footer].forEach(el => {
+					if (el) {
+						el.classList.remove('progressive-assemble', 'progressive-assembly-navbar', 'progressive-assembly-sidebar', 'progressive-assembly-content', 'progressive-assembly-footer')
+					}
+				})
+			}, 500)
+		}
+
 		// hide the temp high element when the transition is done
 		const heightExtend = document.getElementById('page-height-extend')
 		if (heightExtend) {

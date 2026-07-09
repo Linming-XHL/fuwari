@@ -1,0 +1,143 @@
+---
+interface Props {
+	class?: string;
+}
+
+const className = Astro.props.class || "";
+---
+
+<div class:list={["loading-skeleton", className]}>
+	<!-- Navbar Skeleton -->
+	<div class="navbar-skeleton">
+		<div class="skeleton-navbar"></div>
+	</div>
+
+	<!-- Main Content Skeleton -->
+	<div class="skeleton-main">
+		<!-- Sidebar Skeleton -->
+		<div class="skeleton-sidebar">
+			<div class="skeleton-card">
+				<div class="skeleton-avatar"></div>
+				<div class="skeleton-lines">
+					<div class="skeleton-line w-3/4"></div>
+					<div class="skeleton-line w-1/2"></div>
+				</div>
+			</div>
+			<div class="skeleton-card mt-4">
+				<div class="skeleton-line w-full"></div>
+				<div class="skeleton-line w-5/6"></div>
+				<div class="skeleton-line w-4/6"></div>
+			</div>
+		</div>
+
+		<!-- Content Skeleton -->
+		<div class="skeleton-content">
+			<div class="skeleton-card mb-4">
+				<div class="skeleton-line w-2/3 h-8"></div>
+				<div class="skeleton-line w-full mt-4"></div>
+				<div class="skeleton-line w-full mt-2"></div>
+				<div class="skeleton-line w-5/6 mt-2"></div>
+			</div>
+			<div class="skeleton-card">
+				<div class="skeleton-line w-1/2 h-6"></div>
+				<div class="skeleton-line w-full mt-4"></div>
+				<div class="skeleton-line w-full mt-2"></div>
+				<div class="skeleton-line w-4/5 mt-2"></div>
+				<div class="skeleton-line w-3/4 mt-2"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.loading-skeleton {
+		position: absolute;
+		inset: 0;
+		z-index: 40;
+		background: var(--card-bg);
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.navbar-skeleton {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		height: 4.5rem;
+	}
+
+	.skeleton-navbar {
+		height: 100%;
+		background: linear-gradient(90deg, var(--btn-plain-bg-hover) 25%, var(--btn-card-bg-hover) 50%, var(--btn-plain-bg-hover) 75%);
+		background-size: 200% 100%;
+		animation: skeleton-shimmer 1.5s infinite;
+	}
+
+	.skeleton-main {
+		display: grid;
+		grid-template-columns: 17.5rem 1fr;
+		gap: 1rem;
+		padding: 1rem;
+	}
+
+	.skeleton-sidebar {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.skeleton-content {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.skeleton-card {
+		background: var(--card-bg);
+		border-radius: var(--radius-medium);
+		padding: 1.5rem;
+		overflow: hidden;
+	}
+
+	.skeleton-avatar {
+		width: 3rem;
+		height: 3rem;
+		border-radius: 50%;
+		background: linear-gradient(90deg, var(--btn-plain-bg-hover) 25%, var(--btn-card-bg-hover) 50%, var(--btn-plain-bg-hover) 75%);
+		background-size: 200% 100%;
+		animation: skeleton-shimmer 1.5s infinite;
+	}
+
+	.skeleton-lines {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin-top: 0.75rem;
+	}
+
+	.skeleton-line {
+		height: 0.875rem;
+		border-radius: 0.25rem;
+		background: linear-gradient(90deg, var(--btn-plain-bg-hover) 25%, var(--btn-card-bg-hover) 50%, var(--btn-plain-bg-hover) 75%);
+		background-size: 200% 100%;
+		animation: skeleton-shimmer 1.5s infinite;
+	}
+
+	@keyframes skeleton-shimmer {
+		0% {
+			background-position: 200% 0;
+		}
+		100% {
+			background-position: -200% 0;
+		}
+	}
+
+	@media (max-width: 1023px) {
+		.skeleton-main {
+			grid-template-columns: 1fr;
+		}
+		.skeleton-sidebar {
+			display: none;
+		}
+	}
+</style>
