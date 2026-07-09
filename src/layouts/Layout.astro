@@ -1,9 +1,7 @@
 ---
 
-// import { Image } from "astro:assets";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import { profileConfig, siteConfig } from "@/config";
-// import backgroundImage from "../assets/images/bg.jpg";
 import {
 	AUTO_MODE,
 	BANNER_HEIGHT,
@@ -115,10 +113,12 @@ const bannerOffset =
 		<!-- 字体：LXGW WenKai GB（正文）、Noto Serif SC（标题）、Maple Mono（代码） -->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-		<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap"></noscript>
-		<link rel="preload" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-		<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css"></noscript>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" media="print" onload="this.media='all'">
+		<noscript>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap">
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css">
+		</noscript>
 		<style>
 			@font-face {
 				font-family: 'Maple Mono';
@@ -579,8 +579,35 @@ const setupLightbox = () => {
 }
 
 if (window.swup) {
-	setupLightbox()
+	setupLightboxWhenNeeded()
 } else {
-	document.addEventListener("swup:enable", setupLightbox)
+	document.addEventListener("swup:enable", setupLightboxWhenNeeded)
+}
+
+function setupLightboxWhenNeeded() {
+	const images = document.querySelectorAll('.custom-md img, #post-cover img');
+	if (images.length === 0) {
+		if (window.swup) {
+			setupLightbox()
+		} else {
+			document.addEventListener("swup:enable", setupLightbox)
+		}
+		return
+	}
+
+	const observer = new IntersectionObserver((entries) => {
+		entries.forEach(entry => {
+			if (entry.isIntersecting) {
+				if (window.swup) {
+					setupLightbox()
+				} else {
+					document.addEventListener("swup:enable", setupLightbox)
+				}
+				observer.disconnect()
+			}
+		})
+	}, { rootMargin: '100px' })
+
+	images.forEach(img => observer.observe(img))
 }
 </script>

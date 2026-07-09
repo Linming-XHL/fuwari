@@ -19,7 +19,47 @@ const currentYear = new Date().getFullYear();
         <a class="transition-colors link text-[var(--primary)] font-medium" target="_blank" href="https://github.com/saicaca/fuwari">Fuwari</a>
     </div>
     <!--运行时间 -->
-    <script type="text/javascript">function runtime(){const t=new Date("08/05/2025 08:00:00"),n=new Date,s=n-t,e=Math.floor(s/1e3),o=Math.floor(e/86400),i=Math.floor(e%86400/3600),a=Math.floor(e%3600/60),r=e%60;document.getElementById("runningtime").textContent=`⭐本站已运行: ${o}天${i}小时${a}分${r}秒 ☁️`}setInterval(runtime,1e3)</script>
+    <script type="text/javascript">
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(function() {
+                function runtime() {
+                    const t = new Date("08/05/2025 08:00:00");
+                    const n = new Date();
+                    const s = n - t;
+                    const e = Math.floor(s / 1000);
+                    const o = Math.floor(e / 86400);
+                    const i = Math.floor(e % 86400 / 3600);
+                    const a = Math.floor(e % 3600 / 60);
+                    const r = e % 60;
+                    const el = document.getElementById("runningtime");
+                    if (el) {
+                        el.textContent = `⭐本站已运行: ${o}天${i}小时${a}分${r}秒 ☁️`;
+                    }
+                }
+                runtime();
+                setInterval(runtime, 1000);
+            });
+        } else {
+            setTimeout(function() {
+                function runtime() {
+                    const t = new Date("08/05/2025 08:00:00");
+                    const n = new Date();
+                    const s = n - t;
+                    const e = Math.floor(s / 1000);
+                    const o = Math.floor(e / 86400);
+                    const i = Math.floor(e % 86400 / 3600);
+                    const a = Math.floor(e % 3600 / 60);
+                    const r = e % 60;
+                    const el = document.getElementById("runningtime");
+                    if (el) {
+                        el.textContent = `⭐本站已运行: ${o}天${i}小时${a}分${r}秒 ☁️`;
+                    }
+                }
+                runtime();
+                setInterval(runtime, 1000);
+            }, 1000);
+        }
+    </script>
     <div class="transition-colors text-50 text-sm text-center hidden md:block"><p id="runningtime"> </p></div>
 
 <!--右侧备案等信息 -->
