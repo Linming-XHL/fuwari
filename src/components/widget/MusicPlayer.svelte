@@ -352,10 +352,10 @@ onMount(() => {
 </script>
 
 {#if enabled}
-  <div class="card-base p-2">
-    <div class="flex flex-col gap-2">
+  <div class="card-base p-1.5">
+    <div class="flex flex-col gap-1.5">
       <div class="flex items-center justify-between">
-        <h3 class="font-bold text-lg text-black dark:text-white">
+        <h3 class="font-bold text-sm text-black dark:text-white">
           Music Player
         </h3>
         <button
@@ -380,11 +380,11 @@ onMount(() => {
         </button>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <img
           src={currentSong.cover}
           alt={currentSong.title}
-          class="w-16 h-16 rounded-lg object-cover"
+          class="w-12 h-12 rounded-lg object-cover"
         />
         <div class="flex-1 min-w-0 flex items-center gap-2">
           <div class="flex-1 min-w-0">
@@ -392,7 +392,7 @@ onMount(() => {
               {currentSong.title}
             </div>
             <div
-              class="text-sm text-neutral-600 dark:text-neutral-400 truncate"
+              class="text-xs text-neutral-600 dark:text-neutral-400 truncate"
             >
               {currentSong.artist}
             </div>
@@ -469,12 +469,12 @@ onMount(() => {
         </div>
       {/if}
 
-      <div class="space-y-2">
+      <div class="space-y-1.5">
         <div class="flex items-center gap-2">
-          <span class="text-xs w-10 text-right text-black dark:text-white"
+          <span class="text-[0.65rem] w-8 text-right text-black dark:text-white"
             >{formatTime(currentTime)}</span
           >
-          <div class="relative flex-1 h-1.5 rounded-full">
+          <div class="relative flex-1 h-1 rounded-full">
             <!-- 背景轨道 -->
             <div
               class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"
@@ -497,7 +497,7 @@ onMount(() => {
               style="background: transparent;"
             />
           </div>
-          <span class="text-xs w-10 text-black dark:text-white"
+          <span class="text-[0.65rem] w-8 text-black dark:text-white"
             >{formatTime(duration)}</span
           >
         </div>
@@ -511,8 +511,8 @@ onMount(() => {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -534,8 +534,8 @@ onMount(() => {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -549,15 +549,15 @@ onMount(() => {
 
           <button
             onclick={togglePlay}
-            class="btn-plain w-12 h-12 rounded-full flex items-center justify-center"
+            class="btn-plain w-10 h-10 rounded-full flex items-center justify-center"
             title={isPlaying ? "暂停" : "播放"}
             disabled={isLoading || hasError}
           >
             {#if isPlaying}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -571,8 +571,8 @@ onMount(() => {
             {:else}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 stroke="currentColor"
@@ -592,8 +592,8 @@ onMount(() => {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -614,8 +614,8 @@ onMount(() => {
               {#if isMuted}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -630,8 +630,8 @@ onMount(() => {
               {:else}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -645,7 +645,7 @@ onMount(() => {
                 </svg>
               {/if}
             </button>
-            <div class="relative w-16 h-1.5 rounded-full overflow-hidden">
+            <div class="relative w-14 h-1 rounded-full overflow-hidden">
               <div
                 class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"
               ></div>
@@ -668,24 +668,24 @@ onMount(() => {
       </div>
 
       {#if isExpanded}
-        <div class="mt-2 border-t pt-3">
-          <div class="song-list-scroll space-y-2 max-h-[208px] overflow-y-auto">
+        <div class="mt-1.5 border-t pt-2">
+          <div class="song-list-scroll space-y-1.5 max-h-[180px] overflow-y-auto">
             {#each songs as song, index}
               <div
-                class="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                class="flex items-center gap-2 p-1.5 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                 onclick={() => changeSong(index)}
               >
                 <img
                   src={song.cover}
                   alt={song.title}
-                  class="w-12 h-12 rounded-lg object-cover"
+                  class="w-10 h-10 rounded-lg object-cover"
                 />
                 <div class="flex-1 min-w-0">
-                  <div class="font-medium truncate text-black dark:text-white">
+                  <div class="font-medium truncate text-black dark:text-white text-sm">
                     {song.title}
                   </div>
                   <div
-                    class="text-xs text-neutral-600 dark:text-neutral-400 truncate"
+                    class="text-[0.65rem] text-neutral-600 dark:text-neutral-400 truncate"
                   >
                     {song.artist}
                   </div>
@@ -695,8 +695,8 @@ onMount(() => {
                     <svg
                       class="animate-spin text-neutral-400"
                       xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -724,8 +724,8 @@ onMount(() => {
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
+                        width="14"
+                        height="14"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -738,15 +738,15 @@ onMount(() => {
                         <line x1="12" y1="16" x2="12.01" y2="16" />
                       </svg>
                     </button>
-                  {:else if isPlaying}
-                    <div class="flex gap-0.5 items-end h-4">
-                      <div class="w-1 h-2 bg-[var(--primary)] animate-pulse" />
+                   {:else if isPlaying}
+                    <div class="flex gap-0.5 items-end h-3">
+                      <div class="w-1 h-1.5 bg-[var(--primary)] animate-pulse" />
                       <div
-                        class="w-1 h-3 bg-[var(--primary)] animate-pulse"
+                        class="w-1 h-2.5 bg-[var(--primary)] animate-pulse"
                         style="animation-delay: 75ms"
                       />
                       <div
-                        class="w-1 h-4 bg-[var(--primary)] animate-pulse"
+                        class="w-1 h-3 bg-[var(--primary)] animate-pulse"
                         style="animation-delay: 150ms"
                       />
                     </div>
