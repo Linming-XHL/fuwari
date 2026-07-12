@@ -6,31 +6,31 @@ import ImageWrapper from "../misc/ImageWrapper.astro";
 
 const config = profileConfig;
 ---
-<div class="card-base p-1.5">
+<div class="card-base p-1">
     <a aria-label="Go to About Page" href={url('/about/')}
-       class="group block relative mx-auto mt-0.5 lg:mx-0 lg:mt-0 mb-1.5
-       max-w-[10rem] lg:max-w-none overflow-hidden rounded-xl active:scale-95">
+       class="group block relative mx-auto mt-0.5 lg:mx-0 lg:mt-0 mb-1
+       max-w-[9rem] lg:max-w-none overflow-hidden rounded-lg active:scale-95">
         <div class="absolute transition pointer-events-none group-hover:bg-black/30 group-active:bg-black/50
         w-full h-full z-50 flex items-center justify-center">
             <Icon name="fa6-regular:address-card"
-                  class="transition opacity-0 scale-90 group-hover:scale-100 group-hover:opacity-100 text-white text-4xl">
+                  class="transition opacity-0 scale-90 group-hover:scale-100 group-hover:opacity-100 text-white text-3xl">
             </Icon>
         </div>
         <ImageWrapper src={config.avatar || ""} alt="Profile Image of the Author" class="mx-auto lg:w-full h-full lg:mt-0 " priority></ImageWrapper>
     </a>
     <div class="px-1.5">
-        <div class="font-bold text-base text-center dark:text-neutral-50 transition">{config.name}</div>
-        <div class="h-0.5 w-4 bg-[var(--primary)] mx-auto rounded-full mb-1 transition"></div>
-        <div class="text-center text-neutral-400 mb-1.5 transition text-xs">{config.bio}</div>
+        <div class="font-bold text-sm text-center dark:text-neutral-50 transition">{config.name}</div>
+        <div class="h-0.5 w-3.5 bg-[var(--primary)] mx-auto rounded-full mb-1 transition"></div>
+        <div class="text-center text-neutral-400 mb-1.5 transition text-[0.65rem]">{config.bio}</div>
         <div class="flex flex-wrap gap-1 justify-center">
             {config.links.length > 1 && config.links.map(item =>
-                    <a rel="me" aria-label={item.name} href={item.url} target="_blank" class="btn-regular rounded-lg h-8 w-8 active:scale-90">
-                        <Icon name={item.icon} class="text-[1.25rem]"></Icon>
+                    <a rel="me" aria-label={item.name} href={item.url} target="_blank" class="btn-regular rounded-lg h-7 w-7 active:scale-90">
+                        <Icon name={item.icon} class="text-[1.1rem]"></Icon>
                     </a>
             )}
             {config.links.length == 1 && <a rel="me" aria-label={config.links[0].name} href={config.links[0].url} target="_blank"
-                                            class="btn-regular rounded-lg h-8 gap-1.5 px-2 font-bold active:scale-95">
-                <Icon name={config.links[0].icon} class="text-[1.25rem]"></Icon>
+                                            class="btn-regular rounded-lg h-7 gap-1 px-1.5 font-bold active:scale-95 text-xs">
+                <Icon name={config.links[0].icon} class="text-[1.1rem]"></Icon>
                 {config.links[0].name}
             </a>}
         </div>
