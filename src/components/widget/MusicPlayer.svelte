@@ -1,9 +1,4 @@
 <script lang="ts">
-import { $props } from "svelte";
-
-// @ts-expect-error - Astro client directives
-let props = $props();
-
 import { onMount, tick } from "svelte";
 import type { Song } from "../../config/music";
 import { musicPlayerConfig } from "../../config/music";
@@ -352,10 +347,10 @@ onMount(() => {
 </script>
 
 {#if enabled}
-  <div class="card-base p-1.5">
-    <div class="flex flex-col gap-1.5">
+  <div class="card-base p-2">
+    <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between">
-        <h3 class="font-bold text-xs text-black dark:text-white">
+        <h3 class="font-bold text-sm text-black dark:text-white">
           Music Player
         </h3>
         <button
@@ -384,15 +379,15 @@ onMount(() => {
         <img
           src={currentSong.cover}
           alt={currentSong.title}
-          class="w-10 h-10 rounded-lg object-cover"
+          class="w-12 h-12 rounded-lg object-cover"
         />
         <div class="flex-1 min-w-0 flex items-center gap-1.5">
           <div class="flex-1 min-w-0">
-            <div class="font-bold truncate text-black dark:text-white text-xs">
+            <div class="font-bold truncate text-black dark:text-white text-sm">
               {currentSong.title}
             </div>
             <div
-              class="text-[0.65rem] text-neutral-600 dark:text-neutral-400 truncate"
+              class="text-[0.78rem] text-neutral-600 dark:text-neutral-400 truncate"
             >
               {currentSong.artist}
             </div>
@@ -471,7 +466,7 @@ onMount(() => {
 
       <div class="space-y-1.5">
         <div class="flex items-center gap-1.5">
-          <span class="text-[0.6rem] w-7 text-right text-black dark:text-white"
+          <span class="text-[0.75rem] w-7 text-right text-black dark:text-white"
             >{formatTime(currentTime)}</span
           >
           <div class="relative flex-1 h-0.5 rounded-full">
@@ -497,7 +492,7 @@ onMount(() => {
               style="background: transparent;"
             />
           </div>
-          <span class="text-[0.6rem] w-7 text-black dark:text-white"
+          <span class="text-[0.75rem] w-7 text-black dark:text-white"
             >{formatTime(duration)}</span
           >
         </div>
@@ -685,7 +680,7 @@ onMount(() => {
                     {song.title}
                   </div>
                   <div
-                    class="text-[0.6rem] text-neutral-600 dark:text-neutral-400 truncate"
+                    class="text-[0.75rem] text-neutral-600 dark:text-neutral-400 truncate"
                   >
                     {song.artist}
                   </div>

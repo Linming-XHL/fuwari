@@ -32,7 +32,7 @@ export default defineConfig({
 	trailingSlash: "always",
 	image: {
 		formats: ['avif', 'webp'],
-		domains: ['q.qlogo.cn', 'p1.music.126.net', 'p2.music.126.net', 'p3.music.126.net', 'p4.music.126.net', 'cdn.240900.xyz', 'storage.moegirl.org.cn', 'www.aicsuk.net'],
+		domains: ['p1.music.126.net', 'p2.music.126.net', 'p3.music.126.net', 'p4.music.126.net', 'cdn.240900.xyz', 'storage.moegirl.org.cn', 'www.aicsuk.net'],
 	},
 	build: {
 		format: "directory",

@@ -1,9 +1,4 @@
 <script lang="ts">
-import { $props } from "svelte";
-
-// @ts-expect-error - Astro client directives
-let props = $props();
-
 import { AUTO_MODE, DARK_MODE, LIGHT_MODE } from "@constants/constants.ts";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
