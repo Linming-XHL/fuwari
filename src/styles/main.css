@@ -9,7 +9,7 @@
         display: none;
     }
     .card-base {
-        @apply rounded-[var(--radius-large)] overflow-hidden bg-[rgba(255,255,255,0.8)] dark:bg-[rgba(17,24,39,0.8)];
+        @apply rounded-[var(--radius-large)] bg-[rgba(255,255,255,0.8)] dark:bg-[rgba(17,24,39,0.8)];
         background-clip: padding-box;
         border: 1px solid rgba(255,255,255,0.1);
     }
