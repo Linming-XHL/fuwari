@@ -14,14 +14,13 @@ export const friendLinks: FriendLink[] = [
 		name: "I Am I",
 		url: "https://5ime.cn",
 		description: "永远相信美好的事情即将发生",
-		avatar:
-			"https://gitproxy.127731.xyz/https://raw.githubusercontent.com/5ime/img/master/avatar.jpg",
+		avatar: "https://raw.githubusercontent.com/5ime/img/master/avatar.jpg",
 	},
 	{
 		name: "SkonJIYHD",
-		url: "https://blog.sikon.top/",
+		url: "https://b23.tv/428g0yG",
 		description: "一个喜欢折腾的小笨蛋",
-		avatar: "https://q.qlogo.cn/g?b=qq&nk=2661028830&s=640",
+		avatar: "https://q.qlogo.cn/g?b=qq&nk=3260148249&s=640",
 	},
 	{
 		name: "Aicsukの世界",
@@ -33,8 +32,7 @@ export const friendLinks: FriendLink[] = [
 		name: "落憾_EnLtLH",
 		url: "https://blog.luoh.org/",
 		description: "落人间，破三弦，忆李仙",
-		avatar:
-			"https://cdn2.elh.dpdns.org/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
+		avatar:	"https://cdn2.elh.dpdns.org/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
 	},
 	{
 		name: "沫泽的小站",
