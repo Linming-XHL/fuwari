@@ -33,7 +33,7 @@ export const friendLinks: FriendLink[] = [
 		url: "https://blog.luoh.org/",
 		description: "落人间，破三弦，忆李仙",
 		avatar:
-			"https://cdn2.elh.dpdns.org/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
+		"https://cdn2.elh.dpdns.org/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
 	},
 	{
 		name: "沫泽的小站",
@@ -49,9 +49,9 @@ export const friendLinks: FriendLink[] = [
 	},
 	{
 		name: "ZAKOFLARE NETWORK",
-		url: "https://cloud.millenniumic.cn/",
+		url: "https://zakoflare.com/",
 		description: "面向全平台与低性能服务端提供免费开源可靠的解决方案",
-		avatar: "https://www.zakoflare.com/CN/favicon.ico",
+		avatar: "https://cdn.240900.xyz/Image_1786420970752_442.jpg",
 	},
 	// 在这里添加更多友链
 ];
