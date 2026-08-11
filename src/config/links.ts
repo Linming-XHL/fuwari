@@ -23,10 +23,10 @@ export const friendLinks: FriendLink[] = [
 		avatar: "https://q.qlogo.cn/g?b=qq&nk=3260148249&s=640",
 	},
 	{
-		name: "Aicsukの世界",
-		url: "https://www.aicsuk.net/",
+		name: "Aicsukの世界(HTTP)",
+		url: "http://www.aicsuk.net/",
 		description: "一个小小的博客",
-		avatar: "https://www.aicsuk.net/images/avatar.jpg",
+		avatar: "http://www.aicsuk.net/images/avatar.jpg",
 	},
 	{
 		name: "落憾_EnLtLH",
