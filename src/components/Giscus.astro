@@ -13,45 +13,74 @@ const className = Astro.props.class || "";
 </div>
 
 <script>
-(function() {
-	const container = document.getElementById('giscus-container');
-	if (!container) return;
-
-	const observer = new IntersectionObserver((entries) => {
-		entries.forEach(entry => {
-			if (entry.isIntersecting) {
-				loadGiscus();
-				observer.disconnect();
-			}
-		});
-	}, { rootMargin: '200px' });
-
-	observer.observe(container);
+	// The bundled <script> only executes once per full page load.
+	// With Swup client-side navigation it never runs again, so we must
+	// re-initialize on every 'page:view' hook instead of relying on
+	// this script being re-executed.
+	function cleanupGiscus() {
+		document.querySelectorAll(".giscus").forEach((el) => el.remove());
+		document.getElementById("giscus-script")?.remove();
+	}
 
 	function loadGiscus() {
-		const placeholder = document.getElementById('giscus-placeholder');
-		if (placeholder && !document.querySelector('.giscus-frame')) {
-			placeholder.innerHTML = '';
-			const script = document.createElement('script');
-			script.src = 'https://giscus.app/client.js';
-			script.dataset.repo = 'Linming-XHL/fuwari';
-			script.dataset.repoId = 'R_kgDOQ_sEMA';
-			script.dataset.category = 'Announcements';
-			script.dataset.categoryId = 'DIC_kwDOQ_sEMM4C1Wfe';
-			script.dataset.mapping = 'pathname';
-			script.dataset.strict = '0';
-			script.dataset.reactionsEnabled = '1';
-			script.dataset.emitMetadata = '0';
-			script.dataset.inputPosition = 'top';
-			script.dataset.theme = 'preferred_color_scheme';
-			script.dataset.lang = 'zh-CN';
-			script.dataset.loading = 'lazy';
-			script.crossOrigin = 'anonymous';
-			script.async = true;
-			document.body.appendChild(script);
-		}
+		const placeholder = document.getElementById("giscus-placeholder");
+		if (!placeholder) return;
+
+		// remove instances left over from a previous client-side navigation
+		cleanupGiscus();
+		placeholder.innerHTML = "";
+		const script = document.createElement("script");
+		script.id = "giscus-script";
+		script.src = "https://giscus.app/client.js";
+		script.dataset.repo = "Linming-XHL/fuwari";
+		script.dataset.repoId = "R_kgDOQ_sEMA";
+		script.dataset.category = "Announcements";
+		script.dataset.categoryId = "DIC_kwDOQ_sEMM4C1Wfe";
+		script.dataset.mapping = "pathname";
+		script.dataset.strict = "0";
+		script.dataset.reactionsEnabled = "1";
+		script.dataset.emitMetadata = "0";
+		script.dataset.inputPosition = "top";
+		script.dataset.theme = "preferred_color_scheme";
+		script.dataset.lang = "zh-CN";
+		script.dataset.loading = "lazy";
+		script.crossOrigin = "anonymous";
+		script.async = true;
+		placeholder.appendChild(script);
 	}
-})();
+
+	function observeContainer() {
+		const container = document.getElementById("giscus-container");
+		if (!container) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.isIntersecting) {
+						loadGiscus();
+						observer.disconnect();
+					}
+				}
+			},
+			{ rootMargin: "200px" },
+		);
+		observer.observe(container);
+	}
+
+	observeContainer();
+
+	const setup = () => {
+		window.swup.hooks.on("page:view", () => {
+			cleanupGiscus();
+			observeContainer();
+		});
+	};
+
+	if (window?.swup?.hooks) {
+		setup();
+	} else {
+		document.addEventListener("swup:enable", setup);
+	}
 </script>
 
 <style>

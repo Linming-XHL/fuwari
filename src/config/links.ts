@@ -33,7 +33,7 @@ export const friendLinks: FriendLink[] = [
 		url: "https://blog.luoh.org/",
 		description: "落人间，破三弦，忆李仙",
 		avatar:
-		"https://cdn2.elh.dpdns.org/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
+			"https://cdn2.elh.dpdns.org/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
 	},
 	{
 		name: "沫泽的小站",
