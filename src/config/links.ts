@@ -17,12 +17,6 @@ export const friendLinks: FriendLink[] = [
 		avatar: "https://raw.githubusercontent.com/5ime/img/master/avatar.jpg",
 	},
 	{
-		name: "SkonJIYHD",
-		url: "https://b23.tv/428g0yG",
-		description: "一个喜欢折腾的小笨蛋",
-		avatar: "https://q.qlogo.cn/g?b=qq&nk=3260148249&s=640",
-	},
-	{
 		name: "Aicsukの世界(HTTP)",
 		url: "http://www.aicsuk.net/",
 		description: "一个小小的博客",
@@ -49,7 +43,7 @@ export const friendLinks: FriendLink[] = [
 	},
 	{
 		name: "ZAKOFLARE NETWORK",
-		url: "https://zakoflare.com/",
+		url: "https://www.zakoflare.com/",
 		description: "面向全平台与低性能服务端提供免费开源可靠的解决方案",
 		avatar: "https://cdn.240900.xyz/Image_1786420970752_442.jpg",
 	},
