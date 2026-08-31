@@ -1,7 +1,7 @@
 \##申请友联
 
 名称: 临明小狐狸の小窝 </br>
-地址: <https://240900.xyz> </br>
+地址: <https://zakofox.cn> </br>
 头像: <https://q.qlogo.cn/g?b=qq&nk=1942239847&s=640> </br>
 描述（可选）: Ciallo～(∠・ω< )⌒★ </br>
 

@@ -73,7 +73,7 @@ function getRedirectHtml(targetUrl: string): string {
   <div class="container">
     <h1>域名更新通知</h1>
     <p>您好！我们的网站域名已更新为：</p>
-    <div class="new-domain">240900.xyz</div>
+    <div class="new-domain">zakofox.cn</div>
     <p>请尽快更新您的书签和链接，旧域名 <span class="expiry-date">lmxhl.top</span> 将于 2026-08-12 过期。</p>
     <p>点击下方按钮访问新域名：</p>
     <a href="${escapeHtml(targetUrl)}" class="button">访问新域名</a>
@@ -92,7 +92,7 @@ export const onRequest: ReturnType<typeof defineMiddleware> = defineMiddleware(
 		) {
 			// 构建新域名的 URL
 			const url = new URL(context.request.url);
-			url.host = "240900.xyz";
+			url.host = "zakofox.cn";
 
 			// 返回重定向响应，提示用户更新域名
 			return new Response(getRedirectHtml(url.toString()), {

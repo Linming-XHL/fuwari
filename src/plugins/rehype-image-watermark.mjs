@@ -4,7 +4,7 @@ import sharp from "sharp";
 import { visit } from "unist-util-visit";
 
 const WATERMARK_TEXT = "临明小狐狸の小窝";
-const WATERMARK_URL = "https://240900.xyz";
+const WATERMARK_URL = "https://zakofox.cn";
 const MIN_WIDTH = 480;
 const MIN_HEIGHT = 360;
 
