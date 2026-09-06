@@ -1,3 +1,11 @@
+---
+import { profileConfig } from "../config";
+import { url } from "../utils/url-utils";
+
+const currentYear = new Date().getFullYear();
+---
+
+<!-- 页脚主体 -->
 <div class="transition-colors border-dashed border-[oklch(85%_0.01_var(--hue))] dark:border-white/15 rounded-2xl py-8 mb-12 flex flex-col items-center justify-center px-6 bg-[rgba(255,255,255,0.8)] dark:bg-[rgba(17,24,39,0.8)] backdrop-blur-md">
     <div class="transition-colors text-50 text-sm text-center">
         &copy; <span id="copyright-year">{currentYear}</span> {profileConfig.name}. All Rights Reserved. /
@@ -7,7 +15,8 @@
         <a class="transition-colors link text-[var(--primary)] font-medium" target="_blank" href="https://astro.build">Astro</a> &
         <a class="transition-colors link text-[var(--primary)] font-medium" target="_blank" href="https://github.com/saicaca/fuwari">Fuwari</a>
     </div>
-    <!--运行时间 -->
+
+    <!-- 运行时间脚本（不变） -->
     <script type="text/javascript">
         if ('requestIdleCallback' in window) {
             requestIdleCallback(function() {
@@ -49,6 +58,8 @@
             }, 1000);
         }
     </script>
+
+    <!-- 统计弹窗样式（不变） -->
     <style>
         .ef-popover-card { cursor: pointer; position: relative; }
         .ef-popover-chart-box {
@@ -60,6 +71,8 @@
         .ef-popover-chart-box.pop-down { top: 100%; bottom: auto; transform: translate(-50%, 6px); }
         .ef-popover-card:hover .ef-popover-chart-box.pop-down { transform: translate(-50%, 10px); }
     </style>
+
+    <!-- 运行时间 & 访问统计 -->
     <div class="transition-colors text-50 text-sm text-center hidden md:flex items-center justify-center flex-wrap gap-2 mt-2 whitespace-nowrap">
         <span id="runningtime" class="inline-flex items-center"></span>
         <span class="opacity-40">|</span>
@@ -69,14 +82,14 @@
                 <span id="flm-pv-total">0</span>次↗
             </a>
             <div class="ef-popover-chart-box">
-                <div style="font-size: 8px; color: #888888; margin-bottom: 4px; font-family: monospace;">// 30天访问趋势折线图</div>
+                <div style="font-size: 8px; margin-bottom: 4px;">// 30天访问趋势折线图</div>
                 <div id="flm-pv-chart"></div>
             </div>
         </span>
     </div>
     <script src="https://fakeicp.top/widget.js" data-site="zakofox.cn" data-type="popover" is:inline async></script>
 
-    <!-- ICP Badges -->
+    <!-- ICP 备案信息 -->
     <div class="transition-colors text-50 text-sm mt-3 flex flex-wrap justify-center items-center gap-3">
         <a href="https://icp.gov.moe/?keyword=20250341" target="_blank" rel="noopener noreferrer" 
            class="link text-[var(--primary)] font-medium">
