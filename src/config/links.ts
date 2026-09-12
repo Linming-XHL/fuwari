@@ -30,12 +30,6 @@ export const friendLinks: FriendLink[] = [
 			"https://cdn2.elh.dpdns.org/picture/2025/57bd486ead4f5b34a28aea7f160a70ae.avif",
 	},
 	{
-		name: "沫泽的小站",
-		url: "https://blog.pmoze.top",
-		description: "一个技术宅的小窝",
-		avatar: "https://blog.pmoze.top/wp-content/uploads/site.png",
-	},
-	{
 		name: "Z次元",
 		url: "https://blog.ahzoo.cn",
 		description: "探索代码的世界，追寻生活的诗篇",
