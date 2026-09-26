@@ -88,13 +88,14 @@ const mainPanelTop = siteConfig.banner.enable
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
                     <slot></slot>
-                    <div class="footer col-span-2 onload-animation hidden lg:block">
-                        <Footer></Footer>
-                    </div>
                 </div>
             </main>
 
-            <div class="footer col-span-2 onload-animation block lg:hidden">
+            <!-- Single footer instance. On mobile it keeps its original third-row
+                 placement (full width, below the sidebar); on desktop it is aligned
+                 to the content column instead of being rendered a second time
+                 inside #content-wrapper. -->
+            <div class="footer col-span-2 lg:col-span-1 lg:col-start-2 onload-animation">
                 <Footer></Footer>
             </div>
         </div>

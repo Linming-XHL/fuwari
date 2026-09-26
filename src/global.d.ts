@@ -4,6 +4,8 @@ declare global {
 	interface Window {
 		// type from '@swup/astro' is incorrect
 		swup: AstroIntegration;
+		// Bad Apple easter egg launcher, injected by the layout
+		badapple: () => Promise<void>;
 		pagefind: {
 			search: (query: string) => Promise<{
 				results: Array<{
