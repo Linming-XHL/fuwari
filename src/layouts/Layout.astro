@@ -398,6 +398,30 @@ function init() {
 /* Load settings when entering the site */
 init();
 
+/*
+ * First paint: the loader starts hidden so a fast visit never flashes it.
+ * Only reveal it when the document actually takes a while to settle, then
+ * hand control to the same finish() path used for client-side navigation.
+ */
+if (document.readyState === 'complete') {
+	revealOnFirstPaint();
+} else {
+	window.addEventListener('load', revealOnFirstPaint, { once: true });
+}
+
+function revealOnFirstPaint() {
+	const loader = window.__akLoader;
+	if (!loader) return;
+
+	// If the page painted quickly, skip the overlay entirely.
+	const nav = performance.getEntriesByType('navigation')[0];
+	const ready = nav ? nav.duration : performance.now();
+	if (ready < 600) return;
+
+	loader.start();
+	loader.finish();
+}
+
 const setup = () => {
 	window.swup.hooks.on('link:click', () => {
 		// Remove the delay for the first time page load
@@ -417,11 +441,8 @@ const setup = () => {
 		}
 	})
 	window.swup.hooks.on('visit:start', () => {
-		// Show loading skeleton
-		const skeleton = document.getElementById('loading-skeleton')
-		if (skeleton) {
-			skeleton.classList.remove('hidden')
-		}
+		// Run the Arknights-style loader for each client-side navigation
+		window.__akLoader?.start()
 
 		// Hide main content with fade out
 		const mainGrid = document.getElementById('main-grid')
@@ -454,11 +475,8 @@ const setup = () => {
 		}
 	});
 	window.swup.hooks.on('page:view', () => {
-		// Hide loading skeleton
-		const skeleton = document.getElementById('loading-skeleton')
-		if (skeleton) {
-			skeleton.classList.add('hidden')
-		}
+		// Retire the loader: it holds briefly, then fades while the hairlines slide out
+		window.__akLoader?.finish()
 
 		// Show main content with progressive assembly
 		const mainGrid = document.getElementById('main-grid')
@@ -466,33 +484,33 @@ const setup = () => {
 			mainGrid.style.opacity = '1'
 			mainGrid.style.transition = 'opacity 200ms ease-in'
 
-			// Add progressive assembly classes to key components
-			const navbar = document.getElementById('navbar-wrapper')
-			const sidebar = document.getElementById('sidebar')
-			const content = document.getElementById('swup-container')
-			const footer = document.querySelector('.footer')
+			// Staggered reveal, mirroring the original's 100ms cadence: each block
+			// rises into place instead of a plain fade.
+			const blocks: HTMLElement[] = [
+				document.getElementById('navbar-wrapper'),
+				document.getElementById('sidebar'),
+				document.getElementById('swup-container'),
+				document.querySelector('.footer'),
+			].filter((el): el is HTMLElement => el !== null)
 
-			if (navbar) {
-				navbar.classList.add('progressive-assemble', 'progressive-assembly-navbar')
-			}
-			if (sidebar) {
-				sidebar.classList.add('progressive-assemble', 'progressive-assembly-sidebar')
-			}
-			if (content) {
-				content.classList.add('progressive-assemble', 'progressive-assembly-content')
-			}
-			if (footer) {
-				footer.classList.add('progressive-assemble', 'progressive-assembly-footer')
-			}
+			blocks.forEach((el, i) => {
+				el.classList.add('ak-rise')
+				// The navbar is `sticky`, so it fades rather than translating
+				if (el.id === 'navbar-wrapper') el.classList.add('ak-rise--fade')
+				el.style.setProperty('--ak-delay', `${i * 100}ms`)
+				// Restart the animation on repeat visits
+				el.classList.remove('ak-rise--active')
+				void el.offsetWidth
+				el.classList.add('ak-rise--active')
+			})
 
-			// Clean up animation classes after animation completes
+			// Clean up once the longest stagger has played out
 			setTimeout(() => {
-				[navbar, sidebar, content, footer].forEach(el => {
-					if (el) {
-						el.classList.remove('progressive-assemble', 'progressive-assembly-navbar', 'progressive-assembly-sidebar', 'progressive-assembly-content', 'progressive-assembly-footer')
-					}
+				blocks.forEach(el => {
+					el.classList.remove('ak-rise', 'ak-rise--active', 'ak-rise--fade')
+					el.style.removeProperty('--ak-delay')
 				})
-			}, 500)
+			}, 900)
 		}
 
 		// hide the temp high element when the transition is done

@@ -8,6 +8,11 @@ const { page } = Astro.props;
 let delay = 0;
 const interval = 50;
 ---
+<!-- Section header, echoing the original's label + hairline device -->
+<div class="ak-label mb-3" style="--ak-delay: 0ms">
+    <span>LATEST&nbsp;/&nbsp;最新文章</span>
+</div>
+
 <div class="transition flex flex-col rounded-[var(--radius-large)] bg-transparent gap-4 mb-4">
     {page.data.map((entry: CollectionEntry<"posts">) => (
         <PostCard

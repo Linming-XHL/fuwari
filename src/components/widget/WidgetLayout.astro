@@ -15,9 +15,8 @@ const { id, name, isCollapsed, collapsedHeight, style } = Astro.props;
 const className = Astro.props.class;
 ---
 <widget-layout data-id={id} data-is-collapsed={String(isCollapsed)} class={"pb-3 card-base " + className} style={style}>
-    <div class="font-bold transition text-xs text-neutral-900 dark:text-neutral-100 relative ml-5 mt-2.5 mb-1
-        before:w-0.5 before:h-2.5 before:rounded-sm before:bg-[var(--primary)]
-        before:absolute before:left-[-10px] before:top-[3px]">{name}</div>
+    <!-- Signature label: uppercase micro-type trailed by a hairline -->
+    <div class="ak-label font-bold text-neutral-900 dark:text-neutral-100 mx-4 mt-3 mb-1.5">{name}</div>
     <div id={id} class:list={["collapse-wrapper px-2.5 overflow-hidden", {"collapsed": isCollapsed}]}>
         <slot></slot>
     </div>

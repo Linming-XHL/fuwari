@@ -6,6 +6,11 @@ declare global {
 		swup: AstroIntegration;
 		// Bad Apple easter egg launcher, injected by the layout
 		badapple: () => Promise<void>;
+		// Arknights-style loading overlay controls, injected by LoadingSkeleton
+		__akLoader?: {
+			start: () => void;
+			finish: () => void;
+		};
 		pagefind: {
 			search: (query: string) => Promise<{
 				results: Array<{

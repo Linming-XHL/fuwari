@@ -1,143 +1,312 @@
 ---
+/**
+ * Loading overlay in the style of the official Arknights site.
+ *
+ * Structure mirrors the original loader: a 6px-capped ruler with a 2px track
+ * and an accent fill, a technical caption row, and two 1px hairlines stationed
+ * 6.625rem from the top / right edges. On exit the hairlines slide out of frame
+ * while the overlay fades over 1s, exactly as the original does.
+ *
+ * Colours are mapped onto this theme's tokens rather than the original's fixed
+ * greys, so the overlay follows light/dark mode.
+ */
+import { siteConfig } from "@/config";
+
 interface Props {
 	class?: string;
 }
 
 const className = Astro.props.class || "";
+const siteTitle = siteConfig.title;
+const siteUrl = Astro.site?.toString() ?? "https://zakofox.cn/";
 ---
 
-<div class:list={["loading-skeleton", className]}>
-	<!-- Navbar Skeleton -->
-	<div class="navbar-skeleton">
-		<div class="skeleton-navbar"></div>
-	</div>
+<div class:list={["ak-loader ak-loader--done", className]} id="ak-loader" aria-hidden="true">
+	<!-- Two hairlines: the horizontal one leaves upward, the vertical one right -->
+	<span class="ak-loader__line ak-loader__line--h"></span>
+	<span class="ak-loader__line ak-loader__line--v"></span>
 
-	<!-- Main Content Skeleton -->
-	<div class="skeleton-main">
-		<!-- Sidebar Skeleton -->
-		<div class="skeleton-sidebar">
-			<div class="skeleton-card">
-				<div class="skeleton-avatar"></div>
-				<div class="skeleton-lines">
-					<div class="skeleton-line w-3/4"></div>
-					<div class="skeleton-line w-1/2"></div>
-				</div>
-			</div>
-			<div class="skeleton-card mt-4">
-				<div class="skeleton-line w-full"></div>
-				<div class="skeleton-line w-5/6"></div>
-				<div class="skeleton-line w-4/6"></div>
-			</div>
-		</div>
+	<div class="ak-loader__body">
+		<div class="ak-loader__title">{siteTitle}</div>
 
-		<!-- Content Skeleton -->
-		<div class="skeleton-content">
-			<div class="skeleton-card mb-4">
-				<div class="skeleton-line w-2/3 h-8"></div>
-				<div class="skeleton-line w-full mt-4"></div>
-				<div class="skeleton-line w-full mt-2"></div>
-				<div class="skeleton-line w-5/6 mt-2"></div>
+		<div class="ak-loader__panel">
+			<!-- Ruler: 6px end caps, 2px track, accent fill -->
+			<div class="ak-loader__ruler">
+				<span class="ak-loader__track"></span>
+				<span class="ak-loader__bar" id="ak-loader-bar"></span>
 			</div>
-			<div class="skeleton-card">
-				<div class="skeleton-line w-1/2 h-6"></div>
-				<div class="skeleton-line w-full mt-4"></div>
-				<div class="skeleton-line w-full mt-2"></div>
-				<div class="skeleton-line w-4/5 mt-2"></div>
-				<div class="skeleton-line w-3/4 mt-2"></div>
+
+			<div class="ak-loader__caption">
+				<span class="ak-loader__loading">
+					<svg class="ak-loader__arrow" viewBox="0 0 13 11" aria-hidden="true">
+						<path d="M6.5 0 13 11H0z" fill="currentColor" opacity=".35"></path>
+						<path d="M4.5 0 11 11H2z" fill="currentColor"></path>
+					</svg>
+					LOADING&nbsp;-&nbsp;<span id="ak-loader-pct">0</span>%&nbsp;&nbsp;......
+				</span>
+				<span class="ak-loader__meta">
+					<span class="ak-loader__brand">ARKNIGHTS</span>
+					<span class="ak-loader__url">//&nbsp;&nbsp;&nbsp;&nbsp;{siteUrl}</span>
+				</span>
 			</div>
 		</div>
 	</div>
 </div>
 
+<script>
+	/**
+	 * Progress ramp + exit choreography.
+	 *
+	 * The original drives the bar to the real preload percentage with anime.js
+	 * (1000ms, easeInOutQuad, rounded), then holds 300ms and fades out over 1s.
+	 * With no asset-preload signal available here, the bar ramps toward 100%
+	 * with an ease-out curve and the same 300ms hold before the exit.
+	 */
+	const loader = document.getElementById("ak-loader");
+	const bar = document.getElementById("ak-loader-bar");
+	const pct = document.getElementById("ak-loader-pct");
+
+	if (loader && bar && pct) {
+		const HOLD_MS = 300; // matches the original's post-completion hold
+		const QUICK_MS = 200; // below this, the visit is treated as instant
+		const MIN_VISIBLE_MS = 300; // floor so a slow-ish visit still reads as intentional
+		let value = 0;
+		let raf = 0;
+		let visibleSince = 0;
+
+		const paint = () => {
+			bar.style.width = `${value}%`;
+			pct.textContent = String(Math.round(value));
+		};
+
+		const step = () => {
+			const remaining = 100 - value;
+			// ease-out: fast at first, decelerating as it approaches 100
+			value = Math.min(100, value + Math.max(remaining * 0.06, 0.35));
+			paint();
+			if (value < 100) {
+				raf = requestAnimationFrame(step);
+			}
+		};
+
+		const start = () => {
+			cancelAnimationFrame(raf);
+			value = 0;
+			paint();
+			visibleSince = performance.now();
+			loader.classList.remove("ak-loader--done", "ak-loader--quick");
+			raf = requestAnimationFrame(step);
+		};
+
+		const finish = () => {
+			cancelAnimationFrame(raf);
+			value = 100;
+			paint();
+
+			const elapsed = performance.now() - visibleSince;
+
+			// A client-side navigation usually resolves in well under 200ms. Holding
+			// the overlay for the full 300ms would then read as a stall, so short
+			// visits retire quickly while slow ones keep the original's cadence.
+			const isQuick = elapsed < QUICK_MS;
+			if (isQuick) loader.classList.add("ak-loader--quick");
+
+			// Quick visit: the new page is already on screen, so retire immediately
+			// rather than adding a visible delay to every click.
+			const wait = isQuick
+				? 0
+				: Math.max(0, MIN_VISIBLE_MS - elapsed) + HOLD_MS;
+			window.setTimeout(() => {
+				loader.classList.add("ak-loader--done");
+			}, wait);
+		};
+
+		window.__akLoader = { start, finish };
+	}
+</script>
+
 <style>
-	.loading-skeleton {
-		position: absolute;
+	.ak-loader {
+		/* fixed, not absolute: the body is position:relative with a content-driven
+		   height, so an absolute overlay would span the whole document and centre
+		   the ruler far below the fold. */
+		position: fixed;
 		inset: 0;
 		z-index: 40;
-		background: var(--card-bg);
-		padding: 0;
-		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: var(--page-bg);
+		color: var(--btn-content);
+		/* The original fades the whole overlay over 1s */
+		transition:
+			opacity var(--ak-t-slow) ease,
+			visibility var(--ak-t-slow) ease;
 	}
 
-	.navbar-skeleton {
-		position: sticky;
+	.ak-loader--done {
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+	}
+
+	/* Quick visits skip the 1s ceremonial fade so navigation stays snappy */
+	.ak-loader--quick {
+		transition:
+			opacity 0.15s ease,
+			visibility 0.15s ease;
+	}
+
+	/* ---- hairlines (the original's signature exit) ---- */
+	.ak-loader__line {
+		position: absolute;
+		display: block;
+		background-color: var(--ak-line);
+		transition:
+			top var(--ak-t-slow) ease,
+			right var(--ak-t-slow) ease;
+	}
+
+	.ak-loader__line--h {
+		left: 0;
+		top: 6.625rem;
+		width: 100%;
+		height: 1px;
+	}
+
+	.ak-loader__line--v {
 		top: 0;
-		z-index: 50;
-		height: 4.5rem;
-	}
-
-	.skeleton-navbar {
+		right: 6.625rem;
 		height: 100%;
-		background: linear-gradient(90deg, var(--btn-plain-bg-hover) 25%, var(--btn-card-bg-hover) 50%, var(--btn-plain-bg-hover) 75%);
-		background-size: 200% 100%;
-		animation: skeleton-shimmer 1.5s infinite;
+		width: 1px;
 	}
 
-	.skeleton-main {
-		display: grid;
-		grid-template-columns: 12rem 1fr;
-		gap: 1rem;
-		padding: 1rem;
+	/* On exit each hairline slides out of the frame */
+	.ak-loader--done .ak-loader__line--h {
+		top: -0.25rem;
 	}
 
-	.skeleton-sidebar {
+	.ak-loader--done .ak-loader__line--v {
+		right: -0.25rem;
+	}
+
+	/* ---- body ---- */
+	.ak-loader__body {
+		width: min(90vw, 68.5rem);
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
 	}
 
-	.skeleton-content {
+	.ak-loader__title {
+		font-family: var(--ak-label-font);
+		font-size: 1.25rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		color: var(--btn-content);
+		margin-bottom: 2rem;
+	}
+
+	.ak-loader__panel {
+		margin-top: auto;
+	}
+
+	/* ---- ruler: 6px caps + 2px track + fill ---- */
+	.ak-loader__ruler {
+		position: relative;
 		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+		align-items: center;
+		width: 100%;
+		height: 6px;
+		border-left: 6px solid var(--ak-line);
+		border-right: 6px solid var(--ak-line);
 	}
 
-	.skeleton-card {
-		background: var(--card-bg);
-		border-radius: var(--radius-medium);
-		padding: 1.5rem;
-		overflow: hidden;
+	.ak-loader__track {
+		width: 100%;
+		height: 2px;
+		background-color: var(--ak-line);
 	}
 
-	.skeleton-avatar {
-		width: 3rem;
-		height: 3rem;
-		border-radius: 50%;
-		background: linear-gradient(90deg, var(--btn-plain-bg-hover) 25%, var(--btn-card-bg-hover) 50%, var(--btn-plain-bg-hover) 75%);
-		background-size: 200% 100%;
-		animation: skeleton-shimmer 1.5s infinite;
+	.ak-loader__bar {
+		position: absolute;
+		left: 0;
+		top: 0;
+		height: 100%;
+		width: 0;
+		background-color: var(--ak-accent);
 	}
 
-	.skeleton-lines {
+	/* ---- caption row ---- */
+	.ak-loader__caption {
 		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
 		margin-top: 0.75rem;
+		font-family: var(--ak-label-font);
+		font-size: 0.75rem;
+		letter-spacing: 0.05em;
 	}
 
-	.skeleton-line {
-		height: 0.875rem;
-		border-radius: 0.25rem;
-		background: linear-gradient(90deg, var(--btn-plain-bg-hover) 25%, var(--btn-card-bg-hover) 50%, var(--btn-plain-bg-hover) 75%);
-		background-size: 200% 100%;
-		animation: skeleton-shimmer 1.5s infinite;
+	.ak-loader__loading {
+		display: flex;
+		align-items: center;
+		white-space: nowrap;
 	}
 
-	@keyframes skeleton-shimmer {
-		0% {
-			background-position: 200% 0;
-		}
-		100% {
-			background-position: -200% 0;
-		}
+	.ak-loader__arrow {
+		width: 0.75rem;
+		height: auto;
+		margin-right: 1rem;
+		flex: none;
 	}
 
-	@media (max-width: 1023px) {
-		.skeleton-main {
-			grid-template-columns: 1fr;
-		}
-		.skeleton-sidebar {
+	.ak-loader__meta {
+		display: flex;
+		align-items: center;
+		white-space: nowrap;
+	}
+
+	.ak-loader__brand {
+		margin-right: 2rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+	}
+
+	.ak-loader__url {
+		opacity: 0.7;
+	}
+
+	/* Portrait: the original drops to 3px caps and hides its hairlines */
+	@media (orientation: portrait) {
+		.ak-loader__line {
 			display: none;
+		}
+
+		.ak-loader__ruler {
+			height: 3px;
+			border-left-width: 3px;
+			border-right-width: 3px;
+		}
+
+		.ak-loader__track {
+			height: 1px;
+		}
+
+		.ak-loader__caption {
+			margin-top: 0.5rem;
+			font-size: 0.875rem;
+		}
+
+		.ak-loader__meta {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.ak-loader,
+		.ak-loader__line {
+			transition: none;
 		}
 	}
 </style>
