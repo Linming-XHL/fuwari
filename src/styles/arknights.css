@@ -48,7 +48,8 @@
 	line-height: 1;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
-	color: var(--deep-text);
+	/* No colour here: the label sits on surfaces with different backgrounds
+	   (bare page vs. card), so the call site picks the foreground. */
 	white-space: nowrap;
 }
 
