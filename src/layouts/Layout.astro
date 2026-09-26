@@ -431,13 +431,13 @@ const setup = () => {
 		if (!bannerEnabled) {
 			return
 		}
-		let threshold = window.innerHeight * (BANNER_HEIGHT / 100) - 72 - 16
-		let navbar = document.getElementById('navbar-wrapper')
-		if (!navbar || !document.body.classList.contains('lg:is-home')) {
+		const navThreshold = window.innerHeight * (BANNER_HEIGHT / 100) - 72 - 16
+		const navbarEl = document.getElementById('navbar-wrapper')
+		if (!navbarEl || !document.body.classList.contains('lg:is-home')) {
 			return
 		}
-		if (document.body.scrollTop >= threshold || document.documentElement.scrollTop >= threshold) {
-			navbar.classList.add('navbar-hidden')
+		if ((window.scrollY || 0) >= navThreshold) {
+			navbarEl.classList.add('navbar-hidden')
 		}
 	})
 	window.swup.hooks.on('visit:start', () => {
@@ -531,6 +531,17 @@ const setup = () => {
             if (toc) {
                 toc.classList.remove('toc-not-ready')
             }
+
+            // The swup container was replaced, so re-query the nodes the scroll
+            // handler writes to and re-evaluate against the new page height.
+            backToTopBtn = document.getElementById('back-to-top-btn')
+            toc = document.getElementById('toc-wrapper')
+            navbar = document.getElementById('navbar-wrapper')
+            scrollState.backToTop = null
+            scrollState.toc = null
+            scrollState.navbar = null
+            measureScrollMetrics()
+            applyScrollState()
         }, 200)
 	});
 }
@@ -543,50 +554,107 @@ if (window?.swup?.hooks) {
 let backToTopBtn = document.getElementById('back-to-top-btn');
 let toc = document.getElementById('toc-wrapper');
 let navbar = document.getElementById('navbar-wrapper')
-function scrollFunction() {
-	let bannerHeight = window.innerHeight * (BANNER_HEIGHT / 100)
+
+/*
+ * Scroll handling.
+ *
+ * The previous version ran on every scroll event and read layout properties
+ * (scrollTop/innerHeight/classList) synchronously, forcing a style+layout flush
+ * several times per frame. It now:
+ *   - coalesces bursts into one rAF pass, so work happens at most once a frame
+ *   - caches the measured thresholds and only re-measures on resize
+ *   - writes to the DOM only when a state actually flips
+ */
+let scrollTicking = false
+let scrollTickingResize = false
+
+// Cached measurements; recomputed on resize and on demand.
+let scrollMetrics = { bannerHeight: 0, navbarThreshold: 0 }
+
+function measureScrollMetrics() {
+	const vh = window.innerHeight
+	scrollMetrics.bannerHeight = vh * (BANNER_HEIGHT / 100)
+
+	const NAVBAR_HEIGHT = 72
+	// The height the main panel overlaps the banner
+	const MAIN_PANEL_EXCESS_HEIGHT = MAIN_PANEL_OVERLAPS_BANNER_HEIGHT * 16
+
+	let bannerHeight = BANNER_HEIGHT
+	if (document.body.classList.contains('lg:is-home') && window.innerWidth >= 1024) {
+		bannerHeight = BANNER_HEIGHT_HOME
+	}
+	scrollMetrics.navbarThreshold =
+		vh * (bannerHeight / 100) - NAVBAR_HEIGHT - MAIN_PANEL_EXCESS_HEIGHT - 16
+}
+
+// Remember the last applied state so redundant class writes are skipped.
+const scrollState = { backToTop: null as boolean | null, toc: null as boolean | null, navbar: null as boolean | null }
+
+function applyScrollState() {
+	scrollTicking = false
+
+	// The body carries an inline `overflow-y: auto`, so depending on the layout
+	// the scroller may be the body rather than the document element. Reading both
+	// keeps behaviour identical to the previous implementation.
+	const bodyTop = document.body.scrollTop
+	const docTop = document.documentElement.scrollTop
+	const top = Math.max(window.scrollY || 0, bodyTop, docTop)
 
 	if (backToTopBtn) {
-		if (document.body.scrollTop > bannerHeight || document.documentElement.scrollTop > bannerHeight) {
-			backToTopBtn.classList.remove('hide')
-		} else {
-			backToTopBtn.classList.add('hide')
+		const show = top > scrollMetrics.bannerHeight
+		if (show !== scrollState.backToTop) {
+			scrollState.backToTop = show
+			backToTopBtn.classList.toggle('hide', !show)
 		}
 	}
 
 	if (bannerEnabled && toc) {
-		if (document.body.scrollTop > bannerHeight || document.documentElement.scrollTop > bannerHeight) {
-			toc.classList.remove('toc-hide')
-		} else {
-			toc.classList.add('toc-hide')
+		const show = top > scrollMetrics.bannerHeight
+		if (show !== scrollState.toc) {
+			scrollState.toc = show
+			toc.classList.toggle('toc-hide', !show)
 		}
 	}
 
-	if (!bannerEnabled) return
-	if (navbar) {
-		const NAVBAR_HEIGHT = 72
-		const MAIN_PANEL_EXCESS_HEIGHT = MAIN_PANEL_OVERLAPS_BANNER_HEIGHT * 16			// The height the main panel overlaps the banner
-
-		let bannerHeight = BANNER_HEIGHT
-		if (document.body.classList.contains('lg:is-home') && window.innerWidth >= 1024) {
-			bannerHeight = BANNER_HEIGHT_HOME
-		}
-		let threshold = window.innerHeight * (bannerHeight / 100) - NAVBAR_HEIGHT - MAIN_PANEL_EXCESS_HEIGHT - 16
-		if (document.body.scrollTop >= threshold || document.documentElement.scrollTop >= threshold) {
-			navbar.classList.add('navbar-hidden')
-		} else {
-			navbar.classList.remove('navbar-hidden')
+	if (bannerEnabled && navbar) {
+		const hidden = top >= scrollMetrics.navbarThreshold
+		if (hidden !== scrollState.navbar) {
+			scrollState.navbar = hidden
+			navbar.classList.toggle('navbar-hidden', hidden)
 		}
 	}
 }
-window.onscroll = scrollFunction
 
-window.onresize = () => {
-	// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
-	let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
-	offset = offset - offset % 4;
-	document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
+function scrollFunction() {
+	if (scrollTicking) return
+	scrollTicking = true
+	requestAnimationFrame(applyScrollState)
 }
+
+window.addEventListener('scroll', scrollFunction, { passive: true })
+// A body-level scroller does not always bubble to window, so listen there too.
+document.addEventListener('scroll', scrollFunction, { passive: true, capture: true })
+
+measureScrollMetrics()
+applyScrollState()
+
+window.addEventListener('resize', () => {
+	if (scrollTickingResize) return
+	scrollTickingResize = true
+	requestAnimationFrame(() => {
+		scrollTickingResize = false
+		// keep the --banner-height-extend a multiple of 4 to avoid blurry text
+		let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100))
+		offset = offset - (offset % 4)
+		document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`)
+		measureScrollMetrics()
+		// Thresholds changed, so force the next scroll pass to re-evaluate
+		scrollState.navbar = null
+		scrollState.toc = null
+		scrollState.backToTop = null
+		applyScrollState()
+	})
+}, { passive: true })
 
 </script>
 
