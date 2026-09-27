@@ -1,0 +1,89 @@
+/*
+ * Full-screen wallpaper stability.
+ *
+ * Samsung Internet (and some other mobile Chromium builds) can flicker a
+ * full-screen background while scrolling. Two independent causes:
+ *
+ *   1. The layer resizes. With `inset: 0` the box follows the *dynamic*
+ *      viewport, so every address-bar collapse/expand during a scroll changes
+ *      its height. For a background painted with `background-size: cover` (or
+ *      an <img> using object-fit) that means a fresh scale calculation and a
+ *      re-sample of the whole bitmap on each change.
+ *   2. The layer is not promoted. A plain `position: fixed` element can be
+ *      repainted together with the scrolling page instead of being cached and
+ *      merely moved.
+ *
+ * The markup uses an <img> with object-fit, and the rules below (a) pin the
+ * box to a single, scroll-invariant size and (b) keep it on its own
+ * compositing layer.
+ */
+
+#bg-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 0;
+	overflow: hidden;
+	pointer-events: none;
+
+	/*
+	 * Sized with large-viewport units instead of `inset: 0`.
+	 *
+	 * `inset: 0` tracks the dynamic viewport, so the box is resized whenever
+	 * the mobile address bar animates — and each resize forces object-fit to
+	 * re-fit and re-sample the bitmap. That is the flicker.
+	 *
+	 * `lvh` is the viewport with the address bar retracted, i.e. the largest
+	 * it will ever be during a scroll, so the box keeps one height throughout
+	 * and the image is fitted exactly once. The bottom of the box ends up
+	 * slightly below the visible area when the bar is shown; `overflow: hidden`
+	 * clips it, and because the image is centred the visible crop stays put.
+	 */
+	/* `100%` rather than `100vw`: for a fixed element a percentage resolves
+	   against the viewport excluding the scrollbar, so the wallpaper cannot
+	   end up a scrollbar's width wider than the visible area on desktop. */
+	width: 100%;
+	height: 100vh; /* fallback for engines without lvh */
+
+	/* Promote to its own layer so scrolling moves it instead of repainting it.
+	   translateZ(0) is the broadly supported form; will-change is deliberately
+	   avoided because a permanent hint keeps an extra texture alive for the
+	   whole session, which is a poor trade on mobile memory. */
+	transform: translate3d(0, 0, 0);
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+
+	/* Keep layout/paint work inside this subtree. `layout paint` rather than
+	   `strict`: size containment buys nothing here and invites extra bugs. */
+	contain: layout paint;
+}
+
+@supports (height: 100lvh) {
+	#bg-container {
+		height: 100lvh;
+	}
+}
+
+#bg-image {
+	/* The container has a fixed size, so this element is never re-laid-out
+	   mid-scroll and the bitmap is never re-fitted. */
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 100%;
+	height: 100%;
+	/* Centres the image and promotes it, without a second transform rule to
+	   conflict with (the old code declared translateZ twice). */
+	transform: translate3d(-50%, -50%, 0);
+	object-fit: cover;
+	object-position: center;
+	display: block;
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+
+	/* The bitmap is decorative and never animates. */
+	pointer-events: none;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-user-drag: none;
+}

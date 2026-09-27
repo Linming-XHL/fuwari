@@ -187,13 +187,20 @@ const bannerOffset =
 	<body class="min-h-screen h-full transition-colors" style="overflow-y: auto !important; position: relative;"
 		  class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 	>
-<!-- 全局全屏背景图片 - 立即加载 -->
-  <div class="fixed inset-0 z-0 w-full h-full overflow-hidden pointer-events-none">
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-         id="bg-image"
-          style="background-image: url('/background.webp');"></div>
-    <div class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
-  </div>
+<!-- Global full-screen wallpaper.
+     Deliberately an <img> with object-fit instead of a CSS background-image.
+     A fixed element painted via `background-image` + `background-size: cover`
+     has to be re-rasterised whenever that layer is recomposited, and on
+     Samsung Internet the layer churn during a scroll shows up as a flicker.
+     A replaced element can instead be cached as its own composited layer, so
+     the texture is painted once and simply moved.
+
+     Positioning lives entirely in styles/wallpaper.css: the markup carries no
+     conflicting utilities, so there is a single source of truth for the box. -->
+<div id="bg-container">
+  <img id="bg-image" src="/background.webp" alt="" aria-hidden="true" draggable="false" decoding="async" fetchpriority="high" />
+  <div id="bg-scrim" class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
+</div>
 
 		<ConfigCarrier></ConfigCarrier>
 		<slot />
