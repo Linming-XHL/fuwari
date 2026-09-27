@@ -527,15 +527,15 @@ const setup = () => {
 			}
 
             // Just make the transition looks better
-            const toc = document.getElementById('toc-wrapper');
-            if (toc) {
-                toc.classList.remove('toc-not-ready')
+            const tocEl = document.getElementById('toc-wrapper');
+            if (tocEl) {
+                tocEl.classList.remove('toc-not-ready')
             }
 
             // The swup container was replaced, so re-query the nodes the scroll
             // handler writes to and re-evaluate against the new page height.
             backToTopBtn = document.getElementById('back-to-top-btn')
-            toc = document.getElementById('toc-wrapper')
+            toc = tocEl
             navbar = document.getElementById('navbar-wrapper')
             scrollState.backToTop = null
             scrollState.toc = null

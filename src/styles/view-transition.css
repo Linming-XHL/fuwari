@@ -1,0 +1,44 @@
+/*
+ * View Transitions plumbing for the circular theme reveal.
+ *
+ * By default the API cross-fades the old and new snapshots. We want a hard
+ * reveal instead: the incoming theme sits above the outgoing one and is clipped
+ * to a circle that view-transition.ts grows out of the toggle button. So the
+ * default cross-fade animation is disabled and the stacking order is pinned.
+ */
+
+@supports (view-transition-name: none) {
+	/* Drop the built-in cross-fade; only our clip-path animation should run. */
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation: none;
+		mix-blend-mode: normal;
+	}
+
+	/* Keep the outgoing theme as the backdrop and the incoming one on top, so
+	   clipping the top layer reveals the new theme. */
+	::view-transition-old(root) {
+		z-index: 1;
+	}
+
+	::view-transition-new(root) {
+		z-index: 2;
+	}
+}
+
+/*
+ * While the new snapshot is being taken, the live DOM must already show the
+ * final colours. Elements carrying `transition-colors` would otherwise still be
+ * at the *start* of their colour fade when the snapshot is captured, so the
+ * expanding circle would reveal the old palette and only settle afterwards.
+ *
+ * view-transition.ts adds this class just before starting the transition and
+ * removes it as soon as the snapshots are taken, so the suppression window is
+ * one frame.
+ */
+html.vt-instant,
+html.vt-instant *,
+html.vt-instant *::before,
+html.vt-instant *::after {
+	transition: none !important;
+}

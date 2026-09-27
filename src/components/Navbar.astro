@@ -55,24 +55,13 @@ let links: NavBarLink[] = navBarConfig.links.map(
 </div>
 
 <script>
-function switchTheme() {
-    if (localStorage.theme === 'dark') {
-        document.documentElement.classList.remove('dark');
-        localStorage.theme = 'light';
-    } else {
-        document.documentElement.classList.add('dark');
-        localStorage.theme = 'dark';
-    }
-}
-
+// NOTE: the light/dark toggle is owned by the LightDarkSwitch Svelte island,
+// which cycles light -> dark -> auto and plays the circular reveal. A legacy
+// handler used to be attached here via `switchBtn.onclick = ...`, but assigning
+// `onclick` overwrote the component's listener and downgraded the toggle to a
+// plain light/dark flip, bypassing stored state. Only the nav menu is wired up
+// from here because it is rendered by this component.
 function loadButtonScript() {
-    let switchBtn = document.getElementById("scheme-switch");
-    if (switchBtn) {
-        switchBtn.onclick = function () {
-            switchTheme()
-        };
-    }
-
     let menuBtn = document.getElementById("nav-menu-switch");
     if (menuBtn) {
         menuBtn.onclick = function () {
