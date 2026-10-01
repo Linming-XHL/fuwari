@@ -11,6 +11,8 @@ declare global {
 			start: () => void;
 			finish: () => void;
 		};
+		// Watchdog that un-hides reveal content if the reveal module never runs
+		__revealWatchdog?: number;
 		pagefind: {
 			search: (query: string) => Promise<{
 				results: Array<{

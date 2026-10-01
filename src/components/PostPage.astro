@@ -4,12 +4,9 @@ import { getPostUrlBySlug } from "@utils/url-utils";
 import PostCard from "./PostCard.astro";
 
 const { page } = Astro.props;
-
-let delay = 0;
-const interval = 50;
 ---
 <!-- Section header, echoing the original's label + hairline device -->
-<div class="card-base ak-label text-90 mb-3 px-4 py-3" style="--ak-delay: 0ms">
+<div class="card-base ak-label text-90 mb-3 px-4 py-3" data-reveal>
     <span>LATEST&nbsp;/&nbsp;最新文章</span>
 </div>
 
@@ -26,8 +23,6 @@ const interval = 50;
                 image={entry.data.image}
                 description={entry.data.description}
                 draft={entry.data.draft}
-                class:list="onload-animation"
-                style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}
         ></PostCard>
     ))}
 </div>

@@ -1,31 +1,34 @@
 /**
  * Arknights-inspired motion layer.
  *
- * Geometry, timings and letter-spacing below are taken from the official
- * Arknights site (https://ak.hypergryph.com/) — both CSS bundles were
- * reverse-engineered directly. Values are re-expressed through this theme's
- * own tokens so the existing fonts and hue stay untouched:
+ * Geometry and timings below are taken from the official Arknights site
+ * (https://ak.hypergryph.com/) — both CSS bundles were reverse-engineered
+ * directly. Values are re-expressed through this theme's own tokens so the
+ * existing fonts and hue stay untouched:
  *
  *   original accent #18d1ff     -> var(--primary)
  *   original overlay #272727    -> var(--page-bg)
  *   original hairline hsla(0,0%,100%,.3) -> color-mix(currentColor 30%)
- *   timings .3s / .6s / 1s      -> kept verbatim
  *
  * Note the original uses NO custom cubic-bezier (plain `ease`) and NO
  * clip-path; the "cut" cues come from 1px hairlines and rotated pseudo
  * elements.
+ *
+ * Entrances draw their timing from the tokens in transition.css rather than
+ * carrying a second set of values, so a block rising here and a card fading
+ * elsewhere move on the same beat. The `ease`/slow timings kept below are for
+ * dwell-type motion (hover pushes), where a longer read is deliberate.
  */
 
 :root {
-	/* Timings — the three values that carry the whole site */
+	/* Dwell timings, straight from the original. `--ak-t-slow` is the loader's
+	   exit sweep, which is meant to be a deliberate, slow dissolve. */
 	--ak-t-fast: 0.3s;
 	--ak-t-mid: 0.6s;
 	--ak-t-slow: 1s;
 
 	/* The original never overrides easing; `ease` is what makes it read calm */
 	--ak-ease: ease;
-	/* easeInOutQuad, used by the original's JS-driven parts (approximation) */
-	--ak-ease-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
 
 	/* Theme-aware stand-in for hsla(0,0%,100%,.3) */
 	--ak-line: color-mix(in oklab, currentColor 30%, transparent);
@@ -73,52 +76,7 @@
 }
 
 /* ---------------------------------------------------------------------------
-   2. Ruler ticks — the original's only repeating gradient
-   repeating-linear-gradient(90deg, #b2b2b2, #b2b2b2 .25rem, transparent 0,
-   transparent .5rem) at height 1px: 4px on / 4px off tick marks.
-   --------------------------------------------------------------------------- */
-.ak-ticks {
-	height: 1px;
-	background-image: repeating-linear-gradient(
-		90deg,
-		var(--ak-line),
-		var(--ak-line) 0.25rem,
-		transparent 0,
-		transparent 0.5rem
-	);
-}
-
-/* ---------------------------------------------------------------------------
-   3. Corner cross-hair — the original builds this from two 6px bars rotated
-   ±45° inside a square, not from clip-path.
-   --------------------------------------------------------------------------- */
-.ak-cross {
-	position: relative;
-}
-
-.ak-cross::before,
-.ak-cross::after {
-	content: "";
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	display: block;
-	width: 0.375rem;
-	height: 80%;
-	background-color: currentColor;
-	transition: background-color var(--ak-t-fast) var(--ak-ease);
-}
-
-.ak-cross::before {
-	transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.ak-cross::after {
-	transform: translate(-50%, -50%) rotate(-45deg);
-}
-
-/* ---------------------------------------------------------------------------
-   3b. Corner brackets — two L-shaped 1px marks in opposite corners, echoing
+   2. Corner brackets — two L-shaped 1px marks in opposite corners, echoing
    the original's offset framing. Kept as hairlines because the original uses
    hairlines rather than clip-path.
    --------------------------------------------------------------------------- */
@@ -147,6 +105,9 @@
 	border-bottom: 1px solid var(--ak-accent);
 }
 
+/* The card's corner brackets fade in on hover. Deliberately no lift or scale:
+   the card is also a reveal target, and a second transform on the same element
+   would couple the two transitions. */
 @media (any-hover: hover) {
 	.ak-frame:hover::before,
 	.ak-frame:hover::after {
@@ -155,7 +116,7 @@
 }
 
 /* ---------------------------------------------------------------------------
-   4. Staggered reveal — blocks rise into place, one after another.
+   3. Staggered reveal — blocks rise into place, one after another.
    The original staggers its HUD transitions by 100ms and moves them ±2rem
    (32px) with opacity. Same cadence and distance here.
    --------------------------------------------------------------------------- */
@@ -170,89 +131,16 @@
 	}
 }
 
-/* Applied by the layout on each page:view. `--ak-delay` carries the stagger. */
+/* Applied by the layout on each page:view. `--ak-delay` carries the stagger.
+   Left applied for the life of the page — see the `:not(.ak-rise)` guard in
+   transition.css, which uses it to hand these blocks to the JS entrance. */
 .ak-rise--active {
-	animation: ak-rise var(--ak-t-fast) var(--ak-ease-quad) backwards;
+	animation: ak-rise var(--dur-base) var(--ease-out-soft) backwards;
 	animation-delay: var(--ak-delay, 0ms);
 }
 
-/* The navbar is `sticky`, and an animated transform would create a containing
-   block that breaks its positioning mid-flight. Fade it instead. */
-@keyframes ak-fade {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-
-.ak-rise--fade.ak-rise--active {
-	animation-name: ak-fade;
-}
-
 /* ---------------------------------------------------------------------------
-   5. Slide in — panels enter from the right (the original ships panels that
-   translate in from the right edge over .3s).
-   --------------------------------------------------------------------------- */
-@keyframes ak-in-right {
-	from {
-		opacity: 0;
-		transform: translateX(1.25rem);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
-}
-
-.ak-in-right {
-	animation: ak-in-right var(--ak-t-fast) var(--ak-ease-quad) backwards;
-}
-
-/* ---------------------------------------------------------------------------
-   6. Hover: colour inversion — the single most repeated interaction on the
-   original site (14 occurrences of #fff background + #000 text).
-   --------------------------------------------------------------------------- */
-.ak-invert {
-	transition: background-color var(--ak-t-fast) var(--ak-ease),
-		color var(--ak-t-fast) var(--ak-ease);
-}
-
-@media (any-hover: hover) {
-	.ak-invert:hover {
-		background-color: var(--ak-accent);
-		color: var(--page-bg);
-	}
-}
-
-/* ---------------------------------------------------------------------------
-   7. Hover: underline bar that grows from the right
-   --------------------------------------------------------------------------- */
-.ak-underline {
-	position: relative;
-}
-
-.ak-underline::after {
-	content: "";
-	position: absolute;
-	right: 0;
-	bottom: -0.1875rem;
-	width: 0;
-	height: 0.25rem;
-	background-color: var(--ak-accent);
-	transition: width var(--ak-t-fast) var(--ak-ease);
-}
-
-@media (any-hover: hover) {
-	.ak-underline:hover::after,
-	.ak-underline:focus-visible::after {
-		width: 100%;
-	}
-}
-
-/* ---------------------------------------------------------------------------
-   8. Hover: image push-in — transform: scale(1.1) over .6s
+   4. Hover: image push-in — transform: scale(1.1) over .6s
    --------------------------------------------------------------------------- */
 .ak-zoom {
 	overflow: hidden;
@@ -269,53 +157,18 @@
 }
 
 /* ---------------------------------------------------------------------------
-   9. Hairline rule, reusable
-   --------------------------------------------------------------------------- */
-.ak-hr {
-	height: 1px;
-	background-color: var(--ak-line);
-	border: 0;
-}
-
-/* ---------------------------------------------------------------------------
-   10. Display watermark — the original paints a 7rem #242424 word behind
-   content, clipped so only its upper half shows. Recoloured to the theme's
-   own text colour at low opacity.
-   --------------------------------------------------------------------------- */
-.ak-watermark {
-	position: absolute;
-	display: flex;
-	align-items: flex-end;
-	height: 0.95em;
-	overflow: hidden;
-	white-space: nowrap;
-	pointer-events: none;
-	user-select: none;
-	font-family: var(--ak-label-font);
-	font-size: clamp(3rem, 9vw, 7rem);
-	line-height: 1;
-	letter-spacing: -0.05em;
-	font-weight: 700;
-	color: currentColor;
-	opacity: 0.06;
-}
-
-/* ---------------------------------------------------------------------------
    Reduced motion — collapse every decorative animation
    --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-	.ak-rise--active,
-	.ak-in-right {
+	.ak-rise--active {
 		animation: none;
 		opacity: 1;
 		transform: none;
 	}
 
-	.ak-underline::after,
-	.ak-zoom img,
-	.ak-invert,
 	.ak-frame::before,
-	.ak-frame::after {
+	.ak-frame::after,
+	.ak-zoom img {
 		transition: none;
 	}
 }
