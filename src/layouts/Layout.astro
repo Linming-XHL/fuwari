@@ -172,7 +172,24 @@ const bannerOffset =
 			let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
 			offset = offset - offset % 4;
 			document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
+
+			/*
+			 * Gate the scroll-triggered entrance. The hidden state for
+			 * `[data-reveal]` lives behind this class, so it must be applied
+			 * before first paint or elements would flash in and then jump back
+			 * to hidden.
+			 *
+			 * The watchdog is the safety net: if the module that drives the
+			 * observer never runs (a syntax error, an old engine), the class is
+			 * dropped and everything is simply visible. The reveal can fail to
+			 * animate; it must never fail to show content.
+			 */
+			document.documentElement.classList.add('reveal-init');
+			window.__revealWatchdog = window.setTimeout(() => {
+				document.documentElement.classList.remove('reveal-init');
+			}, 1500);
 		</script>
+
 		<style define:vars={{
 			configHue,
 			'page-width': `${PAGE_WIDTH}rem`,
@@ -319,6 +336,7 @@ import {
 	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT
 } from "../constants/constants";
 import { siteConfig } from '../config';
+import { initReveal } from '../utils/reveal';
 
 /* TODO This is a temporary solution for style flicker issue when the transition is activated */
 /* issue link: https://github.com/withastro/astro/issues/8711, the solution get from here too */
@@ -406,28 +424,42 @@ function init() {
 init();
 
 /*
- * First paint: the loader starts hidden so a fast visit never flashes it.
- * Only reveal it when the document actually takes a while to settle, then
- * hand control to the same finish() path used for client-side navigation.
+ * Entry: the loader plays for the first visit too, exactly as it does for a
+ * client-side navigation. It is started here rather than left to the markup so
+ * that the overlay is only ever visible when the restore path has taken over,
+ * and it is retired on the document load event. The overlay covers the first
+ * paint, so the load event is also the moment the entrance stagger can start.
  */
-if (document.readyState === 'complete') {
-	revealOnFirstPaint();
-} else {
-	window.addEventListener('load', revealOnFirstPaint, { once: true });
+const LOAD_BUDGET_MS = 3000;
+
+function firstPaintBudget() {
+	const nav = performance.getEntriesByType('navigation')[0];
+	const ready = nav ? nav.duration : performance.now();
+	return ready < LOAD_BUDGET_MS;
 }
 
-function revealOnFirstPaint() {
+function enterWithLoader() {
 	const loader = window.__akLoader;
 	if (!loader) return;
 
-	// If the page painted quickly, skip the overlay entirely.
-	const nav = performance.getEntriesByType('navigation')[0];
-	const ready = nav ? nav.duration : performance.now();
-	if (ready < 600) return;
-
 	loader.start();
-	loader.finish();
+
+	const leave = () => {
+		document.documentElement.classList.remove('reveal-init');
+		loader.finish(firstPaintBudget);
+	};
+
+	if (document.readyState === 'complete') {
+		leave();
+	} else {
+		window.addEventListener('load', leave, { once: true });
+	}
+	// Safety net: a stalled subresource must never leave the overlay covering
+	// the page. Whichever fires first wins, finish() ignores the second call.
+	window.setTimeout(leave, LOAD_BUDGET_MS + 400);
 }
+
+enterWithLoader();
 
 const setup = () => {
 	window.swup.hooks.on('link:click', () => {
@@ -482,6 +514,19 @@ const setup = () => {
 		}
 	});
 	window.swup.hooks.on('page:view', () => {
+		// Run this first, and defensively. `reveal-init` stays on <html> for the
+		// life of the session, so the incoming content is hidden the moment it is
+		// parsed; if this call were skipped the page would simply never appear.
+		// Anything that fails here is caught and the content is shown instead.
+		try {
+			// The incoming containers are in the DOM now: hand the below-the-fold
+			// entrances to a fresh observer. Anything already on screen is shown
+			// immediately so it does not stack on top of the block rise below.
+			initReveal()
+		} catch {
+			document.documentElement.classList.remove('reveal-init')
+		}
+
 		// Retire the loader: it holds briefly, then fades while the hairlines slide out
 		window.__akLoader?.finish()
 
@@ -493,17 +538,21 @@ const setup = () => {
 
 			// Staggered reveal, mirroring the original's 100ms cadence: each block
 			// rises into place instead of a plain fade.
+			//
+			// These are exactly the elements that carry `.onload-animation` in the
+			// markup. The class is added and deliberately left on afterwards: it
+			// is what tells the stylesheet the JS entrance has taken these blocks
+			// over, so their first-paint fade does not replay when this runs a
+			// second time. See the `:not(.ak-rise)` guard in transition.css.
 			const blocks: HTMLElement[] = [
-				document.getElementById('navbar-wrapper'),
+				document.getElementById('navbar'),
 				document.getElementById('sidebar'),
-				document.getElementById('swup-container'),
+				document.getElementById('content-wrapper'),
 				document.querySelector('.footer'),
 			].filter((el): el is HTMLElement => el !== null)
 
 			blocks.forEach((el, i) => {
 				el.classList.add('ak-rise')
-				// The navbar is `sticky`, so it fades rather than translating
-				if (el.id === 'navbar-wrapper') el.classList.add('ak-rise--fade')
 				el.style.setProperty('--ak-delay', `${i * 100}ms`)
 				// Restart the animation on repeat visits
 				el.classList.remove('ak-rise--active')
@@ -511,10 +560,10 @@ const setup = () => {
 				el.classList.add('ak-rise--active')
 			})
 
-			// Clean up once the longest stagger has played out
+			// Clean up once the longest stagger has played out. `ak-rise` stays.
 			setTimeout(() => {
 				blocks.forEach(el => {
-					el.classList.remove('ak-rise', 'ak-rise--active', 'ak-rise--fade')
+					el.classList.remove('ak-rise--active')
 					el.style.removeProperty('--ak-delay')
 				})
 			}, 900)
@@ -557,6 +606,13 @@ if (window?.swup?.hooks) {
 } else {
 	document.addEventListener('swup:enable', setup)
 }
+
+/*
+ * Scroll-triggered entrance. Run once for the page that was server-rendered,
+ * then again on each client-side navigation (the containers are replaced, so
+ * the previous observer would be watching detached nodes).
+ */
+initReveal()
 
 let backToTopBtn = document.getElementById('back-to-top-btn');
 let toc = document.getElementById('toc-wrapper');

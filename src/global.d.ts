@@ -9,8 +9,11 @@ declare global {
 		// Arknights-style loading overlay controls, injected by LoadingSkeleton
 		__akLoader?: {
 			start: () => void;
-			finish: () => void;
+			// The predicate lets the caller veto a slow exit (first-paint budget)
+			finish: (shouldRetire?: () => boolean) => void;
 		};
+		// Watchdog that un-hides reveal content if the reveal module never runs
+		__revealWatchdog?: number;
 		pagefind: {
 			search: (query: string) => Promise<{
 				results: Array<{

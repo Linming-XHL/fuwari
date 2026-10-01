@@ -8,8 +8,8 @@
 :root {
 	--ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 	--dur-quick: 150ms;
-	--dur-base: 250ms;
-	--dur-slow: 400ms;
+	--dur-base: 300ms;
+	--dur-slow: 500ms;
 }
 
 /* ---------------------------------------------------------------------------
@@ -36,6 +36,12 @@ html.is-animating .transition-swup-fade {
    by .ak-rise--active (see arknights.css). Adding a per-item translate here
    would compound the two and read as a floating, laggy assembly. Keeping this
    as a pure fade lets the groups stagger without double movement.
+
+   The :not(.ak-rise) guard is load-bearing. On a client-side navigation these
+   same elements also receive .ak-rise--active, and two rules setting the
+   `animation` shorthand have no specificity gap to separate them — whichever
+   the bundler happens to emit last wins, so the transition would silently play
+   the wrong effect. The guard makes the intent explicit instead.
    --------------------------------------------------------------------------- */
 @keyframes fade-in {
 	from {
@@ -46,47 +52,48 @@ html.is-animating .transition-swup-fade {
 	}
 }
 
-.onload-animation {
+.onload-animation:not(.ak-rise) {
 	opacity: 0;
 	animation: fade-in var(--dur-base) var(--ease-out-soft) forwards;
 }
 
-/* Stagger for the main chrome */
-#navbar {
+/* Stagger for the main chrome.
+   Each rule repeats the `:not(.ak-rise)` guard that the fade rule above carries.
+   Two reasons:
+
+   1. `animation` is a shorthand, so it resets `animation-delay` to 0s. A delay
+      rule only survives if it outranks the rule setting the shorthand — plain
+      `.footer` ties and then depends on bundle order, so the footer is written
+      as `div.footer` to win on element count.
+   2. The guard also makes these rules stop matching once JS adds `.ak-rise`,
+      which is what lets `.ak-rise--active`'s per-block `--ak-delay` take over.
+      Without it, `#navbar` (an ID, 1-0-0) would pin the element to one fixed
+      delay and discard the stagger the transition code computed. */
+#navbar:not(.ak-rise) {
 	animation-delay: 0ms;
 }
 
-#sidebar {
+#sidebar:not(.ak-rise) {
 	animation-delay: 40ms;
 }
 
-#content-wrapper {
+#content-wrapper:not(.ak-rise) {
 	animation-delay: var(--content-delay);
 }
 
-.footer {
+div.footer:not(.ak-rise) {
 	animation-delay: 80ms;
 }
 
-#banner-credit {
+#banner-credit:not(.ak-rise) {
 	animation-delay: 120ms;
 }
-
-/* Post content: 8 steps at 30ms keeps the last item inside ~240ms total */
-#post-container :nth-child(1) { animation-delay: calc(var(--content-delay) + 0ms) }
-#post-container :nth-child(2) { animation-delay: calc(var(--content-delay) + 30ms) }
-#post-container :nth-child(3) { animation-delay: calc(var(--content-delay) + 60ms) }
-#post-container :nth-child(4) { animation-delay: calc(var(--content-delay) + 90ms) }
-#post-container :nth-child(5) { animation-delay: calc(var(--content-delay) + 120ms) }
-#post-container :nth-child(6) { animation-delay: calc(var(--content-delay) + 150ms) }
-#post-container :nth-child(7) { animation-delay: calc(var(--content-delay) + 180ms) }
-#post-container :nth-child(8) { animation-delay: calc(var(--content-delay) + 210ms) }
 
 /* ---------------------------------------------------------------------------
    Reduced motion
    --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-	.onload-animation {
+	.onload-animation:not(.ak-rise) {
 		animation: none;
 		opacity: 1;
 	}

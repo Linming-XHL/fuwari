@@ -1,0 +1,54 @@
+/*
+ * Viewport-triggered entrance.
+ *
+ * Any element marked `data-reveal` fades and rises the first time it enters the
+ * viewport. Previously every entrance fired at load, so blocks below the fold
+ * finished their animation while still off-screen — a reader scrolling down
+ * found everything already settled.
+ *
+ * `html.reveal-init` gates the hidden state. The head bootstrap applies it
+ * before first paint, so a target is never painted visible and then yanked
+ * back. The class only ever exists because that script ran, so scripted-off
+ * browsers see the content normally and need no fallback rule here. The failure
+ * mode is always "no animation", never "no content": a watchdog drops the class
+ * if the reveal module never runs, and reduced motion is handled below.
+ *
+ * The rise uses the independent `translate` property rather than `transform`,
+ * so it cannot collide with a transform another rule puts on the same element.
+ */
+
+html.reveal-init [data-reveal] {
+	opacity: 0;
+	translate: 0 1.25rem;
+	/* Long and soft: this is motion a reader meets while scrolling, and a
+	   snappy curve here reads as a jolt at scroll speed. */
+	transition:
+		opacity var(--dur-slow) var(--ease-out-soft),
+		translate var(--dur-slow) var(--ease-out-soft);
+	/* Set per element by the observer to stagger a group entering together. */
+	transition-delay: var(--reveal-delay, 0ms);
+}
+
+html.reveal-init [data-reveal].is-revealed {
+	opacity: 1;
+	translate: none;
+}
+
+/*
+ * Applied to targets already on screen when the observer attaches. Those are
+ * part of the page's own arrival — the container above them is already fading
+ * and rising at that moment — so they are shown with no transition. Compounding
+ * a second vertical offset onto the container's would read as floating.
+ * Must come after the base rule so it wins at equal specificity.
+ */
+html.reveal-init [data-reveal].reveal--instant {
+	transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.reveal-init [data-reveal] {
+		opacity: 1;
+		translate: none;
+		transition: none;
+	}
+}
