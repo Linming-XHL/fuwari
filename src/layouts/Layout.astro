@@ -424,28 +424,42 @@ function init() {
 init();
 
 /*
- * First paint: the loader starts hidden so a fast visit never flashes it.
- * Only reveal it when the document actually takes a while to settle, then
- * hand control to the same finish() path used for client-side navigation.
+ * Entry: the loader plays for the first visit too, exactly as it does for a
+ * client-side navigation. It is started here rather than left to the markup so
+ * that the overlay is only ever visible when the restore path has taken over,
+ * and it is retired on the document load event. The overlay covers the first
+ * paint, so the load event is also the moment the entrance stagger can start.
  */
-if (document.readyState === 'complete') {
-	revealOnFirstPaint();
-} else {
-	window.addEventListener('load', revealOnFirstPaint, { once: true });
+const LOAD_BUDGET_MS = 3000;
+
+function firstPaintBudget() {
+	const nav = performance.getEntriesByType('navigation')[0];
+	const ready = nav ? nav.duration : performance.now();
+	return ready < LOAD_BUDGET_MS;
 }
 
-function revealOnFirstPaint() {
+function enterWithLoader() {
 	const loader = window.__akLoader;
 	if (!loader) return;
 
-	// If the page painted quickly, skip the overlay entirely.
-	const nav = performance.getEntriesByType('navigation')[0];
-	const ready = nav ? nav.duration : performance.now();
-	if (ready < 600) return;
-
 	loader.start();
-	loader.finish();
+
+	const leave = () => {
+		document.documentElement.classList.remove('reveal-init');
+		loader.finish(firstPaintBudget);
+	};
+
+	if (document.readyState === 'complete') {
+		leave();
+	} else {
+		window.addEventListener('load', leave, { once: true });
+	}
+	// Safety net: a stalled subresource must never leave the overlay covering
+	// the page. Whichever fires first wins, finish() ignores the second call.
+	window.setTimeout(leave, LOAD_BUDGET_MS + 400);
 }
+
+enterWithLoader();
 
 const setup = () => {
 	window.swup.hooks.on('link:click', () => {
