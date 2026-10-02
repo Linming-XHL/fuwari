@@ -35,11 +35,5 @@ export const friendLinks: FriendLink[] = [
 		description: "探索代码的世界，追寻生活的诗篇",
 		avatar: "https://ahzoo.cn/img/avatar.webp",
 	},
-	{
-		name: "ZAKOFLARE NETWORK",
-		url: "https://www.zakoflare.com/",
-		description: "面向全平台与低性能服务端提供免费开源可靠的解决方案",
-		avatar: "https://cdn.240900.xyz/Image_1786420970752_442.jpg",
-	},
 	// 在这里添加更多友链
 ];
