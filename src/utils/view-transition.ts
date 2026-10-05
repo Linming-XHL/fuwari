@@ -26,7 +26,7 @@ const REVEAL_DURATION = 520;
  * Decelerating curve: leaves the origin briskly, then eases into the final
  * radius so the leading edge does not slam into the viewport corners.
  */
-const REVEAL_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+const REVEAL_EASING = "ease-out";
 
 /** Reads the reduced-motion preference, falling back to "no preference". */
 function prefersReducedMotion(): boolean {
@@ -34,6 +34,19 @@ function prefersReducedMotion(): boolean {
 		typeof window.matchMedia === "function" &&
 		window.matchMedia("(prefers-reduced-motion: reduce)").matches
 	);
+}
+
+/** Skip animation on very low-end / overloaded devices to avoid jank. */
+function shouldSkipAnimation(): boolean {
+	if (prefersReducedMotion()) return true;
+	try {
+		const dpr = window.devicePixelRatio || 1;
+		const { width } = viewportSize();
+		if (dpr >= 3 && width < 400) return true;
+	} catch {
+		// Ignore measurement errors.
+	}
+	return false;
 }
 
 /**
@@ -86,7 +99,8 @@ export function withCircularReveal(
 ): Promise<void> {
 	if (
 		typeof document.startViewTransition !== "function" ||
-		prefersReducedMotion()
+		prefersReducedMotion() ||
+		shouldSkipAnimation()
 	) {
 		apply();
 		return Promise.resolve();
@@ -109,6 +123,9 @@ export function withCircularReveal(
 		root.classList.remove("vt-instant");
 	});
 
+	// Pre-hint the compositor so the clip-path animation stays on its own layer.
+	root.style.willChange = "clip-path";
+
 	return transition.ready
 		.then(() => {
 			const radius = coverRadius(origin);
@@ -127,7 +144,9 @@ export function withCircularReveal(
 				},
 			);
 
-			return animation.finished;
+			return animation.finished.finally(() => {
+				root.style.willChange = "";
+			});
 		})
 		.then(() => undefined)
 		.catch(() => {
