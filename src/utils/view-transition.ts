@@ -40,10 +40,22 @@ function prefersReducedMotion(): boolean {
  * Distance from the origin to the furthest viewport corner, so the circle is
  * guaranteed to cover the whole page regardless of where the control sits.
  */
+function viewportSize(): { width: number; height: number } {
+	const rect = document.documentElement.getBoundingClientRect();
+	const w = rect.width || window.innerWidth;
+	const h = rect.height || window.innerHeight;
+	const vv = (window as { visualViewport?: VisualViewport }).visualViewport;
+	if (vv && typeof vv.width === "number" && vv.width > 0) {
+		return { width: vv.width, height: vv.height };
+	}
+	return { width: w, height: h };
+}
+
 function coverRadius(origin: RevealOrigin): number {
 	const { x, y } = origin;
-	const dx = Math.max(x, window.innerWidth - x);
-	const dy = Math.max(y, window.innerHeight - y);
+	const { width, height } = viewportSize();
+	const dx = Math.max(x, width - x);
+	const dy = Math.max(y, height - y);
 	return Math.hypot(dx, dy);
 }
 
@@ -55,7 +67,10 @@ export function originFromElement(
 		const rect = el.getBoundingClientRect();
 		return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 	}
-	return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+	return {
+		x: viewportSize().width / 2,
+		y: viewportSize().height / 2,
+	};
 }
 
 /**
