@@ -54,14 +54,27 @@ function shouldSkipAnimation(): boolean {
  * guaranteed to cover the whole page regardless of where the control sits.
  */
 function viewportSize(): { width: number; height: number } {
-	const rect = document.documentElement.getBoundingClientRect();
-	const w = rect.width || window.innerWidth;
-	const h = rect.height || window.innerHeight;
+	// Android 竖屏浏览器常有地址栏收缩/软键盘弹出导致 visualViewport
+	// 尺寸不一致的问题。我们先取 documentElement 的真实布局尺寸，
+	// 再与 visualViewport 对比取最大值，确保半径计算不会被低估。
+	const rootRect = document.documentElement.getBoundingClientRect();
+	const rootW = rootRect.width || window.innerWidth;
+	const rootH = rootRect.height || window.innerHeight;
+
 	const vv = (window as { visualViewport?: VisualViewport }).visualViewport;
-	if (vv && typeof vv.width === "number" && vv.width > 0) {
-		return { width: vv.width, height: vv.height };
+	if (
+		vv &&
+		typeof vv.width === "number" &&
+		vv.width > 0 &&
+		typeof vv.height === "number" &&
+		vv.height > 0
+	) {
+		return {
+			width: Math.max(rootW, vv.width),
+			height: Math.max(rootH, vv.height),
+		};
 	}
-	return { width: w, height: h };
+	return { width: rootW, height: rootH };
 }
 
 function coverRadius(origin: RevealOrigin): number {
