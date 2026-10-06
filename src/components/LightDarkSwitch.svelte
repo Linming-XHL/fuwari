@@ -18,6 +18,17 @@ import Icon from "./misc/OfflineIcon.svelte";
 const seq: LIGHT_DARK_MODE[] = [LIGHT_MODE, DARK_MODE, AUTO_MODE];
 let mode: LIGHT_DARK_MODE = $state(AUTO_MODE);
 
+// Language state
+let currentLanguage = $state("chinese_simplified");
+
+const languages = [
+	{ code: "chinese_simplified", name: "简体中文", icon: "🇨🇳" },
+	{ code: "chinese_traditional", name: "繁體中文", icon: "🇨🇳" },
+	{ code: "english", name: "English", icon: "🇬🇧" },
+	{ code: "japanese", name: "日本語", icon: "🇯🇵" },
+	{ code: "korean", name: "한국어", icon: "🇰🇷" },
+];
+
 onMount(() => {
 	mode = getStoredTheme();
 	const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
@@ -27,6 +38,13 @@ onMount(() => {
 		applyThemeToDocument(mode);
 	};
 	darkModePreference.addEventListener("change", changeThemeWhenSchemeChanged);
+
+	// Initialize current language from translate.js
+	if (typeof window.translate !== "undefined") {
+		currentLanguage =
+			window.translate.language.getCurrent() || "chinese_simplified";
+	}
+
 	return () => {
 		darkModePreference.removeEventListener(
 			"change",
@@ -60,40 +78,44 @@ function toggleScheme(event: MouseEvent) {
 
 function showPanel() {
 	const panel = document.querySelector("#light-dark-panel");
-	panel.classList.remove("float-panel-closed");
+	panel?.classList.remove("float-panel-closed");
 }
 
 function hidePanel() {
 	const panel = document.querySelector("#light-dark-panel");
-	panel.classList.add("float-panel-closed");
+	panel?.classList.add("float-panel-closed");
 }
 
-function toggleLanguage() {
-	// Integrate with translate.js instead of custom translation logic
+function showLanguagePanel() {
+	const panel = document.querySelector("#language-panel");
+	panel?.classList.remove("float-panel-closed");
+}
+
+function hideLanguagePanel() {
+	const panel = document.querySelector("#language-panel");
+	panel?.classList.add("float-panel-closed");
+}
+
+function switchLanguage(langCode: string) {
 	if (typeof window.translate === "undefined") {
 		console.warn("translate.js not loaded yet");
 		return;
 	}
 
-	// Get current language from translate.js
-	const currentLang = window.translate.language.getCurrent();
+	currentLanguage = langCode;
 
-	// Define language cycle: zh_CN -> zh_TW -> en -> ja -> ko
-	const langCycle = [
-		"chinese_simplified",
-		"chinese_traditional",
-		"english",
-		"japanese",
-		"korean",
-	];
+	// If selecting simplified Chinese, disable translation (restore original)
+	if (langCode === "chinese_simplified") {
+		window.translate.listener.stop();
+		window.translate.execute.restore();
+		// Restart listener for future changes (when switching away from Chinese)
+		window.translate.listener.start();
+	} else {
+		// Otherwise translate to target language
+		window.translate.changeLanguage(langCode);
+	}
 
-	// Find next language
-	let currentIndex = langCycle.indexOf(currentLang);
-	if (currentIndex === -1) currentIndex = 0; // Default to Chinese if unknown
-	const nextLang = langCycle[(currentIndex + 1) % langCycle.length];
-
-	// Switch language using translate.js
-	window.translate.changeLanguage(nextLang);
+	hideLanguagePanel();
 }
 
 // Add type declaration for translate.js on window
@@ -147,8 +169,31 @@ declare global {
         </div>
     </div>
 
-    <!-- Language switch: placed to the right of theme switch -->
-    <button aria-label="Switch language" role="menuitem" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" onclick={toggleLanguage} title="切换语言">
-        <Icon icon="material-symbols:translate" class="text-[1.25rem]"></Icon>
-    </button>
+    <!-- Language switch with dropdown menu -->
+    <div class="relative z-50" role="menu" tabindex="-1" onmouseleave={hideLanguagePanel}>
+        <button aria-label="Switch language" role="menuitem" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" onclick={showLanguagePanel} onmouseenter={showLanguagePanel} title="切换语言">
+            <Icon icon="material-symbols:translate" class="text-[1.25rem]"></Icon>
+        </button>
+
+        <div id="language-panel" class="hidden lg:block absolute transition float-panel-closed top-11 -right-2 pt-5">
+            <div class="card-base float-panel p-2">
+                {#each languages as lang}
+                    <button 
+                        class="flex transition whitespace-nowrap items-center !justify-start w-full btn-plain scale-animation rounded-lg h-9 px-3 font-medium active:scale-95 mb-0.5 last:mb-0"
+                        class:current-theme-btn={currentLanguage === lang.code}
+                        onclick={() => switchLanguage(lang.code)}
+                    >
+                        <span class="text-lg mr-2">{lang.icon}</span>
+                        <span>{lang.name}</span>
+                    </button>
+                {/each}
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .current-theme-btn {
+        @apply bg-[var(--btn-content-bg-hover)];
+    }
+</style>
