@@ -9,7 +9,7 @@ const currentYear = new Date().getFullYear();
 <!--<div class="transition bg-[oklch(92%_0.01_var(&#45;&#45;hue))] dark:bg-black rounded-2xl py-8 mt-4 mb-8 flex flex-col items-center justify-center px-6">-->
 <div class="transition-colors border-dashed border-[oklch(85%_0.01_var(--hue))] dark:border-white/15 rounded-2xl py-3 mb-6 flex flex-col items-center justify-center px-6 bg-[rgba(255,255,255,0.8)] dark:bg-[rgba(17,24,39,0.8)] backdrop-blur-md">
     <div class="transition-colors text-50 text-sm text-center">
-        &copy; <span id="copyright-year" translate="no">{currentYear}</span> <span translate="no">{profileConfig.name}</span>. All Rights Reserved. /
+        &copy; <span id="copyright-year" class="notranslate">{currentYear}</span> <span class="notranslate">{profileConfig.name}</span>. All Rights Reserved. /
         <a class="transition-colors link text-[var(--primary)] font-medium" target="_blank" href={url('rss.xml')}>RSS</a> /
         <a class="transition-colors link text-[var(--primary)] font-medium" target="_blank" href={url('sitemap-index.xml')}>Sitemap</a><br>
         Powered by
@@ -70,12 +70,12 @@ const currentYear = new Date().getFullYear();
         .ef-popover-card:hover .ef-popover-chart-box.pop-down { transform: translate(-50%, 10px); }
     </style>
     <div class="transition-colors text-50 text-sm text-center hidden md:flex items-center justify-center flex-wrap gap-2 mt-2 whitespace-nowrap">
-        <span id="runningtime" class="inline-flex items-center" translate="no"></span>
+        <span id="runningtime" class="inline-flex items-center notranslate"></span>
         <span class="opacity-40">|</span>
         <span class="ef-popover-card relative inline-flex items-center whitespace-nowrap">
             <span>本站累计访问&nbsp;</span>
             <a href="https://fakeicp.top/query.html?number=1202640" target="_blank" rel="noopener noreferrer" class="link text-[var(--primary)] font-medium inline-flex items-center whitespace-nowrap">
-                <span id="flm-pv-total" translate="no">0</span>次↗
+                <span id="flm-pv-total" class="notranslate">0</span>次↗
             </a>
             <div class="ef-popover-chart-box">
                 <div style="font-size: 8px; color: #888888; margin-bottom: 4px; font-family: monospace;">// 30天访问趋势折线图</div>

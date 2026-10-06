@@ -833,8 +833,10 @@ function setupLightboxWhenNeeded() {
 		translate.ignore.id.push('flm-pv-total');
 		translate.ignore.id.push('copyright-year');
 		
-		// Ignore elements with translate="no" attribute
-		translate.ignore.tag.push('translate');
+		// Ignore elements we mark as non-translatable. translate.js does NOT read the
+		// HTML `translate="no"` attribute; only tag/class/id lists are honored, so we
+		// register a dedicated class and walk up from it.
+		translate.ignore.class.push('notranslate');
 		
 		// Enable dynamic content monitoring for Swup page transitions
 		translate.listener.start();
