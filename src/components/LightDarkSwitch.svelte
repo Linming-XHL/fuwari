@@ -39,6 +39,9 @@ onMount(() => {
 	};
 	darkModePreference.addEventListener("change", changeThemeWhenSchemeChanged);
 
+	// Dismiss the language menu when tapping outside it (touch has no mouseleave).
+	document.addEventListener("pointerdown", onDocumentPointerDown);
+
 	// Initialize current language from translate.js
 	if (typeof window.translate !== "undefined") {
 		const current = window.translate.language.getCurrent();
@@ -53,6 +56,7 @@ onMount(() => {
 			"change",
 			changeThemeWhenSchemeChanged,
 		);
+		document.removeEventListener("pointerdown", onDocumentPointerDown);
 	};
 });
 
@@ -97,6 +101,40 @@ function showLanguagePanel() {
 function hideLanguagePanel() {
 	const panel = document.querySelector("#language-panel");
 	panel?.classList.add("float-panel-closed");
+}
+
+/**
+ * Touch devices have no hover, so the button must toggle the panel instead of
+ * only opening it.
+ */
+function toggleLanguagePanel() {
+	const panel = document.querySelector("#language-panel");
+	if (!panel) return;
+	panel.classList.toggle("float-panel-closed");
+}
+
+/**
+ * A tap on touch screens synthesises mouse events (mouseenter + click), which
+ * would make showLanguagePanel() open the panel and the click handler close it
+ * again immediately. Only treat hover as "open" for a real mouse pointer.
+ */
+function onLanguagePointerEnter(event: PointerEvent) {
+	if (event.pointerType === "mouse") {
+		showLanguagePanel();
+	}
+}
+
+/**
+ * Touch devices never fire `mouseleave`, so tapping anywhere outside the menu is
+ * the only way to dismiss it.
+ */
+function onDocumentPointerDown(event: PointerEvent) {
+	const panel = document.querySelector("#language-panel");
+	if (!panel || panel.classList.contains("float-panel-closed")) return;
+	const target = event.target as Node | null;
+	// Ignore taps inside the menu itself (including the toggle button's wrapper).
+	if (target && panel.parentElement?.contains(target)) return;
+	hideLanguagePanel();
 }
 
 function switchLanguage(langCode: string) {
@@ -177,11 +215,13 @@ declare global {
 
     <!-- Language switch with dropdown menu -->
     <div class="relative z-50" role="menu" tabindex="-1" onmouseleave={hideLanguagePanel}>
-        <button aria-label="Switch language" role="menuitem" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" onclick={showLanguagePanel} onmouseenter={showLanguagePanel} title="切换语言">
+        <button aria-label="Switch language" role="menuitem" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" onclick={toggleLanguagePanel} onpointerenter={onLanguagePointerEnter} title="切换语言">
             <Icon icon="material-symbols:translate" class="text-[1.25rem]"></Icon>
         </button>
 
-        <div id="language-panel" class="hidden lg:block absolute transition float-panel-closed top-11 -right-2 pt-5">
+        <!-- No `hidden lg:block`: touch devices have no hover and there is no other
+             way to reach the language menu, so it must be openable at every width. -->
+        <div id="language-panel" class="absolute transition float-panel-closed top-11 -right-2 pt-5">
             <div class="card-base float-panel p-2">
                 {#each languages as lang}
                     <button 
