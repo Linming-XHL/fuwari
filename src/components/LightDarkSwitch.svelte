@@ -106,9 +106,13 @@ function switchLanguage(langCode: string) {
 
 	// If selecting simplified Chinese, disable translation (restore original)
 	if (langCode === "chinese_simplified") {
+		// Set language to original Chinese first
+		window.translate.language.setLocal("chinese_simplified");
+		// Stop listener to prevent re-translation
 		window.translate.listener.stop();
+		// Restore original content
 		window.translate.execute.restore();
-		// Restart listener for future changes (when switching away from Chinese)
+		// Restart listener for future changes
 		window.translate.listener.start();
 	} else {
 		// Otherwise translate to target language
