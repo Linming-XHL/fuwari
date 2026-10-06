@@ -808,4 +808,38 @@ function setupLightboxWhenNeeded() {
 
 	images.forEach(img => observer.observe(img))
 }
+
+// translate.js integration for multi-language support
+// SEO-friendly: translates DOM in-place without changing URLs
+(function() {
+	const script = document.createElement('script');
+	script.src = 'https://cdn.staticfile.net/translate.js/3.18.66/translate.js';
+	script.onload = function() {
+		if (typeof translate === 'undefined') return;
+		
+		// Use client.edge for better translation quality
+		translate.service.use('client.edge');
+		
+		// Hide default language selector (we use custom button)
+		translate.selectLanguageTag.show = false;
+		
+		// Set local language to Chinese (site default)
+		translate.language.setLocal('chinese');
+		
+		// Enable dynamic content monitoring for Swup page transitions
+		translate.listener.start();
+		
+		// Execute initial translation
+		translate.execute();
+		
+		// Re-translate after Swup page transitions
+		if (window.swup) {
+			window.swup.hooks.on('content:replace', () => {
+				// Give DOM a tick to settle before translating
+				setTimeout(() => translate.execute(), 10);
+			});
+		}
+	};
+	document.head.appendChild(script);
+})();
 </script>

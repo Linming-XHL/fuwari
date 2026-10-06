@@ -8,11 +8,6 @@ import {
 	setTheme,
 } from "@utils/setting-utils.ts";
 import {
-	cycleLanguage,
-	getCurrentLang,
-	SUPPORTED_LANGS,
-} from "@utils/translate.ts";
-import {
 	originFromElement,
 	withCircularReveal,
 } from "@utils/view-transition.ts";
@@ -74,10 +69,39 @@ function hidePanel() {
 }
 
 function toggleLanguage() {
-	cycleLanguage();
+	// Integrate with translate.js instead of custom translation logic
+	if (typeof window.translate === "undefined") {
+		console.warn("translate.js not loaded yet");
+		return;
+	}
+
+	// Get current language from translate.js
+	const currentLang = window.translate.language.getCurrent();
+
+	// Define language cycle: zh_CN -> zh_TW -> en -> ja -> ko
+	const langCycle = [
+		"chinese_simplified",
+		"chinese_traditional",
+		"english",
+		"japanese",
+		"korean",
+	];
+
+	// Find next language
+	let currentIndex = langCycle.indexOf(currentLang);
+	if (currentIndex === -1) currentIndex = 0; // Default to Chinese if unknown
+	const nextLang = langCycle[(currentIndex + 1) % langCycle.length];
+
+	// Switch language using translate.js
+	window.translate.changeLanguage(nextLang);
 }
 
-const currentLang = $derived(getCurrentLang());
+// Add type declaration for translate.js on window
+declare global {
+	interface Window {
+		translate: any;
+	}
+}
 </script>
 
 <!-- Theme and Language switches in a flex container -->
