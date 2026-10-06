@@ -41,8 +41,11 @@ onMount(() => {
 
 	// Initialize current language from translate.js
 	if (typeof window.translate !== "undefined") {
+		const current = window.translate.language.getCurrent();
+		// translate.js reports the site default as "chinese"; our menu uses the
+		// full v2 identifier for simplified Chinese.
 		currentLanguage =
-			window.translate.language.getCurrent() || "chinese_simplified";
+			!current || current === "chinese" ? "chinese_simplified" : current;
 	}
 
 	return () => {
@@ -104,16 +107,19 @@ function switchLanguage(langCode: string) {
 
 	currentLanguage = langCode;
 
-	// If selecting simplified Chinese, switch to 'chinese' (the site's default)
-	// translate.js treats 'chinese' as the original language that needs no translation
+	// translate.js persists the target language in localStorage, so a reload is the
+	// simplest and only fully reliable way to apply it. Its in-place restore
+	// (changeLanguage/reset) leaves some nodes (e.g. article titles) translated.
 	if (langCode === "chinese_simplified") {
-		window.translate.changeLanguage("chinese");
+		// Clear the stored target language: a fresh page renders the original Chinese.
+		window.translate.language.clearCacheLanguage();
 	} else {
-		// Otherwise translate to target language
-		window.translate.changeLanguage(langCode);
+		// Store the target language; translate.execute() picks it up on load.
+		window.translate.storage.set("to", langCode);
 	}
 
 	hideLanguagePanel();
+	window.location.reload();
 }
 
 // Add type declaration for translate.js on window

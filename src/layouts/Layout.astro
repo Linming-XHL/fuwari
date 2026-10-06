@@ -824,8 +824,9 @@ function setupLightboxWhenNeeded() {
 		// Hide default language selector (we use custom button)
 		translate.selectLanguageTag.show = false;
 		
-		// Set local language to Chinese (site default)
-		translate.language.setLocal('chinese');
+		// Set local language to Chinese (site default). Use the full v2 identifier:
+		// 'chinese_simplified' is what translate.js accepts, not 'chinese'.
+		translate.language.setLocal('chinese_simplified');
 		
 		// Ignore dynamic runtime counter to prevent translation queue buildup
 		translate.ignore.id.push('runningtime');
@@ -834,10 +835,6 @@ function setupLightboxWhenNeeded() {
 		
 		// Ignore elements with translate="no" attribute
 		translate.ignore.tag.push('translate');
-		
-		// Clear ignored attributes to ensure article titles are translatable
-		// translate.js might ignore elements with data-* attributes by default
-		translate.ignore.attr = [];
 		
 		// Enable dynamic content monitoring for Swup page transitions
 		translate.listener.start();
