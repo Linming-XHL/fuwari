@@ -835,6 +835,10 @@ function setupLightboxWhenNeeded() {
 		// Ignore elements with translate="no" attribute
 		translate.ignore.tag.push('translate');
 		
+		// Clear ignored attributes to ensure article titles are translatable
+		// translate.js might ignore elements with data-* attributes by default
+		translate.ignore.attr = [];
+		
 		// Enable dynamic content monitoring for Swup page transitions
 		translate.listener.start();
 		
