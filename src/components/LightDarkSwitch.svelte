@@ -8,6 +8,11 @@ import {
 	setTheme,
 } from "@utils/setting-utils.ts";
 import {
+	cycleLanguage,
+	getCurrentLang,
+	SUPPORTED_LANGS,
+} from "@utils/translate.ts";
+import {
 	originFromElement,
 	withCircularReveal,
 } from "@utils/view-transition.ts";
@@ -67,6 +72,12 @@ function hidePanel() {
 	const panel = document.querySelector("#light-dark-panel");
 	panel.classList.add("float-panel-closed");
 }
+
+function toggleLanguage() {
+	cycleLanguage();
+}
+
+const currentLang = $derived(getCurrentLang());
 </script>
 
 <!-- z-50 make the panel higher than other float panels -->
@@ -108,4 +119,9 @@ function hidePanel() {
             </button>
         </div>
     </div>
+
+    <!-- Language switch: placed to the right of theme switch, same style -->
+    <button aria-label="Switch language" role="menuitem" class="relative btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90 ml-2" onclick={toggleLanguage} title="切换语言">
+        <Icon icon="material-symbols:translate" class="text-[1.25rem]"></Icon>
+    </button>
 </div>
