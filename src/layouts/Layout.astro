@@ -817,14 +817,20 @@ function setupLightboxWhenNeeded() {
 	script.onload = function() {
 		if (typeof translate === 'undefined') return;
 		
-		// Use client.edge for better translation quality
-		translate.service.use('client.edge');
+		// Use free default service instead of client.edge (which returns 404)
+		// The default service is more stable and doesn't require auth
+		// translate.service.use('client.edge'); // Removed: returns 404
 		
 		// Hide default language selector (we use custom button)
 		translate.selectLanguageTag.show = false;
 		
 		// Set local language to Chinese (site default)
 		translate.language.setLocal('chinese');
+		
+		// Ignore dynamic runtime counter to prevent translation queue buildup
+		translate.ignore.id.push('runningtime');
+		translate.ignore.id.push('flm-pv-total');
+		translate.ignore.id.push('copyright-year');
 		
 		// Enable dynamic content monitoring for Swup page transitions
 		translate.listener.start();
