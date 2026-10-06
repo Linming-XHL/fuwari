@@ -832,6 +832,9 @@ function setupLightboxWhenNeeded() {
 		translate.ignore.id.push('flm-pv-total');
 		translate.ignore.id.push('copyright-year');
 		
+		// Ignore elements with translate="no" attribute
+		translate.ignore.tag.push('translate');
+		
 		// Enable dynamic content monitoring for Swup page transitions
 		translate.listener.start();
 		
