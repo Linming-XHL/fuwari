@@ -107,17 +107,19 @@ function switchLanguage(langCode: string) {
 
 	currentLanguage = langCode;
 
-	// translate.js persists the target language in localStorage, so a reload is the
-	// simplest and only fully reliable way to apply it. Its in-place restore
-	// (changeLanguage/reset) leaves some nodes (e.g. article titles) translated.
-	if (langCode === "chinese_simplified") {
-		// Clear the stored target language: a fresh page renders the original Chinese.
-		window.translate.language.clearCacheLanguage();
-	} else {
-		// Store the target language; translate.execute() picks it up on load.
-		window.translate.storage.set("to", langCode);
+	// Translating INTO another language works in place: changeLanguage() re-scans
+	// the DOM and renders the target language without a reload.
+	if (langCode !== "chinese_simplified") {
+		window.translate.changeLanguage(langCode);
+		hideLanguagePanel();
+		return;
 	}
 
+	// Going back to simplified Chinese is the one case in-place restore cannot
+	// handle: translate.js only records originalText when whole-page translation is
+	// enabled, so reset()/changeLanguage() leave nodes (e.g. article titles)
+	// translated. Clearing the stored target language and reloading is reliable.
+	window.translate.language.clearCacheLanguage();
 	hideLanguagePanel();
 	window.location.reload();
 }
