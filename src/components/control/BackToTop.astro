@@ -43,7 +43,24 @@ import { Icon } from "astro-icon/components";
 </style>
 
 <script is:raw is:inline>
+// The <body> carries an inline `overflow-y: auto !important` (Layout.astro:204),
+// so the element that actually scrolls may be the body rather than the
+// viewport, and `window.scroll()` is specified to scroll the viewport only —
+// clicking the button used to do nothing. Detect the scroller the same way
+// Layout.astro detects the offset and drive that one, keeping the smooth
+// behaviour of the original implementation.
 function backToTop() {
-    window.scroll({ top: 0, behavior: 'smooth' });
+    const options = { top: 0, left: 0, behavior: 'smooth' };
+    const bodyScrolled = document.body.scrollTop !== 0;
+    const docScrolled = document.documentElement.scrollTop !== 0;
+    if (bodyScrolled) {
+        document.body.scrollTo(options);
+    }
+    if (docScrolled) {
+        document.documentElement.scrollTo(options);
+    }
+    if (!bodyScrolled && !docScrolled && (window.scrollY || 0) !== 0) {
+        window.scroll(options);
+    }
 }
 </script>
