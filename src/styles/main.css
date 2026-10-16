@@ -3,7 +3,7 @@
 @layer components {
     html, body {
         @apply overflow-x-hidden;
-        font-family: 'LXGW WenKai GB', 'Noto Serif SC', serif;
+        font-family: 'LXGW WenKai GB', serif;
     }
     body::-webkit-scrollbar {
         display: none;

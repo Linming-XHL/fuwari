@@ -3,12 +3,12 @@
 
     h1 {
         @apply text-3xl font-medium;
-        font-family: "Noto Serif SC", serif;
+        font-family: "LXGW WenKai GB", serif;
     }
 
     h2, h3, h4, h5, h6 {
         @apply font-medium;
-        font-family: "Noto Serif SC", serif;
+        font-family: "LXGW WenKai GB", serif;
     }
 
     h1, h2, h3, h4, h5, h6, p, li, td, th, dd, dt, figcaption {
