@@ -35,5 +35,11 @@ export const friendLinks: FriendLink[] = [
 		description: "探索代码的世界，追寻生活的诗篇",
 		avatar: "https://ahzoo.cn/img/avatar.webp",
 	},
+	{
+		name: "博客联盟",
+		url: "https://www.bokelianmeng.com/",
+		description: "-",
+		avatar: "https://www.bokelianmeng.com/images/logo.svg",
+	},
 	// 在这里添加更多友链
 ];
