@@ -513,6 +513,15 @@ const setup = () => {
 		}
 	});
 	window.swup.hooks.on('page:view', () => {
+		// New documents' client:load / client:only / client:media islands enter
+		// the DOM via the container swap, but the <script> that defines their
+		// Astro.* helper and fires the astro:* event is injected once per full
+		// page load — Swup never brings it in. Re-dispatch the events so a
+		// just-inserted island can start hydrating instead of waiting forever.
+		["load", "only", "media"].forEach((t) =>
+			window.dispatchEvent(new Event(`astro:${t}`)),
+		);
+
 		// Run this first, and defensively. `reveal-init` stays on <html> for the
 		// life of the session, so the incoming content is hidden the moment it is
 		// parsed; if this call were skipped the page would simply never appear.
