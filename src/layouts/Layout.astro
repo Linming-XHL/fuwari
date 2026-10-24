@@ -111,6 +111,8 @@ const bannerOffset =
 
 		<!-- 字体：LXGW WenKai GB（正文）、Maple Mono（代码） -->
 		<link rel="preconnect" href="https://cdn.npmmirror.com" crossorigin>
+		<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+		<link rel="preload" as="font" type="font/woff2" crossorigin href="https://cdn.jsdelivr.net/fontsource/fonts/maple-mono@latest/latin-400-normal.woff2">
 		<link rel="stylesheet" href="https://cdn.npmmirror.com/packages/lxgw-wenkai-gb-web/1.530.0/files/lxgwwenkaigb-regular/result.css" media="print" onload="this.media='all'">
 		<noscript>
 			<link rel="stylesheet" href="https://cdn.npmmirror.com/packages/lxgw-wenkai-gb-web/1.530.0/files/lxgwwenkaigb-regular/result.css">
@@ -719,13 +721,16 @@ window.addEventListener('resize', () => {
 </script>
 
 <script>
-import "photoswipe/style.css"
 import PhotoSwipeLightbox from "photoswipe/lightbox"
 
 let lightbox: PhotoSwipeLightbox | undefined
 let pswp = import("photoswipe")
 
-function createPhotoSwipe() {
+async function createPhotoSwipe() {
+	// PhotoSwipe's styles are only needed once an image is actually opened;
+	// pulling them in as a dynamic chunk keeps them off the initial render CSS.
+	await import("photoswipe/style.css");
+
 	lightbox = new PhotoSwipeLightbox({
 		gallery: ".custom-md img, #post-cover img",
 		pswpModule: () => pswp,
@@ -808,9 +813,12 @@ function setupLightboxWhenNeeded() {
 
 // translate.js integration for multi-language support
 // SEO-friendly: translates DOM in-place without changing URLs
+// The library defines a global `translate` object loaded from a CDN script.
+declare const translate: any;
 (function() {
 	const script = document.createElement('script');
 	script.src = 'https://cdn.staticfile.net/translate.js/3.18.66/translate.js';
+	script.async = true;
 	script.onload = function() {
 		if (typeof translate === 'undefined') return;
 		
