@@ -54,7 +54,21 @@ export default defineConfig({
 			cache: false,
 			preload: true,
 			accessibility: true,
-			updateHead: true,
+			// Never tear down styles/fonts on navigation. Swup's head plugin
+			// otherwise removes and re-inserts every <style>/<link> on each
+			// page change, which re-registers @font-face and replays all CSS,
+			// causing a visible font/UI flash on every transition.
+			updateHead: {
+				persistTags: "style, link",
+			},
+			// Don't re-execute every <script> on each navigation. Swup's
+			// scripts plugin re-runs the whole page's scripts on every
+			// content swap, including the Astro layout bundle and inline
+			// initializers — causing double-bound hooks, repeated reveal
+			// animations and a re-render flash of fonts/UI per transition.
+			// Scripts that need to re-run on navigation do so via Swup
+			// hooks (e.g. pangu via page:view) instead.
+			reloadScripts: false,
 			updateBodyClass: false,
 			globalInstance: true,
 		}),
