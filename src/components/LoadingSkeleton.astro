@@ -165,7 +165,12 @@ const siteUrl = Astro.site?.toString() ?? "https://zakofox.cn/";
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background-color: var(--page-bg);
+		/* Use explicit theme colors instead of var(--page-bg): during a
+		   Swup navigation the overlay is painted while the head is being
+		   swapped, and the variable can resolve late/incorrectly for a
+		   frame — showing a white flash on dark themes. The theme class
+		   on <html> is always present, so pin the color to it. */
+		background-color: oklch(.95 .06 85);
 		color: var(--btn-content);
 		/* The original fades the whole overlay over 1s */
 		transition:
@@ -177,6 +182,10 @@ const siteUrl = Astro.site?.toString() ?? "https://zakofox.cn/";
 		opacity: 0;
 		visibility: hidden;
 		pointer-events: none;
+	}
+
+	:root.dark .ak-loader {
+		background-color: oklch(.16 .02 55);
 	}
 
 	/* Quick visits skip the 1s ceremonial fade so navigation stays snappy */
