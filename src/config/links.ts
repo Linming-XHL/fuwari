@@ -41,5 +41,11 @@ export const friendLinks: FriendLink[] = [
 		description: "-",
 		avatar: "https://www.bokelianmeng.com/images/logo.svg",
 	},
+	{
+		name: "Vivian",
+		url: "https://vivian.0w0.red",
+		description: "一个 Vibe Coding 的，用于 Can We Tux 的 VitePress 主题",
+		avatar: "https://vivian.0w0.red/imgs/vivian.webp",
+	},
 	// 在这里添加更多友链
 ];
