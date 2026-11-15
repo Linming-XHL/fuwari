@@ -5,6 +5,14 @@ import { musicPlayerConfig } from "../../config/music";
 
 const { enabled, songs } = musicPlayerConfig;
 
+// Request a 2x thumbnail instead of downloading the original album artwork.
+function coverThumbnail(src: string, size: number): string {
+	if (!/^https:\/\/p\d+\.music\.126\.net\//.test(src)) return src;
+	const cover = new URL(src);
+	cover.searchParams.set("param", `${size}y${size}`);
+	return cover.href;
+}
+
 let isExpanded = $state(false);
 let isPlaying = $state(false);
 let isLooping = $state(false);
@@ -307,6 +315,7 @@ function retry() {
 }
 
 onMount(() => {
+	// Restore preferences without starting third-party audio requests.
 	tick().then(() => {
 		if (audio) {
 			const savedSongIndex = loadValue("currentSong");
@@ -339,8 +348,6 @@ onMount(() => {
 
 			// 加载初始歌曲的歌词
 			fetchLyrics(songs[currentSongIndex].id);
-
-			audio.load();
 		}
 	});
 });
@@ -355,6 +362,8 @@ onMount(() => {
         </h3>
         <button
           onclick={() => (isExpanded = !isExpanded)}
+          aria-label={isExpanded ? "收起播放列表" : "展开播放列表"}
+          aria-expanded={isExpanded}
           class="btn-plain p-1 rounded"
         >
           <svg
@@ -377,8 +386,12 @@ onMount(() => {
 
       <div class="flex items-center gap-2">
         <img
-          src={currentSong.cover}
+          src={coverThumbnail(currentSong.cover, 96)}
           alt={currentSong.title}
+          width="48"
+          height="48"
+          loading="lazy"
+          decoding="async"
           class="w-12 h-12 rounded-lg object-cover"
         />
         <div class="flex-1 min-w-0 flex items-center gap-1.5">
@@ -484,6 +497,7 @@ onMount(() => {
             <!-- 滑块控件（透明覆盖层） -->
             <input
               type="range"
+              aria-label="播放进度"
               min="0"
               max={duration || 100}
               value={currentTime}
@@ -650,6 +664,7 @@ onMount(() => {
               ></div>
               <input
                 type="range"
+                aria-label="音量"
                 min="0"
                 max="1"
                 step="0.01"
@@ -671,8 +686,12 @@ onMount(() => {
                 onclick={() => changeSong(index)}
               >
                 <img
-                  src={song.cover}
+                  src={coverThumbnail(song.cover, 64)}
                   alt={song.title}
+                  width="32"
+                  height="32"
+                  loading="lazy"
+                  decoding="async"
                   class="w-8 h-8 rounded-lg object-cover"
                 />
                 <div class="flex-1 min-w-0">
@@ -757,6 +776,7 @@ onMount(() => {
 
   <audio
     bind:this={audio}
+    preload="none"
     src={currentSong.url}
     loop={isLooping}
     ontimeupdate={handleTimeUpdate}
